@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg-color: #121212;
+  /* Darker backgrounds for sections/cards */
+  --surface: #1E1E1E;
+  --surface-light: #2A2A2A;
+
+  /* Gold Accents - Adjusted to be glossy and vibrant */
+  --gold-primary: #D4B872;
+  --gold-light: #FCE6A9;
+  --gold-gradient: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 50%, #ffffff 55%, var(--gold-light) 60%, var(--gold-primary) 100%);
+  --gold-gradient-hover: linear-gradient(135deg, #e5cc8a 0%, #fff0b8 40%, #ffffff 50%, #fff0b8 60%, #e5cc8a 100%);
+  --gold-glow: 0 4px 20px rgba(212, 184, 114, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  --gold-border: rgba(212, 184, 114, 0.5);
+
+  /* Glossy Surface Overlays */
+  --glass-overlay: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.0) 100%);
+
+  /* Text */
+  --text-main: #FFFFFF;
+  --text-muted: #A0A0A0;
+
+  /* Radii & Layout */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --nav-height: 80px;
+
+  /* Typography */
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif);
+  color: var(--gold-light);
+  font-weight: 600;
+  margin-bottom: 0.5em;
+  letter-spacing: -0.02em;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-sans);
+  border: none;
+  background: transparent;
+}
+
+/* Utilities */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.text-gold {
+  color: var(--gold-light);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* App layout wrapper */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: var(--nav-height);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-primary);
+}
