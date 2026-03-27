@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import { errorHandler } from './middlewares/error.middleware.js';
 import AppError from './utils/AppError.js';
 import routes from './routes/index.js';
+import connectDB from './config/database.js';
 
 const app = express();
 
@@ -43,6 +44,15 @@ app.get('/', (req, res) => {
     success: true,
     message: 'Welcome to Black Reel API',
   });
+});
+
+app.use('/api/v1', async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use('/api/v1', routes);

@@ -81,6 +81,16 @@ const normalizeOperationalError = (err) => {
     };
   }
 
+  if (error.name === 'MongooseServerSelectionError') {
+    error = {
+      ...error,
+      message: 'Database connection failed. Please verify MongoDB Atlas network access and environment variables.',
+      statusCode: 503,
+      status: 'error',
+      isOperational: true,
+    };
+  }
+
   return error;
 };
 
