@@ -37,23 +37,27 @@ const Login = () => {
         </div>
         <form onSubmit={handleLogin} className="auth-form">
           <div className="form-group">
-            <label>Email</label>
+            <label htmlFor="admin-email">Email</label>
             <input
               type="email"
+              id="admin-email"
               placeholder="Enter admin email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
+              autoComplete="username"
               required
             />
           </div>
           <div className="form-group">
-            <label>Password</label>
+            <label htmlFor="admin-password">Password</label>
             <div className="password-input-wrapper">
               <input
                 type={showPassword ? 'text' : 'password'}
+                id="admin-password"
                 placeholder="Enter password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
+                autoComplete="current-password"
                 required
               />
               <button
@@ -61,6 +65,7 @@ const Login = () => {
                 className="password-toggle-btn"
                 onClick={() => setShowPassword((current) => !current)}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
               >
                 {showPassword ? 'Hide' : 'Show'}
               </button>

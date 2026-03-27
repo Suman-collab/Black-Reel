@@ -51,6 +51,7 @@ export default function Signup() {
                 placeholder="Enter your name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
+                autoComplete="name"
                 required
               />
             </div>
@@ -62,6 +63,7 @@ export default function Signup() {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
+                autoComplete="email"
                 required
               />
             </div>
@@ -74,6 +76,7 @@ export default function Signup() {
                   placeholder="Create a password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="new-password"
                   required
                 />
                 <button
@@ -81,6 +84,7 @@ export default function Signup() {
                   className="password-toggle-btn"
                   onClick={() => setShowPassword((current) => !current)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
                 >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>

@@ -101,6 +101,12 @@
   color: #fff;
 }
 
+.password-toggle-btn:focus-visible {
+  outline: 2px solid #e5b33e;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .auth-submit-btn {
   background-color: #e5b33e;
   color: #000;

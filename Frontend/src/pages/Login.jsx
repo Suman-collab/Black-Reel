@@ -47,6 +47,7 @@ export default function Login() {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
+                autoComplete="username"
                 required
               />
             </div>
@@ -59,6 +60,7 @@ export default function Login() {
                   placeholder="Password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="current-password"
                   required
                 />
                 <button
@@ -66,6 +68,7 @@ export default function Login() {
                   className="password-toggle-btn"
                   onClick={() => setShowPassword((current) => !current)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
                 >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
