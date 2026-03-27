@@ -43,6 +43,13 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to Black Reel API',
+  });
+});
+
 app.use('/api/v1', routes);
 
 app.all('*', (req, res, next) => {
