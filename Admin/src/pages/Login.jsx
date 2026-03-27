@@ -6,6 +6,7 @@ import { useAuth } from '../features/auth/AuthContext';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -47,13 +48,23 @@ const Login = () => {
           </div>
           <div className="form-group">
             <label>Password</label>
-            <input
-              type="password"
-              placeholder="Enter password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword((current) => !current)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
           </div>
           {error ? <p style={{ color: '#ffb3b3', margin: 0 }}>{error}</p> : null}
           <button type="submit" className="auth-submit-btn" disabled={submitting}>

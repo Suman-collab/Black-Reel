@@ -7,6 +7,7 @@ export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [terms, setTerms] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -66,14 +67,24 @@ export default function Signup() {
             </div>
             <div className="form-group">
               <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Create a password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
+              <div className="password-input-wrapper">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  placeholder="Create a password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword((current) => !current)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
             </div>
 
             <div className="auth-terms">

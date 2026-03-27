@@ -74,6 +74,33 @@
   border-color: #e5b33e;
 }
 
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 4.75rem;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #e5b33e;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.password-toggle-btn:hover {
+  color: #fff;
+}
+
 .auth-submit-btn {
   background-color: #e5b33e;
   color: #000;

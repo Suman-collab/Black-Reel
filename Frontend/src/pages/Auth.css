@@ -79,6 +79,33 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 5rem;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #c6a75e;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.password-toggle-btn:hover {
+  color: #fff;
+}
+
 .auth-terms {
   display: flex;
   align-items: center;
