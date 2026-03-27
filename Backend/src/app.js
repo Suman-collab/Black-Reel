@@ -9,18 +9,13 @@ import AppError from './utils/AppError.js';
 import routes from './routes/index.js';
 
 const app = express();
-const allowedOrigins = [process.env.CLIENT_URL, process.env.ADMIN_URL].filter(Boolean);
 
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new AppError('Origin not allowed by CORS', 403));
-    },
+    origin: true, // reflects valid origin
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   })
 );
 app.use(express.json({ limit: '1mb' }));
