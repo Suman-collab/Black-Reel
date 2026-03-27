@@ -1,19 +1,33 @@
 import mongoose from 'mongoose';
 
-let isConnected = false;
+let connectionPromise = null;
 
 const connectDB = async () => {
-  if (isConnected) {
-    return;
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
   }
-  
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    isConnected = true;
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error connecting to MongoDB: ${error.message}`);
+
+  if (connectionPromise) {
+    return connectionPromise;
   }
+
+  connectionPromise = mongoose
+    .connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 10000,
+    })
+    .then((instance) => {
+      const { connection } = instance;
+      const hostLabel = connection.host || 'replica-set';
+      console.log(`MongoDB Connected: ${hostLabel}`);
+      return connection;
+    })
+    .catch((error) => {
+      connectionPromise = null;
+      console.error(`Error connecting to MongoDB: ${error.message}`);
+      throw error;
+    });
+
+  return connectionPromise;
 };
 
 export default connectDB;

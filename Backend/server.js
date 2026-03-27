@@ -18,20 +18,11 @@ process.on('uncaughtException', (err) => {
 });
 
 const startServer = async () => {
-  await connectDB();
-
-  const shouldSeed =
-    process.env.SEED_DEMO_DATA === 'true' ||
-    (!process.env.SEED_DEMO_DATA && process.env.NODE_ENV !== 'production');
-
-  if (shouldSeed) {
-    await seedDatabase();
-  }
 
   const server = app.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
   });
-
+  await connectDB();
   process.on('unhandledRejection', (err) => {
     console.error('UNHANDLED REJECTION! Shutting down...');
     console.error(err.name, err.message);
@@ -41,4 +32,8 @@ const startServer = async () => {
   });
 };
 
-startServer();
+startServer().catch((err) => {
+  console.error('FAILED TO START SERVER! Shutting down...');
+  console.error(err.name, err.message);
+  process.exit(1);
+});

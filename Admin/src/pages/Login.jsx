@@ -76,9 +76,6 @@ const Login = () => {
             {submitting ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
-        <p style={{ marginTop: '16px', color: '#a0a0a0', fontSize: '0.9rem' }}>
-          Seeded admin credentials are configured in <strong>Backend/.env</strong>.
-        </p>
       </div>
     </div>
   );
