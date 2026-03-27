@@ -7,6 +7,10 @@ import rateLimit from 'express-rate-limit';
 import { errorHandler } from './middlewares/error.middleware.js';
 import AppError from './utils/AppError.js';
 import routes from './routes/index.js';
+import connectDB from './config/database.js';
+
+// Connect to Database for Serverless environments
+connectDB();
 
 const app = express();
 
