@@ -1,0 +1,97 @@
+.admin-sidebar {
+  width: 260px;
+  background-color: #181818;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.logo-text {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin: 0;
+  color: #fff;
+}
+
+.logo-text span:first-child {
+  color: #e5b33e;
+  /* Gold accent matching user project theme */
+}
+
+.logo-text span:last-child {
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: #888;
+  margin-left: 5px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 1.5rem 0;
+  overflow-y: auto;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li {
+  margin-bottom: 0.5rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.8rem 1.5rem;
+  color: #a0a0a0;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+  color: #e5b33e;
+  background-color: rgba(229, 179, 62, 0.1);
+  border-left-color: #e5b33e;
+}
+
+.sidebar-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #333;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0.8rem;
+  background: none;
+  border: none;
+  color: #ff4d4d;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 77, 77, 0.1);
+}

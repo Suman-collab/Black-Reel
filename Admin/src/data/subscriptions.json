@@ -1,0 +1,34 @@
+[
+  {
+    "id": "SUB-1001",
+    "userEmail": "sarah.c@example.com",
+    "plan": "Premium UHD",
+    "status": "Active",
+    "amount": "$19.99",
+    "nextBilling": "2026-04-20"
+  },
+  {
+    "id": "SUB-1002",
+    "userEmail": "john.smith@example.com",
+    "plan": "Standard",
+    "status": "Cancelled",
+    "amount": "$14.99",
+    "nextBilling": "-"
+  },
+  {
+    "id": "SUB-1003",
+    "userEmail": "emma.w@example.com",
+    "plan": "Basic",
+    "status": "Active",
+    "amount": "$9.99",
+    "nextBilling": "2026-04-05"
+  },
+  {
+    "id": "SUB-1004",
+    "userEmail": "michael.b@example.com",
+    "plan": "Premium UHD",
+    "status": "Active",
+    "amount": "$19.99",
+    "nextBilling": "2026-04-10"
+  }
+]

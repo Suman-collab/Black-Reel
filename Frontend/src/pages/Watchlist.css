@@ -1,0 +1,143 @@
+.watchlist-page {
+  padding: 40px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.watchlist-title {
+  display: none;
+}
+
+.watchlist-item {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 30px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.watchlist-item:last-child {
+  border-bottom: none;
+}
+
+.watchlist-poster {
+  width: 160px;
+  height: 220px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.watchlist-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.watchlist-item-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.watchlist-genre {
+  color: var(--gold-primary);
+  font-size: 1.25rem;
+  margin: 4px 0;
+}
+
+.watchlist-meta {
+  color: var(--text-main);
+  font-size: 1.15rem;
+}
+
+.watchlist-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Footer Styles */
+.footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 40px 20px;
+  margin-top: 60px;
+  text-align: center;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 16px;
+}
+
+.footer-link {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: var(--gold-primary);
+}
+
+.footer-copy {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.85rem;
+}
+
+.empty-watchlist-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background-color: transparent;
+  text-align: center;
+}
+
+.empty-watchlist-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: rgba(212, 184, 114, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.empty-watchlist-modern h2 {
+  color: #fff;
+  font-size: 2.2rem;
+  font-family: var(--font-serif);
+  margin-bottom: 12px;
+}
+
+.empty-watchlist-modern p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 32px;
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .watchlist-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .watchlist-actions {
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  .watchlist-actions button {
+    width: 100%;
+  }
+}

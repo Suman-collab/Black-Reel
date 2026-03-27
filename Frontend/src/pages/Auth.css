@@ -1,0 +1,240 @@
+/* Auth.css - Split Screen Clean Form Styles */
+
+.auth-split-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - var(--nav-height, 80px));
+  width: 100%;
+  background-color: #0d0d0d;
+  color: #fff;
+}
+
+.auth-left {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  background: transparent;
+}
+
+.auth-form-wrapper {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  /* Added extra standard centering margin */
+}
+
+.auth-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.auth-subtitle {
+  color: #ddd;
+  margin-bottom: 32px;
+  font-size: 0.95rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #eee;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #fff;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.form-group input::placeholder {
+  color: #aaa;
+}
+
+.form-group input:focus {
+  border-color: #c6a75e;
+  box-shadow: 0 0 0 2px rgba(198, 167, 94, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.auth-terms {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.auth-terms input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #335933;
+  /* forest green */
+  cursor: pointer;
+}
+
+.auth-terms label {
+  font-size: 0.85rem;
+  color: #ddd;
+  cursor: pointer;
+}
+
+.auth-terms label span {
+  font-weight: 600;
+  text-decoration: underline;
+  color: #fff;
+}
+
+.btn-auth {
+  background: #335933;
+  /* forest green mimicking the reference */
+  color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s;
+}
+
+.btn-auth:hover {
+  opacity: 0.9;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 16px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.auth-divider span {
+  padding: 0 16px;
+  color: #ccc;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.auth-socials {
+  display: flex;
+  gap: 16px;
+}
+
+.btn-social {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-social:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-social img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  /* Ensure icons are white */
+}
+
+/* Specific fix for Google icon to retain its colors if desired, or let it be white */
+.btn-social.google img {
+  filter: none;
+}
+
+.auth-footer-link {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 0.95rem;
+  color: #ccc;
+  font-weight: 500;
+}
+
+.auth-footer-link a {
+  color: #c6a75e;
+  /* Gold color */
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.auth-footer-link a:hover {
+  text-decoration: underline;
+}
+
+.auth-right {
+  flex: 1;
+  position: relative;
+  max-width: 50%;
+  display: flex;
+  /* background image is now on the body container */
+}
+
+.auth-image-bg {
+  width: 100%;
+  height: 100%;
+  /* Removed to inherit from split container or remain empty. Kept for positioning. */
+}
+
+@media (max-width: 900px) {
+  .auth-split-container {
+    flex-direction: column;
+  }
+
+  .auth-left,
+  .auth-right {
+    max-width: 100%;
+    flex: none;
+  }
+
+  .auth-right {
+    height: 350px;
+    order: -1;
+  }
+
+  .auth-left {
+    padding: 40px 20px;
+  }
+}

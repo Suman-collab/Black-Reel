@@ -1,0 +1,275 @@
+[
+  {
+    "id": 1,
+    "title": "Brothas in Arms",
+    "type": "Movie",
+    "genre": "Action",
+    "desc": "Brothas in arms is an action packed movie focusing on survival in the inner city.",
+    "image": "/images/fandom/Poster 1 - 150x200.jpg.jpeg",
+    "tags": [
+      "new_release",
+      "popular",
+      "fandom"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Kinky",
+    "type": "Series",
+    "genre": "Thriller",
+    "desc": "A thrilling new original series following dark secrets tied to an elite student body.",
+    "image": "/images/fandom/Poster 2 - 150x200.jpg.jpeg",
+    "tags": [
+      "new_release"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Burden",
+    "type": "Movie",
+    "genre": "Mystery",
+    "desc": "Burden is an award-winning cinematic joy highlighting a deep investigation of the unseen.",
+    "image": "/images/fandom/Poster 3 - 150x200.jpg.jpeg",
+    "tags": [
+      "new_release",
+      "trending",
+      "fandom"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "He Lifted",
+    "type": "Movie",
+    "genre": "Drama",
+    "desc": "A dramatic tale of a gritty leader rising in the civil rights movement from local to legend.",
+    "image": "/images/fandom/Poster 4 - 150x200.jpg.jpeg",
+    "tags": [
+      "new_release"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Blood Sisters",
+    "type": "Series",
+    "genre": "Comedy",
+    "desc": "A compelling story of sisterhood full of laughs and unexpected turns.",
+    "image": "/images/fandom/Poster 5 - 150x200.jpg.jpeg",
+    "tags": [
+      "new_release",
+      "trending"
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Glory Road",
+    "type": "Movie",
+    "genre": "History",
+    "desc": "A journey of an individual fighting for civil rights, encountering community activists.",
+    "image": "/images/fandom/Poster 6 - 150x200.jpg.jpeg",
+    "tags": [
+      "new_release"
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Love Match",
+    "type": "Movie",
+    "genre": "Romance",
+    "desc": "A sports agent and a secret patient must heal resultantly tabling into unexpected territory.",
+    "image": "/images/fandom/Poster 7 - 150x200.jpg.jpeg",
+    "tags": [
+      "trending",
+      "fandom"
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Ghosts of Wrath",
+    "type": "Movie",
+    "genre": "Horror",
+    "desc": "A traumatized victim confronts malevolent spirits as a mission with a tragic end.",
+    "image": "/images/fandom/Poster 1 - 150x200.jpg.jpeg",
+    "tags": [
+      "popular",
+      "fandom"
+    ]
+  },
+  {
+    "id": 9,
+    "title": "The Deal",
+    "type": "Series",
+    "genre": "Drama",
+    "desc": "A young lawyer finds her self tangled in a web of greed and betrayal spanning two cities.",
+    "image": "/images/fandom/Poster 2 - 150x200.jpg.jpeg",
+    "tags": [
+      "popular",
+      "fandom"
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Velvet Room",
+    "type": "Movie",
+    "genre": "Originals",
+    "desc": "An exclusive look inside the most secretive club in Miami.",
+    "image": "/images/fandom/Poster 3 - 150x200.jpg.jpeg",
+    "tags": [
+      "trending"
+    ]
+  },
+  {
+    "id": 11,
+    "title": "House Rose",
+    "type": "Series",
+    "genre": "Suspense",
+    "desc": "A college student faces-off against a new arrival determined to claim her spot off the top.",
+    "image": "/images/fandom/Poster 4 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Behind the Block",
+    "type": "Movie",
+    "genre": "Action",
+    "desc": "A gritty portrayal of life in the inner city focusing on survival and the struggle is consumption.",
+    "image": "/images/fandom/Poster 5 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 13,
+    "title": "City Lights",
+    "type": "Movie",
+    "genre": "Comedy",
+    "desc": "Thursday takes unexpected turns for a comedian whose humor cant shake off life's events.",
+    "image": "/images/fandom/Poster 6 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Shadows Unseen",
+    "type": "Series",
+    "genre": "Thriller",
+    "desc": "A detective battles her inner demons while attempting some of the city's greatest crimes.",
+    "image": "/images/fandom/Poster 7 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Heart Strings",
+    "type": "Movie",
+    "genre": "Romance",
+    "desc": "A violinist caught between passion and its new sight, trusting her heart or the symphony.",
+    "image": "/images/fandom/Poster 1 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 16,
+    "title": "Huntsdal",
+    "type": "Movie",
+    "genre": "Romance",
+    "desc": "A college student faces off against a new arrival attempting an allegiance over town.",
+    "image": "/images/fandom/Poster 2 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 17,
+    "title": "The Rival",
+    "type": "Movie",
+    "genre": "Suspense",
+    "desc": "A college student faces off against a new arrival attempting to break her spirit.",
+    "image": "/images/fandom/Poster 3 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 18,
+    "title": "My Secret Affair with the Pool Boy",
+    "type": "Movie",
+    "genre": "Drama",
+    "desc": "Newly added fandom content.",
+    "image": "/images/fandom/Poster 1 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ],
+    "hero_image": "/images/fandom/hero_pool_boy_banner.png"
+  },
+  {
+    "id": 19,
+    "title": "My Millionaire Baby Daddy",
+    "type": "Movie",
+    "genre": "Drama",
+    "desc": "Newly added fandom content.",
+    "image": "/images/fandom/Poster 2 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 20,
+    "title": "My Girlfriend Is a Secret Escort",
+    "type": "Movie",
+    "genre": "Drama",
+    "desc": "Newly added fandom content.",
+    "image": "/images/fandom/Poster 3 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 21,
+    "title": "The Velvet Room: Burlesque Show Las Vegas",
+    "type": "Movie",
+    "genre": "Drama",
+    "desc": "Newly added fandom content.",
+    "image": "/images/fandom/Poster 4 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 22,
+    "title": "The Heiress Waitress",
+    "type": "Movie",
+    "genre": "Drama",
+    "desc": "Newly added fandom content.",
+    "image": "/images/fandom/Poster 5 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 23,
+    "title": "I Got Pregnant by Personal Trainer",
+    "type": "Movie",
+    "genre": "Drama",
+    "desc": "Newly added fandom content.",
+    "image": "/images/fandom/Poster 6 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  },
+  {
+    "id": 24,
+    "title": "Love Match",
+    "type": "Movie",
+    "genre": "Drama",
+    "desc": "Newly added fandom content.",
+    "image": "/images/fandom/Poster 7 - 150x200.jpg.jpeg",
+    "tags": [
+      "fandom"
+    ]
+  }
+]

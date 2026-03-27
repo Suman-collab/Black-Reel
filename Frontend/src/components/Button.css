@@ -1,0 +1,49 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.3s ease;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.btn-primary {
+  background: var(--gold-gradient);
+  color: #0B0B0B;
+  box-shadow: 0 4px 15px rgba(198, 167, 94, 0.2);
+}
+
+.btn-primary:hover {
+  background: var(--gold-gradient-hover);
+  box-shadow: var(--gold-glow);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--gold-light);
+  border: 1px solid var(--gold-primary);
+}
+
+.btn-outline:hover {
+  background: rgba(198, 167, 94, 0.1);
+  box-shadow: var(--gold-glow);
+  transform: translateY(-2px);
+}
+
+.btn-pill {
+  padding: 8px 24px;
+  border-radius: 50px;
+  background: var(--gold-primary);
+  color: #0B0B0B;
+  font-size: 0.9rem;
+}
+
+.btn-pill:hover {
+  background: var(--gold-light);
+  box-shadow: var(--gold-glow);
+}

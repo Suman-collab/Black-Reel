@@ -1,0 +1,96 @@
+.admin-navbar {
+  height: 70px;
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  width: 350px;
+}
+
+.search-icon {
+  color: #888;
+  margin-right: 10px;
+}
+
+.search-bar input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  width: 100%;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.search-bar input::placeholder {
+  color: #888;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.icon-btn:hover {
+  color: #fff;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4d4d;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: bold;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding-left: 1.5rem;
+  border-left: 1px solid #333;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-info .name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.profile-info .role {
+  font-size: 0.75rem;
+  color: #888;
+}

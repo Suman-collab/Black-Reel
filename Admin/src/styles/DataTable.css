@@ -1,0 +1,101 @@
+.data-table-container {
+  width: 100%;
+  overflow-x: auto;
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.data-table th,
+.data-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.data-table th {
+  background-color: #222;
+  color: #a0a0a0;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.data-table td {
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.data-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+  background-color: #252525;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.actions-header {
+  text-align: right;
+}
+
+.actions-cell {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn.view {
+  color: #60a5fa;
+  background-color: rgba(96, 165, 250, 0.1);
+}
+
+.action-btn.view:hover {
+  background-color: rgba(96, 165, 250, 0.2);
+}
+
+.action-btn.edit {
+  color: #e5b33e;
+  background-color: rgba(229, 179, 62, 0.1);
+}
+
+.action-btn.edit:hover {
+  background-color: rgba(229, 179, 62, 0.2);
+}
+
+.action-btn.delete {
+  color: #f87171;
+  background-color: rgba(248, 113, 113, 0.1);
+}
+
+.action-btn.delete:hover {
+  background-color: rgba(248, 113, 113, 0.2);
+}
+
+.no-data {
+  padding: 2rem;
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}

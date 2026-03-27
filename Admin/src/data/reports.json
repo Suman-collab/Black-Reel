@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "contentId": 104,
+    "contentTitle": "Breaking Bad",
+    "reportedBy": "sarah.c@example.com",
+    "reason": "Inappropriate Content",
+    "status": "Pending",
+    "date": "2026-03-01"
+  },
+  {
+    "id": 2,
+    "contentId": 102,
+    "contentTitle": "Stranger Things",
+    "reportedBy": "alex.j@example.com",
+    "reason": "Video Quality Issue",
+    "status": "Resolved",
+    "date": "2026-02-28"
+  },
+  {
+    "id": 3,
+    "contentId": 106,
+    "contentTitle": "Toxic Comment",
+    "reportedBy": "emma.w@example.com",
+    "reason": "Hate Speech",
+    "status": "Pending",
+    "date": "2026-03-05"
+  }
+]

@@ -1,0 +1,99 @@
+.notifications-page {
+  padding: 100px 40px 80px;
+  min-height: calc(100vh - var(--nav-height));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-header-horizontal {
+  height: 60px;
+  object-fit: contain;
+}
+
+.notifications-list-container {
+  width: 100%;
+  max-width: 600px;
+}
+
+.notifications-toggle-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.custom-toggle {
+  width: 50px;
+  height: 28px;
+  background-color: #333;
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.custom-toggle.active {
+  background-color: rgba(212, 184, 114, 0.3);
+}
+
+.toggle-circle {
+  width: 24px;
+  height: 24px;
+  background-color: #888;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.custom-toggle.active .toggle-circle {
+  transform: translateX(22px);
+  background-color: var(--gold-primary);
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  background-color: var(--surface-light);
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.notif-badge {
+  background-color: #333;
+  color: #ccc;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  margin-right: 16px;
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: center;
+}
+
+.notif-content {
+  flex: 1;
+}
+
+.notif-content p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #eee;
+}
+
+.notif-time {
+  color: #666;
+  font-size: 0.85rem;
+  margin-left: 16px;
+  white-space: nowrap;
+}

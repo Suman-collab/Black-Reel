@@ -1,0 +1,37 @@
+[
+  {
+    "id": 101,
+    "title": "Inception",
+    "type": "Movie",
+    "views": 15400,
+    "rating": "4.8"
+  },
+  {
+    "id": 102,
+    "title": "Stranger Things",
+    "type": "Series",
+    "views": 22350,
+    "rating": "4.9"
+  },
+  {
+    "id": 103,
+    "title": "The Matrix",
+    "type": "Movie",
+    "views": 12800,
+    "rating": "4.7"
+  },
+  {
+    "id": 104,
+    "title": "Breaking Bad",
+    "type": "Series",
+    "views": 31020,
+    "rating": "5.0"
+  },
+  {
+    "id": 105,
+    "title": "The Dark Knight",
+    "type": "Movie",
+    "views": 19400,
+    "rating": "4.9"
+  }
+]

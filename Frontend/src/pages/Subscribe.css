@@ -1,0 +1,154 @@
+.subscribe-page {
+  padding: 120px 40px 80px;
+  min-height: calc(100vh - var(--nav-height));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.subscribe-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.subscribe-title {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  font-family: var(--font-serif);
+}
+
+.subscribe-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-main);
+}
+
+.pricing-cards {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1100px;
+}
+
+.pricing-card {
+  background-color: var(--bg-color);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-md);
+  padding: 40px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pricing-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--gold-glow);
+}
+
+.pricing-card.popular {
+  border-color: var(--gold-primary);
+  border-width: 2px;
+}
+
+.popular-badge {
+  position: absolute;
+  top: -15px;
+  background-color: var(--bg-color);
+  color: var(--gold-primary);
+  padding: 4px 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid var(--gold-primary);
+  border-radius: 4px;
+}
+
+.plan-name {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--gold-light);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.pricing-card.popular .plan-name {
+  color: var(--gold-primary);
+}
+
+.plan-price {
+  font-family: var(--font-serif);
+  display: flex;
+  align-items: flex-start;
+  color: var(--gold-light);
+  margin-bottom: 8px;
+}
+
+.pricing-card.popular .plan-price {
+  color: var(--gold-primary);
+}
+
+.currency {
+  font-size: 2rem;
+  margin-top: 8px;
+  margin-right: 4px;
+}
+
+.amount {
+  font-size: 4.5rem;
+  line-height: 1;
+}
+
+.plan-period {
+  color: var(--text-main);
+  font-size: 0.9rem;
+  margin-bottom: 40px;
+}
+
+.plan-features {
+  list-style: none;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 40px;
+  flex-grow: 1;
+}
+
+.plan-features li {
+  color: var(--text-main);
+  margin-bottom: 16px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.plan-features li::before {
+  content: '•';
+  color: var(--gold-primary);
+  font-size: 1.5rem;
+  margin-right: 12px;
+  line-height: 1;
+}
+
+.btn-subscribe {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  color: var(--gold-primary);
+  border: 1px solid var(--gold-primary);
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.btn-subscribe:hover {
+  background: var(--gold-gradient);
+  color: #000;
+  border-color: transparent;
+}
