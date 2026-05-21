@@ -12,7 +12,7 @@ export default function Signup() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { register, socialLogin } = useAuth();
+  const { register, beginGoogleOAuth } = useAuth();
 
   const handleSignup = async (event) => {
     event.preventDefault();
@@ -41,21 +41,9 @@ export default function Signup() {
     }
   };
 
-  const handleSocialSignup = async (provider) => {
-    setSubmitting(true);
+  const handleGoogleSignup = () => {
     setError('');
-    try {
-      await socialLogin({
-        provider,
-        email,
-        name: name || 'New User',
-      });
-      navigate('/', { replace: true });
-    } catch (apiError) {
-      setError(apiError.message);
-    } finally {
-      setSubmitting(false);
-    }
+    beginGoogleOAuth();
   };
 
   return (
@@ -132,11 +120,8 @@ export default function Signup() {
           </form>
 
           <div className="auth-terms" style={{ marginTop: '10px', display: 'grid', gap: '10px' }}>
-            <button type="button" className="btn-auth" onClick={() => { void handleSocialSignup('google'); }} disabled={submitting}>
+            <button type="button" className="btn-auth" onClick={() => { void handleGoogleSignup(); }} disabled={submitting}>
               Continue with Google
-            </button>
-            <button type="button" className="btn-auth" onClick={() => { void handleSocialSignup('facebook'); }} disabled={submitting}>
-              Continue with Facebook
             </button>
           </div>
 

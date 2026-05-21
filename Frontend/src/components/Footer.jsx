@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Footer.css';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
+import { Twitter, Instagram, Youtube } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext';
 
 export default function Footer() {
@@ -9,6 +9,7 @@ export default function Footer() {
   const [email, setEmail] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const accountEmail = user?.email || '';
+  const isVerifiedAccount = Boolean(user?.emailVerified);
   const newsletterEmail = isAuthenticated ? accountEmail : email;
 
   const handleSubscribe = (e) => {
@@ -16,6 +17,11 @@ export default function Footer() {
     const targetEmail = newsletterEmail.trim().toLowerCase();
 
     if (!targetEmail) return;
+
+    if (isAuthenticated && !isVerifiedAccount) {
+      setStatusMessage('Verify your email before subscribing to the newsletter.');
+      return;
+    }
 
     setStatusMessage(`Subscribed with ${targetEmail}`);
 
@@ -37,7 +43,6 @@ export default function Footer() {
               Premium short-form cinema and episodic stories crafted for immersive, mobile-first streaming.
             </p>
             <div className="br-social-links">
-              <a href="#" aria-label="Facebook"><Facebook size={16} /></a>
               <a href="#" aria-label="Twitter"><Twitter size={16} /></a>
               <a href="#" aria-label="Instagram"><Instagram size={16} /></a>
               <a href="#" aria-label="Youtube"><Youtube size={16} /></a>
@@ -93,7 +98,7 @@ export default function Footer() {
                   className="br-newsletter-input"
                   disabled={isAuthenticated}
                 />
-                <button type="submit" className="br-newsletter-btn">SUBSCRIBE</button>
+                <button type="submit" className="br-newsletter-btn" disabled={isAuthenticated && !isVerifiedAccount}>SUBSCRIBE</button>
               </div>
             </form>
             <div className="br-app-links">
@@ -102,7 +107,7 @@ export default function Footer() {
             </div>
             {isAuthenticated ? (
               <p className="br-newsletter-locked-copy">
-                Newsletter signup is tied to your active account: <strong>{accountEmail}</strong>. Log out and switch accounts to use a different email.
+                Newsletter signup is tied to your active account: <strong>{accountEmail}</strong>.{!isVerifiedAccount ? ' Verify your email to enable subscription.' : ' Log out and switch accounts to use a different email.'}
               </p>
             ) : null}
             {statusMessage && <p className="br-status-msg">{statusMessage}</p>}

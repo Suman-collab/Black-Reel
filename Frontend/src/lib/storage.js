@@ -1,5 +1,6 @@
 const AUTH_STORAGE_KEY = 'blackreel-user-auth';
 
+// Fixed: stop persisting bearer tokens in localStorage; store only non-sensitive user snapshot.
 export const getStoredAuth = () => {
   try {
     const rawValue = localStorage.getItem(AUTH_STORAGE_KEY);
@@ -11,7 +12,8 @@ export const getStoredAuth = () => {
 };
 
 export const setStoredAuth = (value) => {
-  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(value));
+  const safeValue = value?.user ? { user: value.user } : null;
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(safeValue));
 };
 
 export const clearStoredAuth = () => {

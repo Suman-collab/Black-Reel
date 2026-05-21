@@ -13,6 +13,8 @@ import {
   getCheckoutDraft,
   saveCheckoutDraft,
   setCheckoutSuccessMessage,
+  setCheckoutPaymentRef,
+  clearCheckoutPaymentRef,
 } from '../lib/checkout';
 import { getPlanById } from '../lib/plans';
 import { formatPlanName, hasActiveSubscription } from '../lib/subscription';
@@ -147,6 +149,8 @@ export default function Checkout() {
         if (isMounted) {
           setCheckoutSessionId(order.checkoutSessionId);
           setRazorpayOrderId(order.orderId);
+          // Fixed: store payment reference for refresh-safe success page rendering.
+          setCheckoutPaymentRef({ checkoutSessionId: order.checkoutSessionId, planName: selectedPlan?.name || '' });
         }
       } catch (apiError) {
         if (isMounted) {
@@ -203,7 +207,8 @@ export default function Checkout() {
     clearCheckoutDraft(selectedPlan.id);
       setCheckoutSessionId('');
       setRazorpayOrderId('');
-      navigate('/subscribe', {
+      clearCheckoutPaymentRef();
+    navigate('/subscribe', {
       replace: true,
       state: {
         checkoutMessage: 'Payment cancelled. Your subscription has not been changed.',
@@ -282,6 +287,7 @@ export default function Checkout() {
       setCheckoutSessionId('');
       setRazorpayOrderId('');
       setCheckoutSuccessMessage(successMessage);
+      setCheckoutPaymentRef({ checkoutSessionId, paymentId: payment.id, planName: selectedPlan.name, payment });
 
       updateUser((currentUser) => {
         if (!currentUser) {
@@ -471,3 +477,4 @@ export default function Checkout() {
     </div>
   );
 }
+

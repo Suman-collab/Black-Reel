@@ -10,11 +10,17 @@ export default function Subscribe() {
   const location = useLocation();
   const { user } = useAuth();
   const currentSubscription = user?.subscription;
+  const emailVerified = Boolean(user?.emailVerified);
   const subscriptionIsActive = hasActiveSubscription(currentSubscription);
   const currentPlanType = currentSubscription?.planType;
   const checkoutMessage = location.state?.checkoutMessage || '';
 
   const handleSubscribe = (planType) => {
+    if (!emailVerified) {
+      navigate(`/verify-email?email=${encodeURIComponent(user?.email || '')}`);
+      return;
+    }
+
     if (subscriptionIsActive && currentPlanType === planType) {
       return;
     }
@@ -49,6 +55,13 @@ export default function Subscribe() {
             <p>Select another plan below if you want to upgrade or switch your subscription.</p>
           </div>
         ) : null}
+        {!emailVerified ? (
+          <div className="current-plan-banner" style={{ borderColor: 'rgba(239,68,68,0.4)' }}>
+            <span className="current-plan-label">Verification required</span>
+            <strong>Verify your email before starting a subscription.</strong>
+            <p>Check your inbox, then return to continue checkout.</p>
+          </div>
+        ) : null}
       </div>
 
       <div className="pricing-cards">
@@ -73,7 +86,7 @@ export default function Subscribe() {
             <button
               className="btn-subscribe"
               onClick={() => handleSubscribe(plan.id)}
-              disabled={subscriptionIsActive && currentPlanType === plan.id}
+              disabled={!emailVerified || (subscriptionIsActive && currentPlanType === plan.id)}
             >
               {getPlanActionLabel(plan.id)}
             </button>

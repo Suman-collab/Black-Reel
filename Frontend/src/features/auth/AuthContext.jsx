@@ -1,39 +1,35 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
 import * as authService from './auth.service';
-import { clearStoredAuth, getStoredAuth, setStoredAuth } from '../../lib/storage';
+import { clearStoredAuth, setStoredAuth } from '../../lib/storage';
 import { isSuspensionMessage, registerUnauthorizedHandler } from '../../lib/api';
 import { DEFAULT_SUSPENSION_MESSAGE, isRestrictedAccountStatus } from '../../lib/accountStatus';
 import { clearStoredSuspension, getStoredSuspension, setStoredSuspension } from '../../lib/suspension';
+import { firebaseAuth } from '../../firebase/config';
+import {
+  loginWithEmail,
+  loginWithGooglePopup,
+  logoutFirebaseUser,
+  registerWithEmail,
+  requestPasswordResetEmail,
+} from '../../firebase/auth';
 
 const AuthContext = createContext(null);
-const SESSION_REVALIDATION_INTERVAL_MS = 15000;
 
 export const AuthProvider = ({ children }) => {
-  const storedSession = getStoredAuth();
   const storedSuspension = getStoredSuspension();
-  const [user, setUser] = useState(storedSession?.user || null);
-  const [token, setToken] = useState(storedSession?.token || null);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [initialized, setInitialized] = useState(false);
-  const [loading, setLoading] = useState(Boolean(storedSession?.token));
+  const [loading, setLoading] = useState(true);
   const [suspension, setSuspension] = useState(storedSuspension);
 
-  const setSuspendedState = (message, email = '') => {
-    const nextSuspension = {
-      message: message || DEFAULT_SUSPENSION_MESSAGE,
-      email: email || '',
-    };
-
-    setStoredSuspension(nextSuspension);
-    setSuspension(nextSuspension);
-    return nextSuspension;
-  };
-
-  const persistSession = (session) => {
+  const persistSession = ({ token: nextToken, user: nextUser }) => {
     clearStoredSuspension();
     setSuspension(null);
-    setStoredAuth(session);
-    setUser(session.user);
-    setToken(session.token);
+    setStoredAuth({ user: nextUser });
+    setToken(nextToken);
+    setUser(nextUser);
   };
 
   const clearSession = (shouldRedirect = false, redirectPath = '/login', preserveSuspension = false) => {
@@ -53,169 +49,149 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setSuspendedState = (message, email = '') => {
+    const nextSuspension = {
+      message: message || DEFAULT_SUSPENSION_MESSAGE,
+      email: email || '',
+    };
+    setStoredSuspension(nextSuspension);
+    setSuspension(nextSuspension);
+    return nextSuspension;
+  };
+
   const restrictAccount = (message, email = '') => {
     setSuspendedState(message, email);
     clearSession(true, '/account-suspended', true);
   };
 
-  const refreshUser = async () => {
-    const activeSession = getStoredAuth();
-
-    if (!activeSession?.token) {
+  const syncBackendSession = async (firebaseUser) => {
+    if (!firebaseUser) {
       clearSession(false);
       return null;
     }
 
-    setLoading(true);
+    const idToken = await firebaseUser.getIdToken(true);
+    setToken(idToken);
 
     try {
-      const currentUser = await authService.getCurrentUser();
+      const backendUser = await authService.getCurrentUser(idToken);
 
-      if (isRestrictedAccountStatus(currentUser.status)) {
-        restrictAccount(DEFAULT_SUSPENSION_MESSAGE, currentUser.email || activeSession.user?.email || '');
+      if (isRestrictedAccountStatus(backendUser?.status)) {
+        restrictAccount(DEFAULT_SUSPENSION_MESSAGE, backendUser.email || firebaseUser.email || '');
         return null;
       }
 
-      persistSession({ token: activeSession.token, user: currentUser });
-      setUser(currentUser);
-      return currentUser;
+      persistSession({ token: idToken, user: backendUser });
+      return backendUser;
     } catch (error) {
-      if (!isSuspensionMessage(error.message)) {
-        clearSession(false);
+      if (isSuspensionMessage(error.message)) {
+        restrictAccount(error.message || DEFAULT_SUSPENSION_MESSAGE, firebaseUser.email || '');
+        return null;
       }
+      clearSession(false);
       throw error;
     } finally {
-      setLoading(false);
       setInitialized(true);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     registerUnauthorizedHandler((error) => {
       const message = error?.response?.data?.message || error?.message || '';
-      const activeSession = getStoredAuth();
 
       if (isSuspensionMessage(message)) {
-        restrictAccount(message || DEFAULT_SUSPENSION_MESSAGE, activeSession?.user?.email || '');
+        restrictAccount(message || DEFAULT_SUSPENSION_MESSAGE, user?.email || '');
         return;
       }
 
-      clearSession(true, '/login');
+      void logoutFirebaseUser().finally(() => clearSession(true, '/login'));
     });
 
-    if (storedSession?.token && isRestrictedAccountStatus(storedSession.user?.status)) {
-      restrictAccount(DEFAULT_SUSPENSION_MESSAGE, storedSession.user?.email || '');
-    } else if (storedSession?.token) {
-      refreshUser().catch(() => null);
-    } else {
-      setInitialized(true);
-      setLoading(false);
-    }
-
-    return () => registerUnauthorizedHandler(null);
-  }, []);
-
-  useEffect(() => {
-    if (!token) {
-      return undefined;
-    }
-
-    const revalidateSession = () => {
-      if (document.visibilityState === 'hidden') {
-        return;
-      }
-
-      refreshUser().catch(() => null);
-    };
-
-    const intervalId = window.setInterval(revalidateSession, SESSION_REVALIDATION_INTERVAL_MS);
-    window.addEventListener('focus', revalidateSession);
-    document.addEventListener('visibilitychange', revalidateSession);
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (firebaseUser) => {
+      setLoading(true);
+      void syncBackendSession(firebaseUser).catch(() => null);
+    });
 
     return () => {
-      window.clearInterval(intervalId);
-      window.removeEventListener('focus', revalidateSession);
-      document.removeEventListener('visibilitychange', revalidateSession);
+      registerUnauthorizedHandler(null);
+      unsubscribe();
     };
-  }, [token]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const login = async (credentials) => {
-    const session = await authService.login(credentials);
-    persistSession(session);
-    setInitialized(true);
-    return session.user;
+    const firebaseUser = await loginWithEmail(credentials);
+    return await syncBackendSession(firebaseUser);
   };
 
   const register = async (payload) => {
-    const session = await authService.register(payload);
-    if (session?.token && session?.user) {
-      persistSession(session);
+    await registerWithEmail(payload);
+    return { requiresEmailVerification: true };
+  };
+
+  const verifyEmail = async () => {
+    const currentUser = firebaseAuth.currentUser;
+    if (!currentUser) {
+      throw new Error('Please sign in first.');
     }
-    setInitialized(true);
-    return session;
+
+    await currentUser.reload();
+    if (!currentUser.emailVerified) {
+      throw new Error('Email verification is still pending. Please verify from your inbox.');
+    }
+
+    return await syncBackendSession(currentUser);
   };
 
-  const verifyEmail = async (tokenValue) => {
-    const session = await authService.verifyEmail(tokenValue);
-    persistSession(session);
-    setInitialized(true);
-    return session.user;
-  };
-
-  const resendVerification = async (email) => {
-    return await authService.resendVerification(email);
+  const resendVerification = async () => {
+    const currentUser = firebaseAuth.currentUser;
+    if (!currentUser) {
+      throw new Error('Please sign in first to resend verification email.');
+    }
+    await currentUser.sendEmailVerification();
+    return { delivered: true };
   };
 
   const requestPasswordReset = async (email) => {
-    return await authService.requestPasswordReset(email);
+    await requestPasswordResetEmail(email);
+    return { delivered: true };
   };
 
-  const resetPassword = async (tokenValue, passwordValue) => {
-    const session = await authService.resetPassword(tokenValue, passwordValue);
-    persistSession(session);
-    setInitialized(true);
-    return session.user;
+  const resetPassword = async () => {
+    throw new Error('Use the password reset link sent to your email to set a new password.');
   };
 
-  const socialLogin = async (payload) => {
-    const session = await authService.socialLogin(payload);
-    persistSession(session);
-    setInitialized(true);
-    return session.user;
+  const googleLogin = async () => {
+    const firebaseUser = await loginWithGooglePopup();
+    return await syncBackendSession(firebaseUser);
+  };
+
+  const beginGoogleOAuth = () => {
+    void googleLogin();
   };
 
   const logout = () => {
-    clearSession(true);
+    void logoutFirebaseUser().finally(() => clearSession(true));
+  };
+
+  const refreshUser = async () => {
+    const currentUser = firebaseAuth.currentUser;
+    return await syncBackendSession(currentUser);
   };
 
   const ensureActiveSession = async () => {
-    const activeSession = getStoredAuth();
-
-    if (!activeSession?.token) {
+    if (!firebaseAuth.currentUser) {
       return null;
     }
-
-    if (isRestrictedAccountStatus(user?.status)) {
-      restrictAccount(DEFAULT_SUSPENSION_MESSAGE, user?.email || activeSession.user?.email || '');
-      return null;
-    }
-
-    return await refreshUser();
+    return await syncBackendSession(firebaseAuth.currentUser);
   };
 
   const updateUser = (nextUser) => {
-    const activeSession = getStoredAuth();
     const updatedUser = typeof nextUser === 'function' ? nextUser(user) : nextUser;
-
-    if (isRestrictedAccountStatus(updatedUser?.status)) {
-      restrictAccount(DEFAULT_SUSPENSION_MESSAGE, updatedUser.email || activeSession?.user?.email || '');
-      return;
-    }
-
     setUser(updatedUser);
-
-    if (activeSession?.token) {
-      setStoredAuth({ token: activeSession.token, user: updatedUser });
+    if (token && updatedUser) {
+      setStoredAuth({ user: updatedUser });
     }
   };
 
@@ -228,7 +204,7 @@ export const AuthProvider = ({ children }) => {
         token,
         initialized,
         loading,
-        isAuthenticated: Boolean(user && token),
+        isAuthenticated: Boolean(user),
         hasRestrictedAccess,
         suspension,
         login,
@@ -237,7 +213,8 @@ export const AuthProvider = ({ children }) => {
         resendVerification,
         requestPasswordReset,
         resetPassword,
-        socialLogin,
+        googleLogin,
+        beginGoogleOAuth,
         logout,
         refreshUser,
         ensureActiveSession,
@@ -258,3 +235,4 @@ export const useAuth = () => {
 
   return context;
 };
+

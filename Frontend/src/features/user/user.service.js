@@ -15,6 +15,11 @@ export const updatePreferences = async (payload) => {
   return response.data.data.user;
 };
 
+export const uploadAvatar = async (avatarDataUrl) => {
+  const response = await api.post('/users/profile/avatar', { avatarDataUrl });
+  return response.data.data.user;
+};
+
 export const getWatchlist = async () => {
   const response = await api.get('/users/watchlist');
   return response.data.data.watchlist;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { clearStoredAuth, getStoredAuth } from './storage';
+import { clearStoredAuth } from './storage';
 
 let unauthorizedHandler = null;
 
@@ -30,19 +30,11 @@ const normalizeError = (error) => {
   return normalizedError;
 };
 
+// Fixed: all requests now rely on secure HttpOnly cookies via credentials include.
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
   timeout: 15000,
-});
-
-api.interceptors.request.use((config) => {
-  const session = getStoredAuth();
-
-  if (session?.token) {
-    config.headers.Authorization = `Bearer ${session.token}`;
-  }
-
-  return config;
+  withCredentials: true,
 });
 
 api.interceptors.response.use(

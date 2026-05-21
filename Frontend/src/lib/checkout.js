@@ -1,5 +1,6 @@
 const CHECKOUT_DRAFT_PREFIX = 'blackreel-checkout-draft:';
 const CHECKOUT_SUCCESS_MESSAGE_KEY = 'blackreel-checkout-success-message';
+const CHECKOUT_PAYMENT_REF_KEY = 'blackreel-checkout-payment-ref';
 
 const readSessionValue = (key) => {
   try {
@@ -45,4 +46,15 @@ export const consumeCheckoutSuccessMessage = () => {
   const message = readSessionValue(CHECKOUT_SUCCESS_MESSAGE_KEY);
   removeSessionValue(CHECKOUT_SUCCESS_MESSAGE_KEY);
   return typeof message === 'string' ? message : '';
+};
+
+// Fixed: persist checkout payment reference for success-page refresh recovery.
+export const setCheckoutPaymentRef = (value) => {
+  writeSessionValue(CHECKOUT_PAYMENT_REF_KEY, value);
+};
+
+export const getCheckoutPaymentRef = () => readSessionValue(CHECKOUT_PAYMENT_REF_KEY);
+
+export const clearCheckoutPaymentRef = () => {
+  removeSessionValue(CHECKOUT_PAYMENT_REF_KEY);
 };

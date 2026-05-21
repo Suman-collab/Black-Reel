@@ -5,7 +5,7 @@ import './Settings.css';
 import Button from '../components/Button';
 import PlanSelectorModal from '../components/PlanSelectorModal';
 import StatePanel from '../components/StatePanel';
-import { getProfile, updatePreferences, updateProfile } from '../features/user/user.service';
+import { getProfile, updatePreferences, updateProfile, uploadAvatar } from '../features/user/user.service';
 import { useAuth } from '../features/auth/AuthContext';
 import { PARENTAL_CONTROLS_DESCRIPTION } from '../lib/contentAccess';
 import { getNavbarPlanLabel, getSubscriptionLabel, hasActiveSubscription, hasSelectedSubscriptionPlan } from '../lib/subscription';
@@ -30,6 +30,7 @@ export default function Settings() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [planSelectorOpen, setPlanSelectorOpen] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -103,12 +104,32 @@ export default function Settings() {
     }
 
     const reader = new FileReader();
-    reader.onload = () => {
-      setFormState((current) => ({
-        ...current,
-        avatarUrl: reader.result,
-      }));
+    reader.onload = async () => {
+      const avatarDataUrl = reader.result;
+
+      if (typeof avatarDataUrl !== 'string') {
+        setError('Unable to read this image file.');
+        return;
+      }
+
+      setAvatarUploading(true);
       setError('');
+      setSuccess('');
+
+      try {
+        const updatedUser = await uploadAvatar(avatarDataUrl);
+        setProfile(updatedUser);
+        updateUser(updatedUser);
+        setFormState((current) => ({
+          ...current,
+          avatarUrl: updatedUser.avatarUrl || current.avatarUrl,
+        }));
+        setSuccess('Avatar uploaded successfully.');
+      } catch (apiError) {
+        setError(apiError.message);
+      } finally {
+        setAvatarUploading(false);
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -242,6 +263,7 @@ export default function Settings() {
                 <p style={{ margin: '10px 0 0', color: '#888', fontSize: '0.85rem' }}>
                   {t('settings.avatarHint')}
                 </p>
+                {avatarUploading ? <p style={{ margin: '10px 0 0', color: '#d4b872', fontSize: '0.85rem' }}>Uploading avatar...</p> : null}
               </div>
             </div>
           </div>

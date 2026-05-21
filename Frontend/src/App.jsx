@@ -14,6 +14,9 @@ import Checkout from './pages/Checkout';
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import PaymentHistory from './pages/PaymentHistory';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
@@ -27,7 +30,7 @@ import { I18nProvider } from './i18n/I18nContext';
 function AppContent() {
   const location = useLocation();
   const { initialized, loading, hasRestrictedAccess } = useAuth();
-  const hideFooterParams = ['/login', '/signup', '/account-suspended'];
+  const hideFooterParams = ['/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/account-suspended'];
   const shouldHideFooter = hideFooterParams.includes(location.pathname);
 
   if (initialized && !loading && hasRestrictedAccess && location.pathname !== '/account-suspended') {
@@ -86,6 +89,9 @@ function AppContent() {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/account-suspended" element={<AccountSuspended />} />
           <Route
             path="/payment-history"
