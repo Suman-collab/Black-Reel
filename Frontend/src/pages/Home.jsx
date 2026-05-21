@@ -7,13 +7,23 @@ import StatePanel from '../components/StatePanel';
 import { getContentList } from '../features/content/content.service';
 import { getWatchlist } from '../features/user/user.service';
 import { useAuth } from '../features/auth/AuthContext';
+import { isSuspensionMessage } from '../lib/api';
+import {
+  hasParentalControlsEnabled,
+  getParentalControlsRestrictionReason,
+  isContentRestrictedByParentalControls,
+  PARENTAL_CONTROLS_DESCRIPTION,
+} from '../lib/contentAccess';
+import fallbackMovies from '../data/movies.json';
 import './Home.css';
+
+const DEMO_VIDEO_URL = 'https://www.w3schools.com/html/mov_bbb.mp4';
 
 const continueWatchingProgress = [28, 51, 79];
 
 export default function Home() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { ensureActiveSession, hasRestrictedAccess, isAuthenticated, user } = useAuth();
   const [pageState, setPageState] = useState({
     loading: true,
     error: '',
@@ -22,6 +32,7 @@ export default function Home() {
     trendingNow: [],
     originals: [],
     continueWatching: [],
+    isDemoMode: false,
   });
 
   useEffect(() => {
@@ -44,7 +55,35 @@ export default function Home() {
           return;
         }
 
+        const applyDemoFallback = () => {
+          const fallbackWithVideo = fallbackMovies.map((movie) => ({ ...movie, videoUrl: DEMO_VIDEO_URL }));
+          const demoFeatured = fallbackWithVideo.find((m) => m.id === 18) || fallbackWithVideo[0];
+          const demoNewReleases = fallbackWithVideo.filter((m) => m.tags?.includes('new_release')).slice(0, 6);
+          const demoTrending = fallbackWithVideo.filter((m) => m.tags?.includes('trending')).slice(0, 6);
+          const demoOriginals = fallbackWithVideo.filter((m) => m.genre === 'Originals').slice(0, 6);
+
+          setPageState({
+            loading: false,
+            error: '',
+            featuredMovie: demoFeatured,
+            newReleases: demoNewReleases.length > 0 ? demoNewReleases : fallbackWithVideo.slice(0, 6),
+            trendingNow: demoTrending.length > 0 ? demoTrending : fallbackWithVideo.slice(6, 12),
+            originals: demoOriginals.length > 0 ? demoOriginals : fallbackWithVideo.slice(12, 18),
+            continueWatching: fallbackWithVideo.slice(0, 3).map((item, index) => ({
+              ...item,
+              progress: continueWatchingProgress[index] || 35,
+            })),
+            isDemoMode: true,
+          });
+        };
+
         const featuredMovie = featured[0] || newReleases[0] || trendingNow[0] || originals[0] || null;
+
+        if (!featuredMovie) {
+          applyDemoFallback();
+          return;
+        }
+
         const continueWatchingSource = watchlist.length > 0 ? watchlist.slice(0, 3) : trendingNow.slice(0, 3);
 
         setPageState({
@@ -58,17 +97,41 @@ export default function Home() {
             ...item,
             progress: continueWatchingProgress[index] || 35,
           })),
+          isDemoMode: false,
         });
       } catch (error) {
         if (!isMounted) {
           return;
         }
 
-        setPageState((current) => ({
-          ...current,
-          loading: false,
-          error: error.message,
-        }));
+        if (isSuspensionMessage(error?.message)) {
+          navigate('/account-suspended');
+          return;
+        }
+
+        const applyDemoFallback = () => {
+          const fallbackWithVideo = fallbackMovies.map((movie) => ({ ...movie, videoUrl: DEMO_VIDEO_URL }));
+          const demoFeatured = fallbackWithVideo.find((m) => m.id === 18) || fallbackWithVideo[0];
+          const demoNewReleases = fallbackWithVideo.filter((m) => m.tags?.includes('new_release')).slice(0, 6);
+          const demoTrending = fallbackWithVideo.filter((m) => m.tags?.includes('trending')).slice(0, 6);
+          const demoOriginals = fallbackWithVideo.filter((m) => m.genre === 'Originals').slice(0, 6);
+
+          setPageState({
+            loading: false,
+            error: '',
+            featuredMovie: demoFeatured,
+            newReleases: demoNewReleases.length > 0 ? demoNewReleases : fallbackWithVideo.slice(0, 6),
+            trendingNow: demoTrending.length > 0 ? demoTrending : fallbackWithVideo.slice(6, 12),
+            originals: demoOriginals.length > 0 ? demoOriginals : fallbackWithVideo.slice(12, 18),
+            continueWatching: fallbackWithVideo.slice(0, 3).map((item, index) => ({
+              ...item,
+              progress: continueWatchingProgress[index] || 35,
+            })),
+            isDemoMode: true,
+          });
+        };
+
+        applyDemoFallback();
       }
     };
 
@@ -77,22 +140,81 @@ export default function Home() {
     return () => {
       isMounted = false;
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   if (pageState.loading) {
     return <StatePanel title="Loading the latest drops" message="Pulling featured titles, trending releases, and your saved picks." />;
-  }
-
-  if (pageState.error) {
-    return <StatePanel title="We couldn't load the homepage" message={pageState.error} actionLabel="Try Again" onAction={() => window.location.reload()} />;
   }
 
   if (!pageState.featuredMovie) {
     return <StatePanel title="No content yet" message="Add content from the admin panel or enable demo seeding to populate the catalog." />;
   }
 
+  const featuredContentRestricted = isContentRestrictedByParentalControls(pageState.featuredMovie, user);
+  const parentalControlsEnabled = hasParentalControlsEnabled(user);
+  const visibleTitles = [
+    pageState.featuredMovie,
+    ...pageState.newReleases,
+    ...pageState.trendingNow,
+    ...pageState.originals,
+    ...pageState.continueWatching,
+  ].filter(Boolean);
+  const lockedTitlesCount = visibleTitles.reduce(
+    (count, item) => count + (isContentRestrictedByParentalControls(item, user) ? 1 : 0),
+    0
+  );
+
+  const handleFeaturedAction = async () => {
+    if (hasRestrictedAccess) {
+      navigate('/account-suspended');
+      return;
+    }
+
+    if (isAuthenticated) {
+      const activeUser = await ensureActiveSession();
+
+      if (!activeUser) {
+        return;
+      }
+    }
+
+    if (featuredContentRestricted) {
+      navigate(`/show/${pageState.featuredMovie.id}`);
+      return;
+    }
+
+    navigate(`/show/${pageState.featuredMovie.id}`);
+  };
+
+  const handleContinueWatchingClick = async (contentId) => {
+    if (hasRestrictedAccess) {
+      navigate('/account-suspended');
+      return;
+    }
+
+    if (isAuthenticated) {
+      const activeUser = await ensureActiveSession();
+
+      if (!activeUser) {
+        return;
+      }
+    }
+
+    navigate(`/show/${contentId}`);
+  };
+
   return (
     <div className="home-container">
+      {pageState.isDemoMode && (
+        <div style={{ backgroundColor: 'var(--primary)', color: 'var(--text)', textAlign: 'center', padding: '8px', zIndex: 1000, position: 'relative' }}>
+          <strong>Notice:</strong> Demo content is being shown. No backend connection.
+        </div>
+      )}
+      {parentalControlsEnabled ? (
+        <div style={{ backgroundColor: '#1a1f16', borderTop: '1px solid #2d3a2c', borderBottom: '1px solid #2d3a2c', color: '#d8e8c2', textAlign: 'center', padding: '10px 12px' }}>
+          <strong>Parental Controls are ON.</strong> {lockedTitlesCount} title{lockedTitlesCount === 1 ? '' : 's'} are currently locked on this screen.
+        </div>
+      ) : null}
       <section className="hero">
         <img
           src={pageState.featuredMovie.hero_image || pageState.featuredMovie.image}
@@ -113,14 +235,25 @@ export default function Home() {
             <div className="fandom-pill" style={{ marginBottom: '32px' }}>
               {pageState.featuredMovie.isPremium ? 'Premium' : 'Included'}
             </div>
+            {featuredContentRestricted ? (
+              <div className="hero-parental-warning">
+                <strong>Parental Controls active</strong>
+                <span>{getParentalControlsRestrictionReason(pageState.featuredMovie)}</span>
+                <small>{PARENTAL_CONTROLS_DESCRIPTION}</small>
+              </div>
+            ) : null}
             <div className="hero-actions">
               <Button
                 variant="primary"
-                onClick={() => navigate(`/show/${pageState.featuredMovie.id}`)}
+                onClick={() => {
+                  void handleFeaturedAction();
+                }}
                 className="fandom-read-more"
                 style={{ display: 'flex', alignItems: 'center' }}
+                disabled={hasRestrictedAccess || featuredContentRestricted}
               >
-                <Play size={18} fill="currentColor" style={{ marginRight: '8px' }} /> WATCH NOW
+                <Play size={18} fill="currentColor" style={{ marginRight: '8px' }} />
+                {featuredContentRestricted ? 'LOCKED BY PARENTAL CONTROLS' : 'WATCH NOW'}
               </Button>
             </div>
           </div>
@@ -136,7 +269,14 @@ export default function Home() {
           </div>
           <div className="cw-netflix-grid">
             {pageState.continueWatching.map((item) => (
-              <div key={item.id} className="cw-netflix-card" onClick={() => navigate(`/show/${item.id}`)}>
+              <div
+                key={item.id}
+                className="cw-netflix-card"
+                onClick={() => {
+                  void handleContinueWatchingClick(item.id);
+                }}
+                style={hasRestrictedAccess ? { opacity: 0.6, cursor: 'not-allowed' } : undefined}
+              >
                 <img src={item.image} alt={item.title} className="cw-netflix-img" style={{ width: '100%', height: '100%' }} />
                 <div className="cw-netflix-overlay">
                   <Play size={40} fill="#fff" className="cw-play-icon" />

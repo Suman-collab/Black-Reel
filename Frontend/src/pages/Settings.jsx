@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import './Settings.css';
 import Button from '../components/Button';
+import PlanSelectorModal from '../components/PlanSelectorModal';
 import StatePanel from '../components/StatePanel';
 import { getProfile, updatePreferences, updateProfile } from '../features/user/user.service';
 import { useAuth } from '../features/auth/AuthContext';
+import { PARENTAL_CONTROLS_DESCRIPTION } from '../lib/contentAccess';
+import { getNavbarPlanLabel, getSubscriptionLabel, hasActiveSubscription, hasSelectedSubscriptionPlan } from '../lib/subscription';
+import { useI18n } from '../i18n/I18nContext';
+import { LANGUAGE_OPTIONS, codeToLabel, labelToCode } from '../i18n/translations';
 
 export default function Settings() {
-  const { logout, updateUser } = useAuth();
+  const navigate = useNavigate();
+  const { logout, updateUser, user } = useAuth();
+  const { t, languageCode, setLanguageCode } = useI18n();
   const [profile, setProfile] = useState(null);
   const [formState, setFormState] = useState({
     name: '',
@@ -21,6 +29,7 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [planSelectorOpen, setPlanSelectorOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -41,7 +50,7 @@ export default function Settings() {
           name: user.name,
           email: user.email,
           avatarUrl: user.avatarUrl || '/images/avatar.png',
-          language: user.preferences?.language || 'English (US)',
+          language: user.preferences?.language || codeToLabel(languageCode),
           notificationsEnabled: Boolean(user.preferences?.notificationsEnabled),
           parentalControls: Boolean(user.preferences?.parentalControls),
         });
@@ -63,6 +72,18 @@ export default function Settings() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    setProfile((current) => (current ? { ...current, ...user } : user));
+    setFormState((current) => ({
+      ...current,
+      parentalControls: Boolean(user.preferences?.parentalControls),
+    }));
+  }, [user]);
 
   const handleAvatarSelect = (event) => {
     const file = event.target.files?.[0];
@@ -98,18 +119,26 @@ export default function Settings() {
     setSuccess('');
 
     try {
-      const [updatedProfile] = await Promise.all([
-        updateProfile({ name: formState.name, email: formState.email, avatarUrl: formState.avatarUrl }),
-        updatePreferences({
-          language: formState.language,
-          notificationsEnabled: formState.notificationsEnabled,
-          parentalControls: formState.parentalControls,
-        }),
-      ]);
+      await updateProfile({ name: formState.name, email: formState.email, avatarUrl: formState.avatarUrl });
+      await updatePreferences({
+        language: formState.language,
+        notificationsEnabled: formState.notificationsEnabled,
+        parentalControls: formState.parentalControls,
+      });
 
-      setProfile(updatedProfile);
-      updateUser(updatedProfile);
-      setSuccess('Settings saved successfully.');
+      const refreshedUser = await getProfile();
+
+      setProfile(refreshedUser);
+      updateUser(refreshedUser);
+      setFormState({
+        name: refreshedUser.name,
+        email: refreshedUser.email,
+        avatarUrl: refreshedUser.avatarUrl || '/images/avatar.png',
+        language: refreshedUser.preferences?.language || codeToLabel(languageCode),
+        notificationsEnabled: Boolean(refreshedUser.preferences?.notificationsEnabled),
+        parentalControls: Boolean(refreshedUser.preferences?.parentalControls),
+      });
+      setSuccess(t('settings.saveSuccess'));
     } catch (apiError) {
       setError(apiError.message);
     } finally {
@@ -125,17 +154,29 @@ export default function Settings() {
     return <StatePanel title="Settings unavailable" message={error} />;
   }
 
-  return (
-    <div className="settings-page container">
-      <div className="page-header center">
-        <img src="/images/Vertical%20logo/Black-Shortz.png" alt="Black Shortz Logo" className="logo-header" />
-        <h1 className="page-title text-gold uppercase tracking-wider">Settings</h1>
-      </div>
+  const handlePlanSelection = (planType) => {
+    setPlanSelectorOpen(false);
 
-      <div className="settings-list-container">
+    if (hasActiveSubscription(profile?.subscription) && profile?.subscription?.planType === planType) {
+      navigate('/subscribe');
+      return;
+    }
+
+    navigate(`/checkout?plan=${planType}`);
+  };
+
+  return (
+    <>
+      <div className="settings-page container">
+        <div className="page-header center">
+          <img src="/images/Vertical%20logo/Black-Shortz.png" alt="Black Shortz Logo" className="logo-header" />
+          <h1 className="page-title text-gold uppercase tracking-wider">{t('settings.title')}</h1>
+        </div>
+
+        <div className="settings-list-container">
         <div className="settings-item" style={{ display: 'block' }}>
           <div className="settings-item-content">
-            <h3>Name</h3>
+            <h3>{t('settings.name')}</h3>
             <input
               type="text"
               value={formState.name}
@@ -147,7 +188,7 @@ export default function Settings() {
 
         <div className="settings-item" style={{ display: 'block' }}>
           <div className="settings-item-content">
-            <h3>Email</h3>
+            <h3>{t('settings.email')}</h3>
             <input
               type="email"
               value={formState.email}
@@ -159,7 +200,7 @@ export default function Settings() {
 
         <div className="settings-item" style={{ display: 'block' }}>
           <div className="settings-item-content">
-            <h3>Avatar</h3>
+            <h3>{t('settings.avatar')}</h3>
             <div style={{ display: 'flex', gap: '16px', marginTop: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
               <img
                 src={formState.avatarUrl || '/images/avatar.png'}
@@ -187,7 +228,7 @@ export default function Settings() {
                       color: '#fff',
                     }}
                   >
-                    Upload New Image
+                    {t('settings.uploadNewImage')}
                     <input type="file" accept="image/*" onChange={handleAvatarSelect} style={{ display: 'none' }} />
                   </label>
                   <button
@@ -195,11 +236,11 @@ export default function Settings() {
                     className="btn btn-outline"
                     onClick={() => setFormState((current) => ({ ...current, avatarUrl: '/images/avatar.png' }))}
                   >
-                    Reset Default
+                    {t('settings.resetDefault')}
                   </button>
                 </div>
                 <p style={{ margin: '10px 0 0', color: '#888', fontSize: '0.85rem' }}>
-                  Use an image URL or upload JPG, PNG, or WebP up to 350 KB.
+                  {t('settings.avatarHint')}
                 </p>
               </div>
             </div>
@@ -208,8 +249,8 @@ export default function Settings() {
 
         <div className="settings-item">
           <div className="settings-item-content">
-            <h3>Notifications</h3>
-            <p>New episodes, promos & updates</p>
+            <h3>{t('settings.notifications')}</h3>
+            <p>{t('settings.notificationsDesc')}</p>
           </div>
           <div
             className={`custom-toggle ${formState.notificationsEnabled ? 'active' : ''}`}
@@ -221,8 +262,12 @@ export default function Settings() {
 
         <div className="settings-item">
           <div className="settings-item-content">
-            <h3>Parental Controls</h3>
-            <p>Restrict mature content on this profile</p>
+            <h3>{t('settings.parentalControls')}</h3>
+            <p>{PARENTAL_CONTROLS_DESCRIPTION}</p>
+            <p style={{ marginTop: '6px', color: '#9aa0a6', fontSize: '0.85rem' }}>
+              Applies to: Premium titles plus Action, Thriller, Mystery, Horror, and Originals categories.
+            </p>
+            {formState.parentalControls ? <p style={{ marginTop: '6px', color: '#9fe870' }}>Restrictions are active on this profile.</p> : null}
           </div>
           <div
             className={`custom-toggle ${formState.parentalControls ? 'active' : ''}`}
@@ -234,17 +279,23 @@ export default function Settings() {
 
         <div className="settings-item">
           <div className="settings-item-content">
-            <h3>Language</h3>
+            <h3>{t('settings.language')}</h3>
           </div>
           <div className="settings-item-action">
             <select
-              value={formState.language}
-              onChange={(event) => setFormState((current) => ({ ...current, language: event.target.value }))}
+              value={labelToCode(formState.language)}
+              onChange={(event) => {
+                const nextLanguageCode = event.target.value;
+                setLanguageCode(nextLanguageCode);
+                setFormState((current) => ({ ...current, language: codeToLabel(nextLanguageCode) }));
+              }}
               style={{ padding: '10px', background: '#111', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
             >
-              <option>English (US)</option>
-              <option>English (UK)</option>
-              <option>Spanish</option>
+              {LANGUAGE_OPTIONS.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.label}
+                </option>
+              ))}
             </select>
             <ChevronRight size={20} className="text-muted" />
           </div>
@@ -252,12 +303,24 @@ export default function Settings() {
 
         <div className="settings-item">
           <div className="settings-item-content">
-            <h3>Subscription</h3>
-            <p>{profile?.subscription?.planType === 'none' ? 'No active plan' : `${profile.subscription.planType} plan`}</p>
+            <h3>{t('settings.subscription')}</h3>
+            <p>
+              {hasActiveSubscription(profile?.subscription)
+                ? getSubscriptionLabel(profile.subscription)
+                : hasSelectedSubscriptionPlan(profile?.subscription)
+                  ? `${getNavbarPlanLabel(profile.subscription)}`
+                  : t('settings.noActivePlan')}
+            </p>
           </div>
           <div className="settings-item-action">
             <span className="text-muted">{profile?.subscription?.status || 'inactive'}</span>
-            <ChevronRight size={20} className="text-muted" />
+            <Button
+              variant="outline"
+              className="settings-manage-plan-btn"
+              onClick={() => setPlanSelectorOpen(true)}
+            >
+              {hasSelectedSubscriptionPlan(profile?.subscription) ? t('settings.manageUpgrade') : t('settings.viewPlans')}
+            </Button>
           </div>
         </div>
 
@@ -266,11 +329,18 @@ export default function Settings() {
 
         <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
           <Button variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving...' : 'Save Settings'}
+            {saving ? t('settings.saving') : t('settings.saveSettings')}
           </Button>
-          <Button variant="outline" onClick={logout}>Log Out</Button>
+          <Button variant="outline" onClick={logout}>{t('settings.logOut')}</Button>
         </div>
       </div>
-    </div>
+      </div>
+      <PlanSelectorModal
+        isOpen={planSelectorOpen}
+        onClose={() => setPlanSelectorOpen(false)}
+        onSelectPlan={handlePlanSelection}
+        subscription={profile?.subscription}
+      />
+    </>
   );
 }

@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(storedSession?.user || null);
   const [token, setToken] = useState(storedSession?.token || null);
   const [initialized, setInitialized] = useState(false);
-  const [loading, setLoading] = useState(Boolean(storedSession?.token));
+  const [loading, setLoading] = useState(false);
 
   const persistSession = (session) => {
     setStoredAdminAuth(session);

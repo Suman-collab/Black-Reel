@@ -42,8 +42,8 @@ export const removeDevice = catchAsync(async (req, res, next) => {
 });
 
 export const getUsers = catchAsync(async (req, res, next) => {
-  const users = await userService.getAllUsers(req.query);
-  res.status(200).json({ success: true, count: users.length, data: { users } });
+  const result = await userService.getAllUsers(req.query);
+  res.status(200).json({ success: true, data: result });
 });
 
 export const updateRole = catchAsync(async (req, res, next) => {
@@ -52,6 +52,12 @@ export const updateRole = catchAsync(async (req, res, next) => {
 });
 
 export const updateStatus = catchAsync(async (req, res, next) => {
-  const user = await userService.updateUserStatus(req.params.id, req.body);
+  const user = await userService.updateUserStatus(req.params.id, req.body, req.user.id);
   res.status(200).json({ success: true, data: { user } });
 });
+
+export const uploadAvatar = catchAsync(async (req, res, next) => {
+  const user = await userService.uploadAvatar(req.user.id, req.body);
+  res.status(200).json({ success: true, data: { user } });
+});
+

@@ -1,12 +1,12 @@
 import express from 'express';
 import * as contentController from '../controllers/content.controller.js';
-import { protect, authorize } from '../middlewares/auth.middleware.js';
+import { protect, optionalProtect, authorize } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
 // Publicly accessible content routes
-router.get('/', contentController.getAllContent);
-router.get('/:id', contentController.getContent);
+router.get('/', optionalProtect, contentController.getAllContent);
+router.get('/:id', optionalProtect, contentController.getContent);
 
 // Admin-only routes
 router.use(protect, authorize('admin'));

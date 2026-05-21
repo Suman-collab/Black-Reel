@@ -1,8 +1,9 @@
 .show-details-page {
-  padding-top: 40px;
+  padding-top: clamp(1rem, 3vw, 2rem);
   padding-bottom: 120px;
   max-width: 1200px;
   margin: 0 auto;
+  overflow-x: hidden;
 }
 
 .show-hero {
@@ -10,6 +11,7 @@
   gap: 40px;
   margin-bottom: 60px;
   align-items: flex-start;
+  min-width: 0;
 }
 
 .show-hero-poster-container {
@@ -88,6 +90,78 @@
   gap: 16px;
 }
 
+.show-inline-feedback {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fecaca;
+  max-width: 580px;
+}
+
+.parental-controls-banner {
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  max-width: 580px;
+}
+
+.parental-controls-banner strong {
+  color: #fff;
+}
+
+.parental-controls-banner span,
+.parental-controls-banner small {
+  color: #f5d0d6;
+}
+
+.show-player-section {
+  margin: 12px 0 52px;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(212, 184, 114, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 24%),
+    #0a0a0a;
+}
+
+.show-player-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.show-player-kicker {
+  margin: 0 0 6px;
+  color: var(--gold-primary);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.show-player-title {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.show-player-runtime {
+  color: var(--text-muted);
+}
+
+.show-video-player {
+  width: 100%;
+  border-radius: 16px;
+  background: #000;
+  aspect-ratio: 16 / 9;
+}
+
 .episode-btn {
   border-radius: 24px !important;
   border-color: #333 !important;
@@ -146,11 +220,27 @@
   background-color: #111;
 }
 
+.episode-list-item.active {
+  border-color: rgba(212, 184, 114, 0.35);
+  background: rgba(212, 184, 114, 0.08);
+}
+
+.ep-item-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .ep-item-title {
   color: #F3E5C0;
   font-size: 1.1rem;
   font-family: var(--font-sans);
   font-weight: 500;
+}
+
+.ep-item-meta {
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 .ep-play-btn {
@@ -198,6 +288,11 @@
 
   .show-actions {
     justify-content: center;
+  }
+
+  .show-player-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .episodes-list-title {

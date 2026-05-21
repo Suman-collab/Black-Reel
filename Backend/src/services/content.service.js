@@ -2,6 +2,11 @@ import Content from '../models/content.model.js';
 import AppError from '../utils/AppError.js';
 import { z } from 'zod';
 import { validate, toBoolean } from '../utils/validate.js';
+import { resolveDemoVideoUrl } from '../utils/demoVideo.js';
+import { escapeRegex, normalizeSearchTerm } from '../utils/search.js';
+
+const PARENTAL_RESTRICTED_GENRES = new Set(['action', 'thriller', 'mystery', 'horror', 'originals']);
+const PARENTAL_RESTRICTED_TAGS = new Set(['mature', 'explicit', '18+', 'violence']);
 
 const contentCreateSchema = z.object({
   title: z.string().trim().min(2, 'Title must be at least 2 characters'),
@@ -45,15 +50,24 @@ const buildContentFilters = ({ search, genre, tag, featured, status }) => {
   }
 
   if (search) {
-    filters.$or = [
-      { title: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
-      { genre: { $regex: search, $options: 'i' } },
-      { tags: { $elemMatch: { $regex: search, $options: 'i' } } },
-    ];
+    // Fixed: sanitize and cap search terms; use text index for faster/safer search where available.
+    const normalizedSearch = normalizeSearchTerm(search);
+    if (normalizedSearch) {
+      filters.$text = { $search: normalizedSearch };
+    }
   }
 
   return filters;
+};
+
+const hasParentalControlsEnabled = (viewer) => Boolean(viewer?.preferences?.parentalControls);
+
+const isRestrictedForParentalControls = (content) => {
+  const genre = String(content?.genre || '').trim().toLowerCase();
+  const tags = Array.isArray(content?.tags) ? content.tags : [];
+  const hasMatureTag = tags.some((tag) => PARENTAL_RESTRICTED_TAGS.has(String(tag).trim().toLowerCase()));
+
+  return Boolean(content?.isPremium || PARENTAL_RESTRICTED_GENRES.has(genre) || hasMatureTag);
 };
 
 export const mapContent = (content) => ({
@@ -68,7 +82,7 @@ export const mapContent = (content) => ({
   thumbnailUrl: content.thumbnailUrl,
   hero_image: content.heroImageUrl || content.thumbnailUrl,
   heroImageUrl: content.heroImageUrl || content.thumbnailUrl,
-  videoUrl: content.videoUrl,
+  videoUrl: resolveDemoVideoUrl(content),
   isPremium: content.isPremium,
   featured: content.featured,
   views: content.views,
@@ -91,14 +105,20 @@ export const getPublishedContent = async (queryFilters = {}) => {
   return await query;
 };
 
-export const getContentList = async (query) => {
+export const getContentList = async (query, viewer = null) => {
   const filters = buildContentFilters(query);
-  return await getPublishedContent({ ...filters, limit: query.limit });
+  const content = await getPublishedContent({ ...filters, limit: query.limit });
+  return content;
 };
 
-export const getContentDetails = async (id) => {
+export const getContentDetails = async (id, viewer = null) => {
   const content = await Content.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
   if (!content) throw new AppError('Content not found', 404);
+
+  if (hasParentalControlsEnabled(viewer) && isRestrictedForParentalControls(content)) {
+    throw new AppError('This title is locked by parental controls for this profile.', 403);
+  }
+
   return content;
 };
 
@@ -119,3 +139,4 @@ export const deleteContent = async (id) => {
   if (!content) throw new AppError('Content not found', 404);
   return content;
 };
+

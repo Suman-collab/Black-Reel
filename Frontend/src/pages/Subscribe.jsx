@@ -1,53 +1,39 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { subscribeToPlan } from '../features/payments/payment.service';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
+import { plans } from '../lib/plans';
+import { formatPlanName, hasActiveSubscription } from '../lib/subscription';
 import './Subscribe.css';
-
-const plans = [
-  {
-    id: 'basic',
-    name: 'Basic',
-    price: '4.99',
-    description: 'A starter plan for casual watching.',
-    features: ['Watch on 1 device', 'Access to all originals', 'Ad-supported'],
-  },
-  {
-    id: 'standard',
-    name: 'Standard',
-    price: '7.99',
-    description: 'Best for regular streaming on multiple devices.',
-    features: ['Watch on 2 devices', 'Access to all originals', 'Ad-free'],
-    popular: true,
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    price: '9.99',
-    description: 'Full premium access for families and binge-watchers.',
-    features: ['Watch on 4 devices', 'Access to all originals', 'Ad-free'],
-  },
-];
 
 export default function Subscribe() {
   const navigate = useNavigate();
-  const { refreshUser } = useAuth();
-  const [loadingPlan, setLoadingPlan] = useState('');
-  const [error, setError] = useState('');
+  const location = useLocation();
+  const { user } = useAuth();
+  const currentSubscription = user?.subscription;
+  const subscriptionIsActive = hasActiveSubscription(currentSubscription);
+  const currentPlanType = currentSubscription?.planType;
+  const checkoutMessage = location.state?.checkoutMessage || '';
 
-  const handleSubscribe = async (planType) => {
-    setLoadingPlan(planType);
-    setError('');
-
-    try {
-      await subscribeToPlan(planType);
-      await refreshUser();
-      navigate('/payment-history');
-    } catch (apiError) {
-      setError(apiError.message);
-    } finally {
-      setLoadingPlan('');
+  const handleSubscribe = (planType) => {
+    if (subscriptionIsActive && currentPlanType === planType) {
+      return;
     }
+
+    // Plan selection should only start the checkout flow. The payment API is
+    // intentionally deferred until the user confirms payment on `/checkout`.
+    navigate(`/checkout?plan=${planType}`);
+  };
+
+  const getPlanActionLabel = (planType) => {
+    if (!subscriptionIsActive) {
+      return 'Continue to Payment';
+    }
+
+    if (currentPlanType === planType) {
+      return 'Current Plan';
+    }
+
+    return 'Upgrade or Switch';
   };
 
   return (
@@ -55,17 +41,27 @@ export default function Subscribe() {
       <div className="subscribe-header">
         <h1 className="subscribe-title text-gold">Subscribe</h1>
         <p className="subscribe-subtitle">Choose the plan that&apos;s right for you</p>
-        {error ? <p style={{ color: '#ffb3b3', marginTop: '16px' }}>{error}</p> : null}
+        {checkoutMessage ? <p className="subscribe-feedback">{checkoutMessage}</p> : null}
+        {subscriptionIsActive ? (
+          <div className="current-plan-banner">
+            <span className="current-plan-label">Current membership</span>
+            <strong>{formatPlanName(currentPlanType)} Plan</strong>
+            <p>Select another plan below if you want to upgrade or switch your subscription.</p>
+          </div>
+        ) : null}
       </div>
 
       <div className="pricing-cards">
         {plans.map((plan) => (
-          <div key={plan.id} className={`pricing-card ${plan.popular ? 'popular' : ''}`}>
+          <div
+            key={plan.id}
+            className={`pricing-card ${plan.popular ? 'popular' : ''} ${subscriptionIsActive && currentPlanType === plan.id ? 'active-plan-card' : ''}`}
+          >
             {plan.popular ? <div className="popular-badge">MOST POPULAR</div> : null}
             <h2 className="plan-name">{plan.name}</h2>
             <div className={`plan-price ${plan.popular ? 'text-gold' : ''}`}>
               <span className="currency">$</span>
-              <span className="amount">{plan.price}</span>
+              <span className="amount">{plan.price.toFixed(2)}</span>
             </div>
             <p className="plan-period">per month</p>
             <p style={{ color: 'var(--text-muted)', minHeight: '42px' }}>{plan.description}</p>
@@ -74,8 +70,12 @@ export default function Subscribe() {
                 <li key={feature}>{feature}</li>
               ))}
             </ul>
-            <button className="btn-subscribe" onClick={() => handleSubscribe(plan.id)} disabled={loadingPlan === plan.id}>
-              {loadingPlan === plan.id ? 'PROCESSING...' : 'SUBSCRIBE'}
+            <button
+              className="btn-subscribe"
+              onClick={() => handleSubscribe(plan.id)}
+              disabled={subscriptionIsActive && currentPlanType === plan.id}
+            >
+              {getPlanActionLabel(plan.id)}
             </button>
           </div>
         ))}

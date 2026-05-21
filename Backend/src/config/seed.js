@@ -3,6 +3,7 @@ import Content from '../models/content.model.js';
 import Payment from '../models/payment.model.js';
 import Notification from '../models/notification.model.js';
 import Report from '../models/report.model.js';
+import { resolveDemoVideoUrl } from '../utils/demoVideo.js';
 
 const seedUsers = {
   admin: {
@@ -32,7 +33,7 @@ const demoContent = [
     tags: ['new_release', 'popular', 'fandom'],
     thumbnailUrl: '/images/fandom/Poster 1 - 150x200.jpg.jpeg',
     heroImageUrl: '/images/fandom/hero_pool_boy_banner.png',
-    videoUrl: 'https://example.com/videos/brothas-in-arms.mp4',
+    videoUrl: resolveDemoVideoUrl({ title: 'Brothas in Arms' }),
     featured: true,
     views: 15400,
     rating: 4.8,
@@ -45,7 +46,7 @@ const demoContent = [
     tags: ['new_release'],
     thumbnailUrl: '/images/fandom/Poster 2 - 150x200.jpg.jpeg',
     heroImageUrl: '/images/fandom/Poster 2 - 150x200.jpg.jpeg',
-    videoUrl: 'https://example.com/videos/kinky.mp4',
+    videoUrl: resolveDemoVideoUrl({ title: 'Kinky' }),
     views: 11200,
     rating: 4.5,
   },
@@ -57,7 +58,7 @@ const demoContent = [
     tags: ['new_release', 'trending', 'fandom'],
     thumbnailUrl: '/images/fandom/Poster 3 - 150x200.jpg.jpeg',
     heroImageUrl: '/images/fandom/Poster 3 - 150x200.jpg.jpeg',
-    videoUrl: 'https://example.com/videos/burden.mp4',
+    videoUrl: resolveDemoVideoUrl({ title: 'Burden' }),
     views: 18900,
     rating: 4.7,
   },
@@ -69,7 +70,7 @@ const demoContent = [
     tags: ['new_release'],
     thumbnailUrl: '/images/fandom/Poster 4 - 150x200.jpg.jpeg',
     heroImageUrl: '/images/fandom/Poster 4 - 150x200.jpg.jpeg',
-    videoUrl: 'https://example.com/videos/he-lifted.mp4',
+    videoUrl: resolveDemoVideoUrl({ title: 'He Lifted' }),
     views: 9400,
     rating: 4.2,
   },
@@ -81,7 +82,7 @@ const demoContent = [
     tags: ['new_release', 'trending'],
     thumbnailUrl: '/images/fandom/Poster 5 - 150x200.jpg.jpeg',
     heroImageUrl: '/images/fandom/Poster 5 - 150x200.jpg.jpeg',
-    videoUrl: 'https://example.com/videos/blood-sisters.mp4',
+    videoUrl: resolveDemoVideoUrl({ title: 'Blood Sisters' }),
     views: 20350,
     rating: 4.6,
   },
@@ -93,7 +94,7 @@ const demoContent = [
     tags: ['new_release'],
     thumbnailUrl: '/images/fandom/Poster 6 - 150x200.jpg.jpeg',
     heroImageUrl: '/images/fandom/Poster 6 - 150x200.jpg.jpeg',
-    videoUrl: 'https://example.com/videos/glory-road.mp4',
+    videoUrl: resolveDemoVideoUrl({ title: 'Glory Road' }),
     views: 8300,
     rating: 4.1,
   },
@@ -105,7 +106,7 @@ const demoContent = [
     tags: ['trending', 'fandom'],
     thumbnailUrl: '/images/fandom/Poster 7 - 150x200.jpg.jpeg',
     heroImageUrl: '/images/fandom/Poster 7 - 150x200.jpg.jpeg',
-    videoUrl: 'https://example.com/videos/love-match.mp4',
+    videoUrl: resolveDemoVideoUrl({ title: 'Love Match' }),
     views: 17300,
     rating: 4.4,
   },
@@ -117,7 +118,7 @@ const demoContent = [
     tags: ['trending', 'popular'],
     thumbnailUrl: '/images/fandom/Poster 3 - 150x200.jpg.jpeg',
     heroImageUrl: '/images/fandom/hero_pool_boy_banner.png',
-    videoUrl: 'https://example.com/videos/velvet-room.mp4',
+    videoUrl: resolveDemoVideoUrl({ title: 'Velvet Room' }),
     featured: true,
     views: 31120,
     rating: 4.9,
@@ -202,6 +203,7 @@ const seedDatabase = async () => {
       amount: 9.99,
       currency: 'USD',
       status: 'completed',
+      billingEmail: demoUser.email,
       paymentMethod: 'Visa ending 4242',
       nextBillingDate,
       transactionId: `txn_seed_${Date.now()}`,

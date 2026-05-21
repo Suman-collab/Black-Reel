@@ -26,6 +26,14 @@
   --radius-md: 14px;
   --radius-lg: 20px;
   --nav-height: 80px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
 
   /* Typography */
   --font-serif: 'Playfair Display', serif;
@@ -44,6 +52,12 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 h1,
@@ -71,12 +85,17 @@ button {
   background: transparent;
 }
 
+img,
+video {
+  max-width: 100%;
+}
+
 /* Utilities */
 .container {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
 }
 
 .text-gold {
@@ -97,6 +116,12 @@ button {
 .main-content {
   flex: 1;
   padding-top: var(--nav-height);
+  padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  min-width: 0;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  isolation: isolate;
 }
 
 /* Scrollbar styling */

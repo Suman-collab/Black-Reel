@@ -1,3 +1,0 @@
-Server running in development mode on port 5000
-MongoDB Connected: 127.0.0.1
-[0mPOST /api/v1/auth/login [32m200[0m 2777.599 ms - 613[0m

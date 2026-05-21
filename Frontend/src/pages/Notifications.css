@@ -67,6 +67,19 @@
   padding: 16px 20px;
   border-radius: 12px;
   border: 1px solid #333;
+  transition: all 0.25s ease;
+  transform-origin: center;
+}
+
+.notification-item.deleting {
+  opacity: 0;
+  transform: translateX(20px);
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: -12px;
+  height: 0;
+  border-width: 0;
+  overflow: hidden;
 }
 
 .notif-badge {
@@ -91,9 +104,55 @@
   color: #eee;
 }
 
+.notif-action-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-left: 16px;
+}
+
 .notif-time {
   color: #666;
   font-size: 0.85rem;
-  margin-left: 16px;
   white-space: nowrap;
+}
+
+.notif-delete-btn {
+  background: transparent;
+  color: #666;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notif-delete-btn:hover {
+  background-color: rgba(255, 80, 80, 0.12);
+  color: #ff6b6b;
+  transform: scale(1.05);
+}
+
+.notif-delete-btn:focus-visible {
+  outline: 2px solid #ff6b6b;
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .notification-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .notif-action-section {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+  }
 }

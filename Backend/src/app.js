@@ -3,23 +3,62 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 
 import { errorHandler } from './middlewares/error.middleware.js';
 import AppError from './utils/AppError.js';
 import routes from './routes/index.js';
-import connectDB from './config/database.js';
 
 const app = express();
 
-app.use(helmet({ crossOriginResourcePolicy: false }));
+const allowedOrigins = String(process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+// Fixed: explicit CSP and hardened headers to reduce XSS/token exfiltration risk.
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'", ...allowedOrigins],
+        fontSrc: ["'self'", 'data:'],
+        frameAncestors: ["'none'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+      },
+    },
+  })
+);
+
+// Fixed: CORS now enforces env-driven allowlist instead of reflecting every origin.
 app.use(
   cors({
-    origin: true, // reflects valid origin
+    origin(origin, callback) {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new AppError('Origin is not allowed by CORS policy.', 403));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   })
 );
+
 app.use(express.json({ limit: '1mb' }));
+app.use(cookieParser());
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -44,15 +83,6 @@ app.get('/', (req, res) => {
     success: true,
     message: 'Welcome to Black Reel API',
   });
-});
-
-app.use('/api/v1', async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (error) {
-    next(error);
-  }
 });
 
 app.use('/api/v1', routes);

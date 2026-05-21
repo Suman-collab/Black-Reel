@@ -1,7 +1,8 @@
 .profile-page {
-  padding: 60px 20px;
+  padding: clamp(1rem, 3vw, 2rem) 20px 40px;
   max-width: 1000px;
   margin: 0 auto;
+  overflow-x: hidden;
 }
 
 .profile-container {
@@ -9,6 +10,7 @@
   grid-template-columns: 1fr 1.5fr;
   gap: 80px;
   align-items: start;
+  min-width: 0;
 }
 
 /* Left Column */
@@ -67,6 +69,56 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.setting-card-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.subscription-card {
+  align-items: center;
+}
+
+.subscription-card-action {
+  gap: 16px;
+}
+
+.current-plan-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.current-plan-summary small {
+  color: var(--text-muted);
+}
+
+.current-plan-pill,
+.profile-parental-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.current-plan-pill {
+  background: rgba(212, 184, 114, 0.12);
+  color: var(--gold-light);
+}
+
+.profile-parental-badge {
+  margin-top: 8px;
+  background: rgba(239, 68, 68, 0.14);
+  color: #fda4af;
 }
 
 .setting-label {
@@ -166,5 +218,20 @@ input:checked+.slider:before {
   .profile-container {
     grid-template-columns: 1fr;
     gap: 40px;
+  }
+
+  .setting-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .setting-card-action {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .current-plan-summary {
+    align-items: flex-start;
   }
 }

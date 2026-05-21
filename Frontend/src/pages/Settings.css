@@ -1,9 +1,10 @@
 .settings-page {
-  padding: 100px 40px 80px;
+  padding: clamp(1rem, 3vw, 2rem) 40px 80px;
   min-height: calc(100vh - var(--nav-height));
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-x: hidden;
 }
 
 .uppercase {
@@ -63,4 +64,25 @@
 
 .logout-item h3 {
   color: #ff4a4a;
+}
+
+.settings-manage-plan-btn {
+  padding: 10px 16px !important;
+}
+
+@media (max-width: 640px) {
+  .settings-page {
+    padding: 96px 16px 48px;
+  }
+
+  .settings-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .settings-item-action {
+    width: 100%;
+    justify-content: space-between;
+  }
 }

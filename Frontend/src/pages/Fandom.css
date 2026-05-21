@@ -1,6 +1,7 @@
 .fandom-container {
-  padding-top: 80px;
+  padding-top: clamp(1rem, 3vw, 2rem);
   padding-bottom: 80px;
+  overflow-x: hidden;
 }
 
 .fandom-title {

@@ -1,5 +1,5 @@
 .subscribe-page {
-  padding: 120px 40px 80px;
+  padding: 120px clamp(1rem, 4vw, 2.5rem) 80px;
   min-height: calc(100vh - var(--nav-height));
   display: flex;
   flex-direction: column;
@@ -9,6 +9,7 @@
 .subscribe-header {
   text-align: center;
   margin-bottom: 60px;
+  max-width: 760px;
 }
 
 .subscribe-title {
@@ -22,21 +23,59 @@
   color: var(--text-main);
 }
 
+.subscribe-feedback {
+  margin: 20px 0 0;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+}
+
+.current-plan-banner {
+  margin-top: 24px;
+  padding: 18px 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(212, 184, 114, 0.22);
+  background: rgba(212, 184, 114, 0.08);
+}
+
+.current-plan-banner strong {
+  display: block;
+  color: var(--gold-light);
+  font-size: 1.2rem;
+  margin-bottom: 6px;
+}
+
+.current-plan-banner p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.current-plan-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--gold-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+}
+
 .pricing-cards {
-  display: flex;
-  gap: 30px;
-  justify-content: center;
-  flex-wrap: wrap;
+  display: grid;
+  gap: clamp(1rem, 3vw, 1.875rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   width: 100%;
   max-width: 1100px;
+  align-items: stretch;
 }
 
 .pricing-card {
   background-color: var(--bg-color);
   border: 1px solid var(--gold-border);
   border-radius: var(--radius-md);
-  padding: 40px;
-  width: 320px;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -52,6 +91,12 @@
 .pricing-card.popular {
   border-color: var(--gold-primary);
   border-width: 2px;
+}
+
+.pricing-card.active-plan-card {
+  border-width: 2px;
+  border-color: var(--gold-primary);
+  background: linear-gradient(180deg, rgba(212, 184, 114, 0.08), transparent 22%), var(--bg-color);
 }
 
 .popular-badge {
@@ -99,7 +144,7 @@
 }
 
 .amount {
-  font-size: 4.5rem;
+  font-size: clamp(3rem, 10vw, 4.5rem);
   line-height: 1;
 }
 
@@ -126,11 +171,12 @@
 }
 
 .plan-features li::before {
-  content: '•';
-  color: var(--gold-primary);
-  font-size: 1.5rem;
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   margin-right: 12px;
-  line-height: 1;
+  background: var(--gold-primary);
 }
 
 .btn-subscribe {
@@ -151,4 +197,26 @@
   background: var(--gold-gradient);
   color: #000;
   border-color: transparent;
+}
+
+.btn-subscribe:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(212, 184, 114, 0.14);
+  color: var(--gold-light);
+}
+
+@media (max-width: 640px) {
+  .subscribe-page {
+    padding-top: 104px;
+    padding-bottom: 56px;
+  }
+
+  .subscribe-header {
+    margin-bottom: 40px;
+  }
+
+  .subscribe-title {
+    font-size: clamp(2.25rem, 11vw, 3rem);
+  }
 }

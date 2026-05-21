@@ -49,6 +49,7 @@ const preferencesSchema = new mongoose.Schema(
       type: String,
       default: 'English (US)',
       trim: true,
+      enum: ['English (US)', 'English (UK)', 'Spanish'],
     },
   },
   { _id: false }
@@ -63,7 +64,7 @@ const subscriptionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['inactive', 'active', 'cancelled'],
+      enum: ['inactive', 'pending', 'active', 'cancelled'],
       default: 'inactive',
     },
     startedAt: Date,
@@ -84,9 +85,42 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function requiredPassword() {
+        return this.authProvider === 'local';
+      },
       select: false,
       minlength: 6,
+    },
+    authProvider: {
+      type: String,
+      enum: ['local', 'google', 'apple'],
+      default: 'local',
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    firebaseUid: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
+      trim: true,
+    },
+    refreshTokenHash: {
+      type: String,
+      select: false,
+    },
+    refreshTokenExpiresAt: {
+      type: Date,
+      select: false,
     },
     role: {
       type: String,
@@ -130,6 +164,11 @@ const userSchema = new mongoose.Schema(
       default: () => ({}),
     },
     lastLoginAt: Date,
+    tokenVersion: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   {
     timestamps: true,
@@ -146,7 +185,7 @@ const userSchema = new mongoose.Schema(
 
 // Hash password before save
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+  if (!this.password || !this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });

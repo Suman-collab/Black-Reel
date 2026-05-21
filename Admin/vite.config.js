@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { ensureBackendForDev } from '../dev/viteBackendPlugin.js'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), ensureBackendForDev()],
   server: {
     proxy: {
       '/api': {
-        target: 'https://black-reel-q6b7.vercel.app',
+        target: 'http://localhost:5001',
         changeOrigin: true,
       },
     },

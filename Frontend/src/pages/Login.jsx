@@ -12,7 +12,7 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, socialLogin } = useAuth();
 
   const redirectTo = location.state?.from || '/';
 
@@ -23,6 +23,23 @@ export default function Login() {
 
     try {
       await login({ email, password });
+      navigate(redirectTo, { replace: true });
+    } catch (apiError) {
+      setError(apiError.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider) => {
+    setSubmitting(true);
+    setError('');
+    try {
+      await socialLogin({
+        provider,
+        email,
+        name: 'Social User',
+      });
       navigate(redirectTo, { replace: true });
     } catch (apiError) {
       setError(apiError.message);
@@ -92,8 +109,20 @@ export default function Login() {
             </button>
           </form>
 
+          <div className="auth-terms" style={{ marginTop: '10px', display: 'grid', gap: '10px' }}>
+            <button type="button" className="btn-auth" onClick={() => { void handleSocialLogin('google'); }} disabled={submitting}>
+              Continue with Google
+            </button>
+            <button type="button" className="btn-auth" onClick={() => { void handleSocialLogin('facebook'); }} disabled={submitting}>
+              Continue with Facebook
+            </button>
+          </div>
+
           <p className="auth-footer-link">
             Demo user: <strong>user@blackreel.com</strong> / <strong>User123!</strong>
+          </p>
+          <p className="auth-footer-link">
+            Forgot password? <Link to="/forgot-password">Reset it</Link>
           </p>
           <p className="auth-footer-link">
             Don&apos;t have an account? <Link to="/signup">Sign Up</Link>

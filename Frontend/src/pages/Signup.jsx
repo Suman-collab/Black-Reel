@@ -12,7 +12,7 @@ export default function Signup() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, socialLogin } = useAuth();
 
   const handleSignup = async (event) => {
     event.preventDefault();
@@ -26,8 +26,31 @@ export default function Signup() {
     setError('');
 
     try {
-      await register({ name, email, password });
+      const result = await register({ name, email, password });
+
+      if (result?.requiresEmailVerification) {
+        navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+        return;
+      }
+
       navigate('/subscribe');
+    } catch (apiError) {
+      setError(apiError.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSocialSignup = async (provider) => {
+    setSubmitting(true);
+    setError('');
+    try {
+      await socialLogin({
+        provider,
+        email,
+        name: name || 'New User',
+      });
+      navigate('/', { replace: true });
     } catch (apiError) {
       setError(apiError.message);
     } finally {
@@ -107,6 +130,15 @@ export default function Signup() {
               {submitting ? 'Creating Account...' : 'Sign Up'}
             </button>
           </form>
+
+          <div className="auth-terms" style={{ marginTop: '10px', display: 'grid', gap: '10px' }}>
+            <button type="button" className="btn-auth" onClick={() => { void handleSocialSignup('google'); }} disabled={submitting}>
+              Continue with Google
+            </button>
+            <button type="button" className="btn-auth" onClick={() => { void handleSocialSignup('facebook'); }} disabled={submitting}>
+              Continue with Facebook
+            </button>
+          </div>
 
           <p className="auth-footer-link">
             Have an account? <Link to="/login">Sign In</Link>

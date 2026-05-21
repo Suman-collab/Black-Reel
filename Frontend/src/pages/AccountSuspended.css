@@ -1,0 +1,87 @@
+.account-suspended-page {
+  min-height: calc(100vh - var(--nav-height));
+  display: grid;
+  place-items: center;
+  padding: 120px 24px 80px;
+}
+
+.account-suspended-card {
+  width: min(100%, 720px);
+  padding: 36px;
+  border-radius: 28px;
+  border: 1px solid rgba(212, 184, 114, 0.2);
+  background:
+    radial-gradient(circle at top right, rgba(212, 184, 114, 0.14), transparent 32%),
+    linear-gradient(160deg, rgba(24, 24, 24, 0.98), rgba(11, 11, 11, 0.98));
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.account-suspended-kicker {
+  margin: 0 0 10px;
+  color: var(--gold-primary);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.account-suspended-card h1 {
+  margin: 0 0 16px;
+  font-size: 2.4rem;
+}
+
+.account-suspended-copy {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+  font-size: 1.02rem;
+}
+
+.account-suspended-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.account-suspended-primary,
+.account-suspended-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 20px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.account-suspended-primary {
+  background: var(--gold-gradient);
+  color: #111;
+}
+
+.account-suspended-secondary {
+  border: 1px solid rgba(212, 184, 114, 0.35);
+  color: var(--gold-light);
+}
+
+.account-suspended-help {
+  display: grid;
+  gap: 6px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+
+.account-suspended-help strong {
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .account-suspended-card {
+    padding: 26px;
+  }
+
+  .account-suspended-card h1 {
+    font-size: 2rem;
+  }
+}

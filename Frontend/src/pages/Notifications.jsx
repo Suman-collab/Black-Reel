@@ -4,6 +4,7 @@ import StatePanel from '../components/StatePanel';
 import { getNotifications, updateNotificationPreferences } from '../features/notifications/notification.service';
 import { getProfile } from '../features/user/user.service';
 import { useAuth } from '../features/auth/AuthContext';
+import { Trash2 } from 'lucide-react';
 
 export default function Notifications() {
   const { updateUser } = useAuth();
@@ -64,6 +65,16 @@ export default function Notifications() {
     }
   };
 
+  const handleDelete = (id) => {
+    setNotifications((current) =>
+      current.map((n) => (n.id === id ? { ...n, isDeleting: true } : n))
+    );
+
+    setTimeout(() => {
+      setNotifications((current) => current.filter((n) => n.id !== id));
+    }, 250);
+  };
+
   if (loading) {
     return <StatePanel title="Loading notifications" message="Checking your broadcasts, updates, and alerts." />;
   }
@@ -89,12 +100,21 @@ export default function Notifications() {
 
         <div className="notifications-list">
           {notifications.map((notification) => (
-            <div className="notification-item" key={notification.id}>
+            <div className={`notification-item ${notification.isDeleting ? 'deleting' : ''}`} key={notification.id}>
               <div className="notif-badge">{notification.type.replace('_', ' ')}</div>
               <div className="notif-content">
                 <p>{notification.message}</p>
               </div>
-              <div className="notif-time">{new Date(notification.createdAt).toLocaleDateString()}</div>
+              <div className="notif-action-section">
+                <div className="notif-time">{new Date(notification.createdAt).toLocaleDateString()}</div>
+                <button
+                  className="notif-delete-btn"
+                  aria-label="Delete notification"
+                  onClick={() => handleDelete(notification.id)}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
           ))}
         </div>

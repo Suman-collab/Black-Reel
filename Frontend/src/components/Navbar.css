@@ -1,15 +1,15 @@
 .navbar {
-  height: var(--nav-height);
-  display: flex;
+  min-height: var(--nav-height);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 5%;
+  column-gap: clamp(0.75rem, 2vw, 2rem);
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
   background: rgba(11, 11, 11, 0.85);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   position: fixed;
-  top: 0;
-  width: 100%;
+  inset: 0 0 auto 0;
   z-index: 1000;
   border-bottom: 1px solid rgba(198, 167, 94, 0.1);
 }
@@ -23,12 +23,24 @@
   text-transform: uppercase;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.nav-brand-logo {
+  display: block;
+  width: auto;
+  height: clamp(2.75rem, 7vw, 3.5rem);
+  max-width: min(38vw, 9rem);
+  object-fit: contain;
 }
 
 .nav-links {
   display: flex;
-  gap: 32px;
+  gap: clamp(1rem, 2vw, 2rem);
   align-items: center;
+  justify-self: center;
+  min-width: 0;
 }
 
 .nav-link {
@@ -62,8 +74,17 @@
 
 .nav-actions {
   display: flex;
-  gap: 20px;
+  gap: clamp(0.5rem, 1.5vw, 1rem);
   align-items: center;
+  justify-self: end;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.subscription-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .btn-icon {
@@ -79,6 +100,39 @@
   transform: scale(1.1);
 }
 
+.subscribe-chip {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 184, 114, 0.3);
+  background: rgba(212, 184, 114, 0.08);
+  cursor: pointer;
+}
+
+.subscribe-chip.plan-active {
+  background: rgba(212, 184, 114, 0.16);
+  color: var(--gold-light);
+  box-shadow: inset 0 0 0 1px rgba(212, 184, 114, 0.08);
+}
+
+.subscription-manage-button,
+.mobile-plan-button {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+  border-radius: 999px;
+  padding: 9px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+.subscription-manage-button:hover,
+.mobile-plan-button:hover {
+  color: var(--gold-light);
+  border-color: rgba(212, 184, 114, 0.28);
+  background: rgba(212, 184, 114, 0.08);
+}
+
 .search-form {
   display: flex;
   align-items: center;
@@ -88,6 +142,7 @@
   overflow: hidden;
   padding-left: 12px;
   transition: all 0.3s ease;
+  min-width: 0;
 }
 
 .search-input {
@@ -98,7 +153,8 @@
   font-size: 0.95rem;
   padding: 8px;
   outline: none;
-  width: 200px;
+  width: clamp(9rem, 18vw, 12.5rem);
+  min-width: 0;
 }
 
 .search-input::placeholder {
@@ -138,7 +194,8 @@
 
 .mobile-menu.open {
   padding: 24px 0;
-  max-height: 350px;
+  max-height: min(70vh, 28rem);
+  overflow-y: auto;
 }
 
 .mobile-nav-links {
@@ -156,12 +213,20 @@
   text-decoration: none;
 }
 
+.mobile-plan-button {
+  font-size: 1.05rem;
+}
+
 .mobile-nav-link.active,
 .mobile-nav-link:hover {
   color: var(--gold-primary);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 960px) {
+  .navbar {
+    grid-template-columns: auto auto;
+  }
+
   .nav-links {
     display: none;
   }
@@ -171,6 +236,28 @@
   }
 
   .search-input {
-    width: 140px;
+    width: min(36vw, 10rem);
+  }
+
+  .subscribe-chip {
+    display: none;
+  }
+
+  .subscription-manage-button {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    min-height: 4.5rem;
+  }
+
+  .nav-brand-logo {
+    max-width: min(42vw, 8rem);
+  }
+
+  .nav-actions {
+    gap: 0.75rem;
   }
 }

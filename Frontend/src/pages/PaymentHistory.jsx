@@ -1,12 +1,32 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import StatePanel from '../components/StatePanel';
 import { getPaymentHistory } from '../features/payments/payment.service';
+import { useAuth } from '../features/auth/AuthContext';
+import { consumeCheckoutSuccessMessage } from '../lib/checkout';
 import './PaymentHistory.css';
 
 export default function PaymentHistory() {
+  const location = useLocation();
+  const { refreshUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [history, setHistory] = useState([]);
+  const [successMessage, setSuccessMessage] = useState(location.state?.successMessage || '');
+
+  useEffect(() => {
+    if (location.state?.successMessage) {
+      setSuccessMessage(location.state.successMessage);
+      return;
+    }
+
+    setSuccessMessage(consumeCheckoutSuccessMessage());
+  }, [location.state]);
+
+  useEffect(() => {
+    refreshUser().catch(() => null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -52,6 +72,9 @@ export default function PaymentHistory() {
       <div className="page-header center">
         <img src="/images/Vertical%20logo/Black-Shortz.png" alt="Black Shortz Logo" className="logo-header" />
         <h1 className="page-title text-gold">Payment History</h1>
+        {successMessage ? (
+          <p className="payment-success-banner">{successMessage}</p>
+        ) : null}
       </div>
 
       <div className="payment-table-container">

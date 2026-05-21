@@ -2,7 +2,7 @@ import * as contentService from '../services/content.service.js';
 import catchAsync from '../utils/catchAsync.js';
 
 export const getAllContent = catchAsync(async (req, res, next) => {
-  const content = await contentService.getContentList(req.query);
+  const content = await contentService.getContentList(req.query, req.user || null);
   res.status(200).json({
     success: true,
     count: content.length,
@@ -11,7 +11,7 @@ export const getAllContent = catchAsync(async (req, res, next) => {
 });
 
 export const getContent = catchAsync(async (req, res, next) => {
-  const content = await contentService.getContentDetails(req.params.id);
+  const content = await contentService.getContentDetails(req.params.id, req.user || null);
   res.status(200).json({ success: true, data: { content: contentService.mapContent(content) } });
 });
 

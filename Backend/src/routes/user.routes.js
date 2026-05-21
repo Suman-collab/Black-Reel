@@ -10,6 +10,7 @@ router.use(protect);
 // Publicly logged-in routes
 router.get('/profile', userController.getProfile);
 router.patch('/profile', userController.updateProfile);
+router.post('/profile/avatar', userController.uploadAvatar);
 router.patch('/preferences', userController.updatePreferences);
 router.get('/watchlist', userController.getWatchlist);
 router.post('/watchlist/:contentId', userController.addToWatchlist);
