@@ -10,6 +10,8 @@ const UsersManagement = () => {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('All');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     let isMounted = true;
@@ -19,10 +21,12 @@ const UsersManagement = () => {
       setError('');
 
       try {
-        const data = await getUsers();
+        // Fixed: consume paginated users API response.
+        const data = await getUsers({ page, limit: 20 });
 
         if (isMounted) {
-          setUsers(data);
+          setUsers(data.users || []);
+          setTotalPages(data.totalPages || 1);
         }
       } catch (apiError) {
         if (isMounted) {
@@ -40,7 +44,7 @@ const UsersManagement = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [page]);
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -171,6 +175,11 @@ const UsersManagement = () => {
       </div>
 
       <DataTable columns={columns} data={filteredUsers} />
+      <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+        <button className="action-btn" disabled={page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))}>Prev</button>
+        <span style={{ alignSelf: 'center' }}>Page {page} of {totalPages}</span>
+        <button className="action-btn" disabled={page >= totalPages} onClick={() => setPage((current) => Math.min(totalPages, current + 1))}>Next</button>
+      </div>
     </div>
   );
 };

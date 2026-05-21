@@ -8,14 +8,14 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const storedSession = getStoredAdminAuth();
   const [user, setUser] = useState(storedSession?.user || null);
-  const [token, setToken] = useState(storedSession?.token || null);
+  const [token, setToken] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const persistSession = (session) => {
     setStoredAdminAuth(session);
     setUser(session.user);
-    setToken(session.token);
+    setToken(null);
   };
 
   const clearSession = (shouldRedirect = false) => {
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
   const refreshUser = async () => {
     const activeSession = getStoredAdminAuth();
 
-    if (!activeSession?.token) {
+    if (!activeSession?.user) {
       clearSession(false);
       return null;
     }
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error('This account does not have admin access.');
       }
 
-      persistSession({ token: activeSession.token, user: currentUser });
+      persistSession({ user: currentUser });
       setUser(currentUser);
       return currentUser;
     } catch (error) {
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     registerUnauthorizedHandler(() => clearSession(true));
 
-    if (storedSession?.token) {
+    if (storedSession?.user) {
       refreshUser().catch(() => null);
     } else {
       setInitialized(true);
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }) => {
         token,
         initialized,
         loading,
-        isAuthenticated: Boolean(user && token),
+        isAuthenticated: Boolean(user),
         login,
         logout,
         refreshUser,
@@ -113,3 +113,5 @@ export const useAuth = () => {
 
   return context;
 };
+
+

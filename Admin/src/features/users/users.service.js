@@ -1,8 +1,8 @@
 import api from '../../lib/api';
 
-export const getUsers = async () => {
-  const response = await api.get('/users');
-  return response.data.data.users;
+export const getUsers = async (params = {}) => {
+  const response = await api.get('/users', { params });
+  return response.data.data;
 };
 
 export const updateUserRole = async (userId, role) => {

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { clearStoredAdminAuth, getStoredAdminAuth } from './storage';
+import { clearStoredAdminAuth } from './storage';
 
 let unauthorizedHandler = null;
 
@@ -19,19 +19,11 @@ const normalizeError = (error) => {
   return new Error('Something went wrong while calling the API.');
 };
 
+// Fixed: remove Authorization header injection; rely on HttpOnly cookie sessions.
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api/v1',
   timeout: 15000,
-});
-
-api.interceptors.request.use((config) => {
-  const session = getStoredAdminAuth();
-
-  if (session?.token) {
-    config.headers.Authorization = `Bearer ${session.token}`;
-  }
-
-  return config;
+  withCredentials: true,
 });
 
 api.interceptors.response.use(
