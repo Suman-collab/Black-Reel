@@ -16,7 +16,7 @@ export const setStoredSuspension = (value) => {
   try {
     sessionStorage.setItem(SUSPENSION_STORAGE_KEY, JSON.stringify(value));
   } catch {
-    // Ignore storage failures so auth enforcement still works.
+    
   }
 };
 
@@ -24,6 +24,6 @@ export const clearStoredSuspension = () => {
   try {
     sessionStorage.removeItem(SUSPENSION_STORAGE_KEY);
   } catch {
-    // Ignore cleanup issues so logout still completes.
+    
   }
 };

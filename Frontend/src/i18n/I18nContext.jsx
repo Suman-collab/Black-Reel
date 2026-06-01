@@ -38,7 +38,7 @@ export const I18nProvider = ({ children }) => {
     try {
       localStorage.setItem(I18N_STORAGE_KEY, languageCode);
     } catch {
-      // Ignore storage failures; runtime switching still works.
+      
     }
 
     document.documentElement.lang = languageCode;

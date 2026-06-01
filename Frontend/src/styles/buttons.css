@@ -1,0 +1,115 @@
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-6);
+  height: 48px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border: none;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-shine);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.btn:hover::after { opacity: 1; }
+.btn:active { transform: scale(0.97); }
+
+
+.btn-primary {
+  background: var(--gradient-gold);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 16px rgba(232,184,75,0.30);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 24px rgba(232,184,75,0.45);
+  transform: translateY(-1px);
+}
+
+
+.btn-ghost {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  backdrop-filter: blur(8px);
+}
+
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: var(--border-emphasis);
+}
+
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-gold);
+  border: 1px solid var(--border-gold);
+}
+
+.btn-outline:hover {
+  background: var(--gradient-gold-soft);
+  border-color: var(--border-gold-strong);
+  box-shadow: var(--shadow-gold);
+}
+
+
+.btn-play {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-gold);
+  color: var(--text-inverse);
+  font-size: 22px;
+  box-shadow: 0 4px 24px rgba(232,184,75,0.40);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-play:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 32px rgba(232,184,75,0.55);
+}
+
+
+.btn-sm { height: 36px; padding: 0 var(--space-4); font-size: var(--text-xs); }
+.btn-lg { height: 56px; padding: 0 var(--space-8); font-size: var(--text-md); }
+.btn-xl { height: 64px; padding: 0 var(--space-10); font-size: var(--text-lg); }
+
+
+.btn-block { width: 100%; }
+
+
+.btn.loading { pointer-events: none; opacity: 0.7; }
+.btn.loading::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: var(--space-2);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -1,52 +1,80 @@
-import {
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  sendEmailVerification,
-  sendPasswordResetEmail,
+import { 
   signInWithEmailAndPassword,
-  signOut,
+  createUserWithEmailAndPassword,
   signInWithPopup,
+  signOut,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+  confirmPasswordReset,
+  sendEmailVerification,
 } from 'firebase/auth';
-import { firebaseAuth } from './config';
+import { auth, googleProvider } from './config';
 
-export const registerWithEmail = async ({ email, password }) => {
-  const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
-  await sendEmailVerification(userCredential.user);
-  await signOut(firebaseAuth);
-  return userCredential.user;
-};
-
-export const loginWithEmail = async ({ email, password }) => {
-  const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
-  await userCredential.user.reload();
-
-  if (!userCredential.user.emailVerified) {
-    await signOut(firebaseAuth);
-    throw new Error('Please verify your email before signing in.');
+export const loginWithEmail = async (email, password) => {
+  try {
+    const result = await signInWithEmailAndPassword(
+      auth, email, password
+    );
+    return result.user;
+  } catch (error) {
+    throw error;
   }
-
-  return userCredential.user;
 };
 
-export const resendCurrentUserVerification = async () => {
-  const currentUser = firebaseAuth.currentUser;
-  if (!currentUser) {
-    throw new Error('Sign in required to resend verification email.');
+export const signupWithEmail = async (email, password) => {
+  try {
+    const result = await createUserWithEmailAndPassword(
+      auth, email, password
+    );
+    try {
+      await sendEmailVerification(result.user);
+    } catch (e) {
+      console.error('Failed to send verification email during signup:', e);
+    }
+    return result.user;
+  } catch (error) {
+    throw error;
   }
-
-  await sendEmailVerification(currentUser);
 };
 
-export const requestPasswordResetEmail = async (email) => {
-  await sendPasswordResetEmail(firebaseAuth, email);
+export const loginWithGoogle = async () => {
+  try {
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
+    const result = await signInWithPopup(auth, googleProvider);
+    return result.user;
+  } catch (error) {
+    throw error;
+  }
 };
 
-export const logoutFirebaseUser = async () => {
-  await signOut(firebaseAuth);
+export const logoutUser = async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    throw error;
+  }
 };
 
-export const loginWithGooglePopup = async () => {
-  const provider = new GoogleAuthProvider();
-  const result = await signInWithPopup(firebaseAuth, provider);
-  return result.user;
+export const resetPassword = async (email) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const resetPasswordWithCode = async ({ oobCode, newPassword }) => {
+  try {
+    await confirmPasswordReset(auth, oobCode, newPassword);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const onAuthChange = (callback) => {
+  try {
+    return onAuthStateChanged(auth, callback);
+  } catch (error) {
+    throw error;
+  }
 };

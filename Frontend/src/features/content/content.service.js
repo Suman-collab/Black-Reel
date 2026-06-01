@@ -9,3 +9,8 @@ export const getContentById = async (id) => {
   const response = await api.get(`/content/${id}`);
   return response.data.data.content;
 };
+
+export const registerWatch = async (id) => {
+  const response = await api.post(`/content/${id}/watch`);
+  return response.data.data;
+};

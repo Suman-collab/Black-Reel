@@ -36,11 +36,16 @@ export const removeFromWatchlist = async (contentId) => {
 };
 
 export const getDevices = async () => {
-  const response = await api.get('/users/devices');
-  return response.data.data.devices;
+  const response = await api.get('/devices');
+  return response.data.data;
 };
 
 export const removeDevice = async (deviceId) => {
-  const response = await api.delete(`/users/devices/${deviceId}`);
-  return response.data.data.devices;
+  const response = await api.delete(`/devices/${deviceId}`);
+  return response.data;
+};
+
+export const signOutAllDevices = async () => {
+  const response = await api.delete('/devices');
+  return response.data;
 };

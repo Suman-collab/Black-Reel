@@ -25,7 +25,13 @@ const normalizeWatchlistItems = (items = []) =>
         .filter((item) => item.id)
     : [];
 
-const removeWatchlistItemById = (items, contentId) => items.filter((item) => item.id !== contentId);
+const removeWatchlistItemById = (items, contentId) => {
+  const normalizedSearchId = normalizeContentId(contentId);
+  return items.filter((item) => {
+    const itemId = normalizeContentId(item?.id ?? item?._id ?? item?.contentId);
+    return itemId !== normalizedSearchId;
+  });
+};
 
 const addWatchlistItemById = (items, item) => {
   const normalizedItem = {
@@ -67,8 +73,8 @@ export const WatchlistProvider = ({ children }) => {
 
       setWatchlistItems(normalizedItems);
 
-      // Keep a per-user cache so refreshes and other tabs can hydrate quickly
-      // before the API revalidates the latest watchlist state.
+      
+      
       if (activeUserId) {
         setStoredWatchlist(activeUserId, normalizedItems);
       }
@@ -114,8 +120,8 @@ export const WatchlistProvider = ({ children }) => {
       try {
         const items = await getWatchlist();
 
-        // Ignore stale refresh responses that finish after a newer refresh
-        // or after a local add/remove mutation started.
+        
+        
         if (refreshRequestId !== latestRefreshRequestIdRef.current) {
           return normalizeWatchlistItems(items);
         }
@@ -141,7 +147,7 @@ export const WatchlistProvider = ({ children }) => {
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
     [activeUserId, isAuthenticated, persistWatchlist]
   );
 
@@ -232,8 +238,14 @@ export const WatchlistProvider = ({ children }) => {
   );
 
   const isInWatchlist = useCallback(
-    (contentId) => watchlistIds.has(normalizeContentId(contentId)),
-    [watchlistIds]
+    (contentId) => {
+      const normalizedSearchId = normalizeContentId(contentId);
+      return watchlistItems.some((item) => {
+        const itemId = normalizeContentId(item?.id ?? item?._id ?? item?.contentId);
+        return itemId === normalizedSearchId;
+      });
+    },
+    [watchlistItems]
   );
 
   const addItem = useCallback(
@@ -266,12 +278,12 @@ export const WatchlistProvider = ({ children }) => {
       try {
         const updatedItems = await addToWatchlistRequest(contentId);
         
-        // Ensure the returned items have properly normalized IDs
+        
         const normalizedUpdatedItems = normalizeWatchlistItems(updatedItems);
         
         const syncedItems = persistWatchlist(normalizedUpdatedItems);
         
-        // Silently refresh to ensure server state matches
+        
         void refreshWatchlist({ silent: true }).catch(() => null);
         
         return syncedItems;
@@ -319,12 +331,12 @@ export const WatchlistProvider = ({ children }) => {
       try {
         const updatedItems = await removeFromWatchlistRequest(normalizedContentId);
         
-        // Ensure the returned items have properly normalized IDs
+        
         const normalizedUpdatedItems = normalizeWatchlistItems(updatedItems);
         
         const syncedItems = persistWatchlist(normalizedUpdatedItems);
         
-        // Silently refresh to ensure server state matches
+        
         void refreshWatchlist({ silent: true }).catch(() => null);
         
         return syncedItems;

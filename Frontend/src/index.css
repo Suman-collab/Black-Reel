@@ -2,11 +2,11 @@
 
 :root {
   --bg-color: #121212;
-  /* Darker backgrounds for sections/cards */
+  
   --surface: #1E1E1E;
   --surface-light: #2A2A2A;
 
-  /* Gold Accents - Adjusted to be glossy and vibrant */
+  
   --gold-primary: #D4B872;
   --gold-light: #FCE6A9;
   --gold-gradient: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 50%, #ffffff 55%, var(--gold-light) 60%, var(--gold-primary) 100%);
@@ -14,14 +14,14 @@
   --gold-glow: 0 4px 20px rgba(212, 184, 114, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.4);
   --gold-border: rgba(212, 184, 114, 0.5);
 
-  /* Glossy Surface Overlays */
+  
   --glass-overlay: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.0) 100%);
 
-  /* Text */
+  
   --text-main: #FFFFFF;
   --text-muted: #A0A0A0;
 
-  /* Radii & Layout */
+  
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -35,7 +35,7 @@
   --space-8: 32px;
   --space-10: 40px;
 
-  /* Typography */
+  
   --font-serif: 'Playfair Display', serif;
   --font-sans: 'Inter', sans-serif;
 }
@@ -90,7 +90,7 @@ video {
   max-width: 100%;
 }
 
-/* Utilities */
+
 .container {
   width: 100%;
   max-width: 1400px;
@@ -106,7 +106,7 @@ video {
   color: var(--text-muted);
 }
 
-/* App layout wrapper */
+
 .app-wrapper {
   display: flex;
   flex-direction: column;
@@ -124,7 +124,7 @@ video {
   isolation: isolate;
 }
 
-/* Scrollbar styling */
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -142,3 +142,121 @@ video {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gold-primary);
 }
+
+
+:root {
+  --toastify-color-dark: #1e1e1e;
+  --toastify-color-info: var(--gold-primary);
+  --toastify-color-success: #9fe870;
+  --toastify-color-warning: #f59e0b;
+  --toastify-color-error: #ef4444;
+  --toastify-text-color-dark: #ffffff;
+}
+
+.Toastify__toast {
+  border-radius: 12px !important;
+  font-family: var(--font-sans) !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  background: rgba(30, 30, 30, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.Toastify__toast--success {
+  border-left: 4px solid #9fe870 !important;
+}
+
+.Toastify__toast--error {
+  border-left: 4px solid #ef4444 !important;
+}
+
+.Toastify__toast--warning {
+  border-left: 4px solid #f59e0b !important;
+}
+
+.Toastify__toast--info {
+  border-left: 4px solid var(--gold-primary) !important;
+}
+
+.Toastify__progress-bar {
+  height: 3px !important;
+}
+
+.Toastify__progress-bar--success {
+  background: #9fe870 !important;
+}
+
+.Toastify__progress-bar--error {
+  background: #ef4444 !important;
+}
+
+.Toastify__progress-bar--warning {
+  background: #f59e0b !important;
+}
+
+.Toastify__progress-bar--info {
+  background: var(--gold-primary) !important;
+}
+
+.Toastify__close-button {
+  color: #fff !important;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+
+/* Global Overlap and Layout Alignment Overrides */
+.page-wrapper,
+.page-content,
+main {
+  padding-top: 68px; /* exact navbar height */
+}
+
+/* Exception: hero sections that go behind navbar */
+.hero-page main {
+  padding-top: 0;
+}
+
+/* HERO + CONTENT OVERLAP in Home.jsx */
+.hero-section {
+  position: relative;
+  z-index: 0;
+}
+
+.content-sections {
+  position: relative;
+  z-index: 1;
+  background: #0D0D0F;
+  margin-top: 0;
+}
+
+/* SHOW DETAILS OVERLAP */
+.show-details-page {
+  padding-top: 68px;
+  min-height: 100vh;
+  background: #0D0D0F;
+}
+
+.show-details__hero {
+  position: relative;
+  margin-top: -68px; /* pull hero behind navbar */
+  padding-top: 68px;
+}
+
+/* FOOTER OVERLAP — Footer must always clear content */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-layout main {
+  flex: 1;
+}
+

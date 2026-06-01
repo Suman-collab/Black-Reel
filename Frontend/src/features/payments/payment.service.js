@@ -27,5 +27,15 @@ export const cancelCheckoutSession = async (payload) => {
 
 export const getPaymentHistory = async () => {
   const response = await api.get('/payments/history');
-  return response.data.data.history;
+  return response.data.data?.history || response.data.payments || [];
+};
+
+export const createDummyOrder = async (planId) => {
+  const response = await api.post('/payments/create-order', { planId });
+  return response.data.order;
+};
+
+export const processDummyPayment = async (payload) => {
+  const response = await api.post('/payments/process', payload);
+  return response.data;
 };

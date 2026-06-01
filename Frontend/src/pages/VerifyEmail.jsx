@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
+import { toast } from '../lib/toast';
 import './Auth.css';
 
 export default function VerifyEmail() {
@@ -19,10 +20,10 @@ export default function VerifyEmail() {
 
     try {
       await verifyEmail();
-      setSuccess('Email verified successfully. Redirecting...');
+      toast.success('Email verified successfully. Redirecting...');
       setTimeout(() => navigate('/', { replace: true }), 800);
     } catch (apiError) {
-      setError(apiError.message);
+      toast.error(apiError.message);
     } finally {
       setBusy(false);
     }
@@ -35,9 +36,9 @@ export default function VerifyEmail() {
 
     try {
       await resendVerification(email || undefined);
-      setSuccess('Verification email sent. Check your inbox.');
+      toast.success('Verification email sent. Check your inbox.');
     } catch (apiError) {
-      setError(apiError.message);
+      toast.error(apiError.message);
     } finally {
       setBusy(false);
     }
@@ -45,27 +46,24 @@ export default function VerifyEmail() {
 
   return (
     <div className="auth-split-container">
-      <div className="auth-left">
-        <div className="auth-form-wrapper">
-          <h1 className="auth-title">Verify Your Email</h1>
-          <p className="auth-subtitle">
+      <div className="auth-left animate-fade-in-up">
+        <div className="form-container">
+          <h1 className="form-title">Verify Your Email</h1>
+          <p className="form-subtitle">
             {email ? `Verification required for ${email}.` : 'Open your inbox and verify your account to continue.'}
           </p>
 
-          {error ? <p style={{ color: '#ffb3b3', margin: 0 }}>{error}</p> : null}
-          {success ? <p style={{ color: '#9fe870', margin: 0 }}>{success}</p> : null}
-
-          <div className="auth-terms" style={{ marginTop: '14px', display: 'grid', gap: '10px' }}>
-            <button type="button" className="btn-auth" disabled={busy} onClick={() => { void handleVerify(); }}>
+          <div className="auth-terms" style={{ marginTop: '24px', display: 'grid', gap: '12px' }}>
+            <button type="button" className="btn btn-primary btn-block" disabled={busy} onClick={() => { void handleVerify(); }}>
               {busy ? 'Checking...' : 'I Have Verified'}
             </button>
-            <button type="button" className="btn-auth" disabled={busy} onClick={() => { void handleResend(); }}>
+            <button type="button" className="btn btn-outline btn-block" disabled={busy} onClick={() => { void handleResend(); }}>
               {busy ? 'Sending...' : 'Resend Verification Email'}
             </button>
           </div>
 
-          <p className="auth-footer-link">
-            Already verified? <Link to="/login">Sign In</Link>
+          <p className="auth-footer-link" style={{ marginTop: '24px' }}>
+            Already verified? <Link to="/login" style={{ color: 'var(--brand-primary)' }}>Sign In</Link>
           </p>
         </div>
       </div>

@@ -49,12 +49,42 @@ export default function Fandom() {
   }
 
   return (
-    <div className="fandom-container container">
-      <div className="fandom-grid">
-        {content.map((movie) => (
-          <MovieCard key={movie.id} {...movie} />
-        ))}
-      </div>
+    <div className="fandom-page">
+      {/* <div className="page-header">
+        <h1 className="page-title">Fandom</h1>
+      </div> */}
+
+      {(!content || content.length === 0) ? (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '6rem 2rem',
+          gap: '16px',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '48px', opacity: 0.3 }}>🎬</div>
+          <h3 style={{ 
+            fontSize: '20px', 
+            fontWeight: '600', 
+            color: '#F5F5F0' 
+          }}>
+            Nothing here yet
+          </h3>
+          <p style={{ fontSize: '14px', color: '#A0A0A8', maxWidth: '320px' }}>
+            Fan favorites will appear here once content is rated 
+            and reviewed by the community.
+          </p>
+        </div>
+      ) : (
+        <div className="fandom-grid">
+          {content.map((movie) => (
+            <MovieCard key={movie.id} {...movie} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+

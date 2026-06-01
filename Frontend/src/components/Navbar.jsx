@@ -12,26 +12,54 @@ export default function Navbar() {
   const [query, setQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [planSelectorOpen, setPlanSelectorOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { isAuthenticated, logout, user, hasRestrictedAccess } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isAuthPage = ['/login', '/signup', '/account-suspended'].includes(location.pathname);
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const isAuthPage = [
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/reset-password',
+    '/verify-email',
+    '/account-suspended'
+  ].includes(location.pathname);
   const subscriptionIsActive = hasActiveSubscription(user?.subscription);
   const hasSelectedPlan = hasSelectedSubscriptionPlan(user?.subscription);
   const activePlanLabel = getNavbarPlanLabel(user?.subscription);
+  const isDummyMode = import.meta.env.VITE_PAYMENT_MODE === 'dummy';
   const canUseProtectedActions = isAuthenticated && !hasRestrictedAccess;
   const watchlistLink = hasRestrictedAccess ? '/account-suspended' : '/watchlist';
   const profileLink = hasRestrictedAccess ? '/account-suspended' : '/profile';
   const notificationsLink = hasRestrictedAccess ? '/account-suspended' : '/notifications';
-  const subscribeLink = hasRestrictedAccess ? '/account-suspended' : '/subscribe';
+  const subscribeLink = hasRestrictedAccess
+    ? '/account-suspended'
+    : isDummyMode
+      ? '/plans'
+      : '/subscribe';
+  
+  const hasActivePlan = user?.subscription?.status === 'active';
+  const planName = user?.subscription?.planType || user?.subscription?.plan;
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query)}`);
-      setSearchOpen(false); // optional: close search on submit or keep open
+      setSearchOpen(false); 
     }
   };
 
@@ -45,7 +73,7 @@ export default function Navbar() {
     }
 
     if (subscriptionIsActive && user?.subscription?.planType === planType) {
-      navigate('/subscribe');
+      navigate(isDummyMode ? '/plans' : '/subscribe');
       return;
     }
 
@@ -54,8 +82,8 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="navbar">
-        <Link to="/" className="nav-brand">
+      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+        <Link to="/" className="navbar__logo nav-brand">
           <img
             src="/images/Horizontal%20logo/Black-Shortz.png"
             alt="Black Shortz Logo"
@@ -65,14 +93,14 @@ export default function Navbar() {
 
         {!isAuthPage && (
           <>
-            <div className="nav-links">
-              <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>{t('nav.home')}</NavLink>
-              <NavLink to="/categories" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>{t('nav.categories')}</NavLink>
-              <NavLink to="/fandom" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>{t('nav.fandom')}</NavLink>
-              <NavLink to={watchlistLink} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>{t('nav.watchlist')}</NavLink>
+            <div className="navbar__nav nav-links">
+              <NavLink to="/" className={({ isActive }) => `navbar__link nav-link ${isActive ? 'active' : ''}`}>{t('nav.home')}</NavLink>
+              <NavLink to="/categories" className={({ isActive }) => `navbar__link nav-link ${isActive ? 'active' : ''}`}>{t('nav.categories')}</NavLink>
+              <NavLink to="/fandom" className={({ isActive }) => `navbar__link nav-link ${isActive ? 'active' : ''}`}>{t('nav.fandom')}</NavLink>
+              <NavLink to={watchlistLink} className={({ isActive }) => `navbar__link nav-link ${isActive ? 'active' : ''}`}>{t('nav.watchlist')}</NavLink>
             </div>
 
-            <div className="nav-actions">
+            <div className="navbar__actions nav-actions">
               {searchOpen ? (
                 <form onSubmit={handleSearchSubmit} className="search-form active">
                   <input
@@ -93,38 +121,35 @@ export default function Navbar() {
                 </button>
               )}
 
-              {hasSelectedPlan ? (
-                <div className="subscription-actions">
-                  <button
-                    type="button"
-                    className="btn-icon subscribe-chip plan-active"
-                    style={{ fontSize: '0.95rem', fontWeight: 'bold' }}
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      setPlanSelectorOpen(true);
-                    }}
+              {hasActivePlan ? (
+                <div className="nav-plan-badge">
+                  <span className="plan-name">
+                    {planName?.charAt(0).toUpperCase() + planName?.slice(1)}
+                  </span>
+                  <button 
+                    className="btn-upgrade"
+                    onClick={() => navigate(isDummyMode ? '/plans' : '/subscribe')}
                   >
-                    {activePlanLabel}
-                  </button>
-                  <button
-                    type="button"
-                    className="subscription-manage-button"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      setPlanSelectorOpen(true);
-                    }}
-                  >
-                    {subscriptionIsActive ? t('nav.manageUpgrade') : t('nav.completeUpgrade')}
+                    Upgrade
                   </button>
                 </div>
               ) : (
-                <Link
-                  to={subscribeLink}
-                  className="btn-icon subscribe-chip"
-                  style={{ fontSize: '0.95rem', fontWeight: 'bold' }}
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => navigate(isDummyMode ? '/plans' : '/subscribe')}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '999px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    background: 'linear-gradient(135deg, #E8B84B, #F5D078)',
+                    color: '#0D0D0F',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
                 >
-                  {t('nav.subscribe')}
-                </Link>
+                  Subscribe
+                </button>
               )}
 
               {canUseProtectedActions ? (
@@ -132,8 +157,14 @@ export default function Navbar() {
                   <Link to={notificationsLink} aria-label="Notifications" className="btn-icon" style={{ display: 'flex', alignItems: 'center' }}>
                     <Bell size={20} />
                   </Link>
-                  <Link to={profileLink} aria-label="Profile" className="btn-icon" style={{ display: 'flex', alignItems: 'center' }}>
-                    <User size={20} />
+                  <Link to={profileLink} aria-label="Profile" style={{ display: 'flex', alignItems: 'center' }}>
+                    {user?.avatarUrl ? (
+                      <img src={user.avatarUrl} alt="Profile" className="navbar__avatar" />
+                    ) : (
+                      <div className="btn-icon" style={{ display: 'flex', alignItems: 'center' }}>
+                        <User size={20} />
+                      </div>
+                    )}
                   </Link>
                   <button type="button" className="btn-icon" style={{ fontSize: '0.9rem' }} onClick={logout}>
                     {t('nav.logout')}

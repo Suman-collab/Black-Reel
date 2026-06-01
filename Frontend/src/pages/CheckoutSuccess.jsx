@@ -13,6 +13,8 @@ export default function CheckoutSuccess() {
   const [planName, setPlanName] = useState(location.state?.planName || 'Subscription');
   const [successMessage, setSuccessMessage] = useState(location.state?.successMessage || 'Payment completed successfully.');
 
+  const isDummyMode = import.meta.env.VITE_PAYMENT_MODE === 'dummy';
+
   useEffect(() => {
     let isMounted = true;
 
@@ -33,7 +35,6 @@ export default function CheckoutSuccess() {
         return;
       }
 
-      // Fixed: fallback fetch for refresh-safe success page.
       try {
         const history = await getPaymentHistory();
         if (!isMounted) return;
@@ -47,7 +48,7 @@ export default function CheckoutSuccess() {
           clearCheckoutPaymentRef();
         }
       } catch {
-        // handled by empty state below
+        
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -72,43 +73,112 @@ export default function CheckoutSuccess() {
         title="No payment session found"
         message="We could not find a recent checkout result. Please retry subscription checkout."
         actionLabel="Back to Plans"
-        onAction={() => navigate('/subscribe')}
+        onAction={() => navigate(isDummyMode ? '/plans' : '/subscribe')}
       />
     );
   }
 
+  const currencySymbol = '₹';
+  
+  
+  const expiryDate = payment.nextBillingDate || payment.renewalDate || (() => {
+    const d = new Date(payment.paidAt || new Date());
+    d.setDate(d.getDate() + 30);
+    return d;
+  })();
+
   return (
     <div className="checkout-success-page container">
-      <div className="checkout-success-card">
-        <p className="checkout-success-kicker">Razorpay Demo</p>
-        <h1 className="checkout-success-title">Payment Successful</h1>
-        <p className="checkout-success-message">{successMessage}</p>
-
-        <div className="checkout-success-summary">
-          <div>
-            <span>Plan</span>
-            <strong>{planName}</strong>
-          </div>
-          <div>
-            <span>Amount</span>
-            <strong>${Number(payment.amount || 0).toFixed(2)}</strong>
-          </div>
-          <div>
-            <span>Transaction</span>
-            <strong>{payment.transactionId}</strong>
-          </div>
-          <div>
-            <span>Status</span>
-            <strong className="checkout-success-status">{payment.status}</strong>
+      <div className="checkout-success-card" style={{ maxWidth: '600px', margin: '40px auto' }}>
+        <div className="success-icon-container" style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '80px',
+            height: '80px',
+            background: 'rgba(74, 222, 128, 0.1)',
+            borderRadius: '50%',
+            color: '#4ade80',
+            fontSize: '48px'
+          }}>
+            ✓
           </div>
         </div>
 
-        <div className="checkout-success-actions">
-          <button type="button" className="checkout-success-btn primary" onClick={() => navigate('/payment-history')}>
-            View Payment History
+        <p className="checkout-success-kicker" style={{ textAlign: 'center' }}>
+          {isDummyMode ? 'Dummy Gateway Demo' : 'Razorpay Secure'}
+        </p>
+        <h1 className="checkout-success-title" style={{ textAlign: 'center' }}>Payment Successful!</h1>
+        <p className="checkout-success-message" style={{ textAlign: 'center' }}>{successMessage}</p>
+
+        <div className="checkout-success-summary" style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.05)',
+          borderRadius: '16px',
+          padding: '20px',
+          margin: '24px 0',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '16px'
+        }}>
+          <div>
+            <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Plan</span>
+            <strong style={{ display: 'block', color: '#fff', fontSize: '16px', marginTop: '4px' }}>{planName}</strong>
+          </div>
+          <div>
+            <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Amount Paid</span>
+            <strong style={{ display: 'block', color: '#fff', fontSize: '16px', marginTop: '4px' }}>{currencySymbol}{payment.amount}</strong>
+          </div>
+          <div style={{ gridColumn: 'span 2', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Transaction ID</span>
+            <strong style={{ display: 'block', color: '#fff', fontSize: '14px', marginTop: '4px', wordBreak: 'break-all' }}>{payment.transactionId}</strong>
+          </div>
+          <div style={{ gridColumn: 'span 2', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Subscription Ends On</span>
+            <strong style={{ display: 'block', color: '#fff', fontSize: '14px', marginTop: '4px' }}>
+              {new Date(expiryDate).toLocaleDateString(undefined, { dateStyle: 'long' })}
+            </strong>
+          </div>
+        </div>
+
+        <div className="checkout-success-actions" style={{
+          display: 'flex',
+          gap: '16px',
+          justifyContent: 'center',
+          flexWrap: 'wrap'
+        }}>
+          <button
+            type="button"
+            className="checkout-success-btn primary"
+            onClick={() => navigate('/profile')}
+            style={{
+              padding: '12px 24px',
+              borderRadius: '12px',
+              fontWeight: 'bold',
+              border: 'none',
+              background: 'var(--gold-primary)',
+              color: '#000',
+              cursor: 'pointer'
+            }}
+          >
+            View Billing History
           </button>
-          <button type="button" className="checkout-success-btn secondary" onClick={() => navigate('/')}>
-            Continue Watching
+          <button
+            type="button"
+            className="checkout-success-btn secondary"
+            onClick={() => navigate('/')}
+            style={{
+              padding: '12px 24px',
+              borderRadius: '12px',
+              fontWeight: 'bold',
+              background: 'transparent',
+              border: '1px solid rgba(255,255,255,0.2)',
+              color: '#fff',
+              cursor: 'pointer'
+            }}
+          >
+            Start Watching
           </button>
         </div>
       </div>

@@ -19,6 +19,22 @@
   max-width: 400px;
 }
 
+.series-nav-controls {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.series-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 18px !important;
+  border-color: #2a2a2a !important;
+  font-size: 0.85rem;
+  padding: 8px 14px !important;
+}
+
 .show-poster-img {
   width: 100%;
   border-radius: 8px;
@@ -176,7 +192,7 @@
   padding: 10px 32px !important;
 }
 
-/* Episodes List Section */
+
 .episodes-list-section {
   margin-top: 20px;
   margin-bottom: 20px;

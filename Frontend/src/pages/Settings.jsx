@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import { toast } from '../lib/toast';
 import './Settings.css';
 import Button from '../components/Button';
 import PlanSelectorModal from '../components/PlanSelectorModal';
@@ -94,12 +95,12 @@ export default function Settings() {
     }
 
     if (!file.type.startsWith('image/')) {
-      setError('Please choose an image file.');
+      toast.warning('Please choose a valid image file.');
       return;
     }
 
     if (file.size > 350 * 1024) {
-      setError('Please choose an image smaller than 350 KB.');
+      toast.warning('Please choose an image smaller than 350 KB.');
       return;
     }
 
@@ -108,7 +109,7 @@ export default function Settings() {
       const avatarDataUrl = reader.result;
 
       if (typeof avatarDataUrl !== 'string') {
-        setError('Unable to read this image file.');
+        toast.error('Unable to read this image file.');
         return;
       }
 
@@ -116,17 +117,24 @@ export default function Settings() {
       setError('');
       setSuccess('');
 
+      const uploadPromise = uploadAvatar(avatarDataUrl);
+
+      toast.promise(uploadPromise, {
+        pending: 'Uploading avatar image...',
+        success: 'Avatar uploaded successfully.',
+        error: 'Failed to upload avatar.'
+      });
+
       try {
-        const updatedUser = await uploadAvatar(avatarDataUrl);
+        const updatedUser = await uploadPromise;
         setProfile(updatedUser);
         updateUser(updatedUser);
         setFormState((current) => ({
           ...current,
           avatarUrl: updatedUser.avatarUrl || current.avatarUrl,
         }));
-        setSuccess('Avatar uploaded successfully.');
       } catch (apiError) {
-        setError(apiError.message);
+        
       } finally {
         setAvatarUploading(false);
       }
@@ -139,7 +147,7 @@ export default function Settings() {
     setError('');
     setSuccess('');
 
-    try {
+    const savePromise = (async () => {
       await updateProfile({ name: formState.name, email: formState.email, avatarUrl: formState.avatarUrl });
       await updatePreferences({
         language: formState.language,
@@ -148,6 +156,17 @@ export default function Settings() {
       });
 
       const refreshedUser = await getProfile();
+      return refreshedUser;
+    })();
+
+    toast.promise(savePromise, {
+      pending: 'Saving your profile preferences...',
+      success: t('settings.saveSuccess') || 'Preferences saved successfully!',
+      error: 'Failed to save settings.'
+    });
+
+    try {
+      const refreshedUser = await savePromise;
 
       setProfile(refreshedUser);
       updateUser(refreshedUser);
@@ -159,9 +178,8 @@ export default function Settings() {
         notificationsEnabled: Boolean(refreshedUser.preferences?.notificationsEnabled),
         parentalControls: Boolean(refreshedUser.preferences?.parentalControls),
       });
-      setSuccess(t('settings.saveSuccess'));
     } catch (apiError) {
-      setError(apiError.message);
+      
     } finally {
       setSaving(false);
     }
@@ -284,12 +302,29 @@ export default function Settings() {
 
         <div className="settings-item">
           <div className="settings-item-content">
-            <h3>{t('settings.parentalControls')}</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {t('settings.parentalControls')}
+              {formState.parentalControls && (
+                <span style={{ fontSize: '11px', background: 'rgba(159, 232, 112, 0.15)', color: '#9fe870', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                  Active
+                </span>
+              )}
+            </h3>
             <p>{PARENTAL_CONTROLS_DESCRIPTION}</p>
-            <p style={{ marginTop: '6px', color: '#9aa0a6', fontSize: '0.85rem' }}>
-              Applies to: Premium titles plus Action, Thriller, Mystery, Horror, and Originals categories.
-            </p>
-            {formState.parentalControls ? <p style={{ marginTop: '6px', color: '#9fe870' }}>Restrictions are active on this profile.</p> : null}
+            {formState.parentalControls ? (
+              <div style={{ marginTop: '10px', padding: '12px', background: 'rgba(159, 232, 112, 0.05)', border: '1px solid rgba(159, 232, 112, 0.15)', borderRadius: '8px' }}>
+                <p style={{ margin: 0, color: '#9fe870', fontWeight: '600', fontSize: '13px' }}>
+                  ✓ Parental controls enabled. Content rated 18+ will be hidden across the app.
+                </p>
+                <p style={{ margin: '4px 0 0', color: '#888', fontSize: '12px' }}>
+                  Blocked ratings: 18+, R-rated, TV-MA content.
+                </p>
+              </div>
+            ) : (
+              <p style={{ marginTop: '10px', color: '#a0a0a8', fontSize: '13px' }}>
+                All content is now visible.
+              </p>
+            )}
           </div>
           <div
             className={`custom-toggle ${formState.parentalControls ? 'active' : ''}`}
@@ -306,10 +341,36 @@ export default function Settings() {
           <div className="settings-item-action">
             <select
               value={labelToCode(formState.language)}
-              onChange={(event) => {
+              onChange={async (event) => {
                 const nextLanguageCode = event.target.value;
+                const label = codeToLabel(nextLanguageCode);
+                
+                // 1. Instantly change local language code
                 setLanguageCode(nextLanguageCode);
-                setFormState((current) => ({ ...current, language: codeToLabel(nextLanguageCode) }));
+                setFormState((current) => ({ ...current, language: label }));
+                
+                // 2. Update localStorage key immediately
+                localStorage.setItem('blackreel-language-code', nextLanguageCode);
+                
+                // 3. Optimistically update user object in AuthContext
+                updateUser((curr) => {
+                  if (!curr) return curr;
+                  return {
+                    ...curr,
+                    preferences: {
+                      ...curr.preferences,
+                      language: label
+                    }
+                  };
+                });
+                
+                // 4. Save to backend user profile immediately
+                try {
+                  await updatePreferences({ language: label });
+                  toast.success('Language updated successfully');
+                } catch (err) {
+                  toast.error('Failed to save language preference.');
+                }
               }}
               style={{ padding: '10px', background: '#111', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
             >
@@ -346,8 +407,7 @@ export default function Settings() {
           </div>
         </div>
 
-        {error ? <p style={{ color: '#ffb3b3' }}>{error}</p> : null}
-        {success ? <p style={{ color: '#9fe870' }}>{success}</p> : null}
+
 
         <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
           <Button variant="primary" onClick={handleSave} disabled={saving}>

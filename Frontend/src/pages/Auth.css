@@ -1,4 +1,4 @@
-/* Auth.css - Split Screen Clean Form Styles */
+
 
 .auth-split-container {
   display: flex;
@@ -23,7 +23,6 @@
   width: 100%;
   max-width: 440px;
   margin: 0 auto;
-  /* Added extra standard centering margin */
 }
 
 .auth-title {
@@ -79,6 +78,12 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
+
+.form-group input.input-error {
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
 .password-input-wrapper {
   position: relative;
 }
@@ -123,7 +128,6 @@
   width: 16px;
   height: 16px;
   accent-color: #335933;
-  /* forest green */
   cursor: pointer;
 }
 
@@ -141,7 +145,6 @@
 
 .btn-auth {
   background: #335933;
-  /* forest green mimicking the reference */
   color: #fff;
   padding: 16px;
   border-radius: 8px;
@@ -155,6 +158,11 @@
 
 .btn-auth:hover {
   opacity: 0.9;
+}
+
+.btn-auth:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .auth-divider {
@@ -209,10 +217,8 @@
   height: 20px;
   object-fit: contain;
   filter: brightness(0) invert(1);
-  /* Ensure icons are white */
 }
 
-/* Specific fix for Google icon to retain its colors if desired, or let it be white */
 .btn-social.google img {
   filter: none;
 }
@@ -227,7 +233,6 @@
 
 .auth-footer-link a {
   color: #c6a75e;
-  /* Gold color */
   font-weight: 600;
   text-decoration: none;
   margin-left: 5px;
@@ -237,18 +242,49 @@
   text-decoration: underline;
 }
 
+.google-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #dadce0;
+  background: #ffffff;
+  color: #1f1f1f;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.google-auth-btn:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.15);
+}
+
+.google-auth-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.google-auth-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .auth-right {
   flex: 1;
   position: relative;
   max-width: 50%;
   display: flex;
-  /* background image is now on the body container */
 }
 
 .auth-image-bg {
   width: 100%;
   height: 100%;
-  /* Removed to inherit from split container or remain empty. Kept for positioning. */
 }
 
 @media (max-width: 900px) {
@@ -270,4 +306,35 @@
   .auth-left {
     padding: 40px 20px;
   }
+}
+
+
+.auth-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #fca5a5;
+  line-height: 1.4;
+  animation: auth-error-shake 0.35s ease;
+  margin: 0;
+}
+
+.auth-error-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-size: 1rem;
+}
+
+@keyframes auth-error-shake {
+  0%   { transform: translateX(0);    }
+  20%  { transform: translateX(-5px); }
+  40%  { transform: translateX(5px);  }
+  60%  { transform: translateX(-4px); }
+  80%  { transform: translateX(4px);  }
+  100% { transform: translateX(0);    }
 }

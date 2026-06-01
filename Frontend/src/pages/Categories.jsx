@@ -53,12 +53,16 @@ export default function Categories() {
   }
 
   return (
-    <div className="categories-page container">
-      <div className="category-pills">
+    <div className="categories-page">
+      {/* <div className="page-header">
+        <h1 className="page-title">Categories</h1>
+      </div> */}
+
+      <div className="category-filters">
         {categoriesList.map((category) => (
           <button
             key={category}
-            className={`category-pill ${activeCategory === category ? 'active' : ''}`}
+            className={`filter-pill ${activeCategory === category ? 'active' : ''}`}
             onClick={() => setActiveCategory(category)}
           >
             {category}
@@ -66,7 +70,7 @@ export default function Categories() {
         ))}
       </div>
 
-      <div className="categories-grid">
+      <div className="content-grid">
         {filteredMovies.length > 0 ? (
           filteredMovies.map((movie) => <MovieCard key={movie.id} {...movie} />)
         ) : (
@@ -78,3 +82,4 @@ export default function Categories() {
     </div>
   );
 }
+

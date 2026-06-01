@@ -109,6 +109,10 @@ export default function Profile() {
     navigate(`/checkout?plan=${planType}`);
   };
 
+  const hasActivePlan = profile?.subscription?.status === 'active';
+  const planName = profile?.subscription?.planType || profile?.subscription?.plan;
+  const isDummyMode = import.meta.env.VITE_PAYMENT_MODE === 'dummy';
+
   return (
     <>
       <div className="profile-page">
@@ -125,17 +129,26 @@ export default function Profile() {
           <div className="profile-settings">
             <div className="setting-card subscription-card">
               <div className="setting-info">
-                <span className="setting-label">Subscription</span>
+                <span className="setting-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  Subscription
+                  {hasActivePlan && (
+                    <span className="badge-gold" style={{ fontSize: '11px', background: 'rgba(212,184,114,0.15)', color: '#D4B872', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                      {planName}
+                    </span>
+                  )}
+                </span>
                 <span className="setting-value">{getSubscriptionStatusMessage(profile.subscription)}</span>
               </div>
               <div className="setting-card-action subscription-card-action">
-                <div className="current-plan-summary">
-                  <span className="current-plan-pill">{getNavbarPlanLabel(profile.subscription)}</span>
-                  <small>{subscriptionIsActive ? 'Current plan' : hasSelectedPlan ? 'Payment pending or inactive' : 'No active plan'}</small>
-                </div>
-                <Button variant="pill" onClick={() => setPlanSelectorOpen(true)}>
-                  {hasSelectedPlan ? 'Manage / Upgrade' : 'View Plans'}
-                </Button>
+                {hasActivePlan ? (
+                  <Button variant="pill" onClick={() => navigate(isDummyMode ? '/plans' : '/subscribe')}>
+                    Upgrade Plan
+                  </Button>
+                ) : (
+                  <Button variant="pill" onClick={() => navigate(isDummyMode ? '/plans' : '/subscribe')}>
+                    Choose a Plan
+                  </Button>
+                )}
               </div>
             </div>
 

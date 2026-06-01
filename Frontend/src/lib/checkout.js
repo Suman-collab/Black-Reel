@@ -16,7 +16,7 @@ const writeSessionValue = (key, value) => {
   try {
     sessionStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // Ignore storage issues so checkout can still continue in-memory.
+    
   }
 };
 
@@ -24,7 +24,7 @@ const removeSessionValue = (key) => {
   try {
     sessionStorage.removeItem(key);
   } catch {
-    // Ignore storage issues so cleanup failures do not block navigation.
+    
   }
 };
 
@@ -48,7 +48,7 @@ export const consumeCheckoutSuccessMessage = () => {
   return typeof message === 'string' ? message : '';
 };
 
-// Fixed: persist checkout payment reference for success-page refresh recovery.
+
 export const setCheckoutPaymentRef = (value) => {
   writeSessionValue(CHECKOUT_PAYMENT_REF_KEY, value);
 };

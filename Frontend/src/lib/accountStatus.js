@@ -1,4 +1,4 @@
-const RESTRICTED_ACCOUNT_STATUSES = new Set(['banned', 'suspended', 'inactive']);
+const RESTRICTED_ACCOUNT_STATUSES = new Set(['banned']);
 
 export const isRestrictedAccountStatus = (status = '') =>
   RESTRICTED_ACCOUNT_STATUSES.has(String(status).trim().toLowerCase());

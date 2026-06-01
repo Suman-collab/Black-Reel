@@ -28,7 +28,7 @@ export const hasActiveSubscription = (subscription) => {
   }
 
   if (!status) {
-    // Backward compatibility for older sessions that stored planType without status.
+    
     return true;
   }
 

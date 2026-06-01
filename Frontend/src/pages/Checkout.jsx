@@ -4,8 +4,10 @@ import Button from '../components/Button';
 import StatePanel from '../components/StatePanel';
 import {
   cancelCheckoutSession,
+  confirmCheckoutSession,
   createRazorpayOrder,
-  verifyRazorpayPayment,
+  createDummyOrder,
+  processDummyPayment,
 } from '../features/payments/payment.service';
 import { useAuth } from '../features/auth/AuthContext';
 import {
@@ -18,6 +20,7 @@ import {
 } from '../lib/checkout';
 import { getPlanById } from '../lib/plans';
 import { formatPlanName, hasActiveSubscription } from '../lib/subscription';
+import { toast } from '../lib/toast';
 import './Checkout.css';
 
 const formatCardNumber = (value) =>
@@ -74,13 +77,30 @@ const buildInitialFormState = (user, draft) => ({
   cvv: '',
 });
 
+
+const DUMMY_PLANS = {
+  basic: { id: 'basic', name: 'Basic', price: 99, currency: 'INR', features: ['HD Streaming', '1 Screen', 'Mobile & Tablet'] },
+  standard: { id: 'standard', name: 'Standard', price: 199, currency: 'INR', features: ['Full HD Streaming', '2 Screens', 'All Devices', 'Downloads'], popular: true },
+  premium: { id: 'premium', name: 'Premium', price: 299, currency: 'INR', features: ['4K + HDR', '4 Screens', 'All Devices', 'Downloads', 'Dolby Audio'] },
+};
+
 export default function Checkout() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, updateUser, refreshUser, logout } = useAuth();
   const planType = searchParams.get('plan') || '';
   const querySessionId = searchParams.get('session') || '';
-  const selectedPlan = useMemo(() => getPlanById(planType), [planType]);
+
+  const isDummyMode = import.meta.env.VITE_PAYMENT_MODE === 'dummy';
+
+  
+  const selectedPlan = useMemo(() => {
+    if (isDummyMode) {
+      return DUMMY_PLANS[planType] || null;
+    }
+    return getPlanById(planType);
+  }, [planType, isDummyMode]);
+
   const selectedPlanId = selectedPlan?.id || '';
   const currentSubscription = user?.subscription;
   const samePlanSelected =
@@ -93,10 +113,13 @@ export default function Checkout() {
   );
   const [submitting, setSubmitting] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(false);
-  const [razorpayOrderId, setRazorpayOrderId] = useState('');
   const [checkoutSessionId, setCheckoutSessionId] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [showTestCards, setShowTestCards] = useState(true);
+
+  
+  const [expiryError, setExpiryError] = useState('');
 
   useEffect(() => {
     if (!selectedPlanId) {
@@ -120,8 +143,6 @@ export default function Checkout() {
       return;
     }
 
-    // Only persist non-sensitive fields across reloads. Card details stay in
-    // memory so a refresh never leaves payment data behind in browser storage.
     saveCheckoutDraft(selectedPlanId, {
       billingEmail: formState.billingEmail,
       cardholderName: formState.cardholderName,
@@ -141,16 +162,22 @@ export default function Checkout() {
       setError('');
 
       try {
-        const order = await createRazorpayOrder({
-          planType: selectedPlanId,
-          billingEmail: user?.email,
-        });
+        if (isDummyMode) {
+          const order = await createDummyOrder(selectedPlanId);
+          if (isMounted) {
+            setCheckoutSessionId(order.orderId);
+            setCheckoutPaymentRef({ checkoutSessionId: order.orderId, planName: selectedPlan?.name || '' });
+          }
+        } else {
+          const order = await createRazorpayOrder({
+            planType: selectedPlanId,
+            billingEmail: user?.email,
+          });
 
-        if (isMounted) {
-          setCheckoutSessionId(order.checkoutSessionId);
-          setRazorpayOrderId(order.orderId);
-          // Fixed: store payment reference for refresh-safe success page rendering.
-          setCheckoutPaymentRef({ checkoutSessionId: order.checkoutSessionId, planName: selectedPlan?.name || '' });
+          if (isMounted) {
+            setCheckoutSessionId(order.checkoutSessionId);
+            setCheckoutPaymentRef({ checkoutSessionId: order.checkoutSessionId, planName: selectedPlan?.name || '' });
+          }
         }
       } catch (apiError) {
         if (isMounted) {
@@ -168,7 +195,7 @@ export default function Checkout() {
     return () => {
       isMounted = false;
     };
-  }, [selectedPlanId, checkoutSessionId, user?.email]);
+  }, [selectedPlanId, checkoutSessionId, user?.email, isDummyMode]);
 
   if (!selectedPlan) {
     return (
@@ -176,7 +203,7 @@ export default function Checkout() {
         title="Choose a plan first"
         message="Pick the membership you want before continuing to checkout."
         actionLabel="View Plans"
-        onAction={() => navigate('/subscribe')}
+        onAction={() => navigate(isDummyMode ? '/plans' : '/subscribe')}
       />
     );
   }
@@ -187,28 +214,27 @@ export default function Checkout() {
         title={`${formatPlanName(selectedPlan.id)} is already active`}
         message="Choose a different plan if you want to upgrade or switch your membership."
         actionLabel="Manage Plans"
-        onAction={() => navigate('/subscribe')}
+        onAction={() => navigate(isDummyMode ? '/plans' : '/subscribe')}
       />
     );
   }
 
   const handleCancel = async () => {
-    if (checkoutSessionId) {
+    if (checkoutSessionId && !isDummyMode) {
       try {
         await cancelCheckoutSession({
           checkoutSessionId,
           reason: 'Checkout cancelled by user',
         });
       } catch {
-        // Ignore cancellation API failures and continue returning to plans.
+        
       }
     }
 
     clearCheckoutDraft(selectedPlan.id);
-      setCheckoutSessionId('');
-      setRazorpayOrderId('');
-      clearCheckoutPaymentRef();
-    navigate('/subscribe', {
+    setCheckoutSessionId('');
+    clearCheckoutPaymentRef();
+    navigate(isDummyMode ? '/plans' : '/subscribe', {
       replace: true,
       state: {
         checkoutMessage: 'Payment cancelled. Your subscription has not been changed.',
@@ -229,7 +255,7 @@ export default function Checkout() {
     setError('');
 
     if (!checkoutSessionId) {
-      setError('Checkout session is not ready yet. Please wait a moment and try again.');
+      toast.warning('Checkout session is not ready yet. Please wait a moment and try again.');
       setSubmitting(false);
       return;
     }
@@ -240,93 +266,172 @@ export default function Checkout() {
     const cleanCvv = formState.cvv.replace(/\D/g, '');
 
     if (!billingEmail) {
-      setError('Enter the billing email you want to use for this subscription.');
+      toast.warning('Enter the billing email you want to use for this subscription.');
       setSubmitting(false);
       return;
     }
 
     if (!cardholderName) {
-      setError('Enter the cardholder name to continue.');
+      toast.warning('Enter the cardholder name to continue.');
       setSubmitting(false);
       return;
     }
 
-    if (cleanCardNumber.length < 12) {
-      setError('Enter a valid card number to continue.');
+    if (cleanCardNumber.length !== 16) {
+      toast.warning('Card number must be exactly 16 digits.');
+      setSubmitting(false);
+      return;
+    }
+
+    if (!formState.expiryDate || formState.expiryDate.length !== 5) {
+      toast.warning('Use a valid expiry date in MM/YY format.');
       setSubmitting(false);
       return;
     }
 
     if (!isExpiryDateValid(formState.expiryDate)) {
-      setError('Use a valid future expiry date in MM/YY format.');
+      toast.warning('Use a valid future expiry date in MM/YY format.');
       setSubmitting(false);
       return;
     }
 
-    if (cleanCvv.length < 3) {
-      setError('Enter a valid security code.');
+    const [monthStr, yearStr] = formState.expiryDate.split('/');
+    const month = parseInt(monthStr, 10);
+    const year = parseInt(yearStr, 10);
+
+    if (month < 1 || month > 12) {
+      toast.warning('Expiry month must be between 01 and 12.');
+      setSubmitting(false);
+      return;
+    }
+
+    if (cleanCvv.length < 3 || cleanCvv.length > 4) {
+      toast.warning('CVV must be 3 or 4 digits.');
       setSubmitting(false);
       return;
     }
 
     try {
-      const paymentMethod = `Razorpay ${detectCardBrand(cleanCardNumber)} ending ${cleanCardNumber.slice(-4)}`;
-      const mockPaymentId = `pay_${Date.now()}_${cleanCardNumber.slice(-4)}`;
-      const mockSignature = `mocksig_${razorpayOrderId || checkoutSessionId}_${mockPaymentId}`;
+      if (isDummyMode) {
+        const payload = {
+          orderId: checkoutSessionId,
+          planId: selectedPlanId,
+          cardNumber: cleanCardNumber,
+          expiryMonth: month,
+          expiryYear: year + 2000,
+          cvv: cleanCvv,
+          cardholderName,
+        };
 
-      const payment = await verifyRazorpayPayment({
-        checkoutSessionId,
-        razorpay_order_id: razorpayOrderId || `order_${checkoutSessionId}`,
-        razorpay_payment_id: mockPaymentId,
-        razorpay_signature: mockSignature,
-        paymentMethod,
-      });
-      const successMessage = `${selectedPlan.name} plan activated successfully.`;
+        const result = await processDummyPayment(payload);
 
-      clearCheckoutDraft(selectedPlan.id);
-      setCheckoutSessionId('');
-      setRazorpayOrderId('');
-      setCheckoutSuccessMessage(successMessage);
-      setCheckoutPaymentRef({ checkoutSessionId, paymentId: payment.id, planName: selectedPlan.name, payment });
-
-      updateUser((currentUser) => {
-        if (!currentUser) {
-          return currentUser;
+        if (!result.success) {
+          toast.error(result.message || 'Payment was declined. Please try again.');
+          setSubmitting(false);
+          return;
         }
 
-        return {
-          ...currentUser,
-          subscription: {
-            ...currentUser.subscription,
-            planType: selectedPlan.id,
-            status: 'active',
-            startedAt: new Date().toISOString(),
-            renewalDate: payment.nextBillingDate || currentUser.subscription?.renewalDate,
-          },
-        };
-      });
-
-      // Pull canonical profile data from API so all surfaces (navbar/profile/
-      // settings) reflect exactly what backend stored.
-      await refreshUser().catch(() => null);
-
-      navigate('/checkout/success', {
-        replace: true,
-        state: {
-          successMessage,
-          payment,
+        const successMessage = `${selectedPlan.name} plan activated successfully.`;
+        clearCheckoutDraft(selectedPlan.id);
+        setCheckoutSessionId('');
+        setCheckoutSuccessMessage(successMessage);
+        
+        
+        const mockPaymentObj = {
+          id: result.transactionId,
+          transactionId: result.transactionId,
+          orderId: result.orderId,
+          planId: selectedPlan.id,
           planName: selectedPlan.name,
-        },
-      });
+          amount: selectedPlan.price,
+          currency: selectedPlan.currency || 'INR',
+          status: 'success',
+          cardLast4: cleanCardNumber.slice(-4),
+          cardBrand: detectCardBrand(cleanCardNumber),
+          paidAt: new Date().toISOString(),
+          nextBillingDate: result.subscriptionEnd,
+        };
+
+        setCheckoutPaymentRef({
+          checkoutSessionId,
+          paymentId: result.transactionId,
+          planName: selectedPlan.name,
+          payment: mockPaymentObj
+        });
+
+        updateUser((currentUser) => {
+          if (!currentUser) return currentUser;
+          return {
+            ...currentUser,
+            subscription: {
+              ...currentUser.subscription,
+              planType: selectedPlan.id,
+              status: 'active',
+              startedAt: new Date().toISOString(),
+              renewalDate: result.subscriptionEnd,
+            },
+          };
+        });
+
+        await refreshUser().catch(() => null);
+
+        navigate('/checkout/success', {
+          replace: true,
+          state: {
+            successMessage,
+            payment: mockPaymentObj,
+            planName: selectedPlan.name,
+          },
+        });
+
+      } else {
+        const paymentMethod = `Razorpay ${detectCardBrand(cleanCardNumber)} ending ${cleanCardNumber.slice(-4)}`;
+        const payment = await confirmCheckoutSession({
+          checkoutSessionId,
+          paymentMethod,
+        });
+        const successMessage = `${selectedPlan.name} plan activated successfully.`;
+
+        clearCheckoutDraft(selectedPlan.id);
+        setCheckoutSessionId('');
+        setCheckoutSuccessMessage(successMessage);
+        setCheckoutPaymentRef({ checkoutSessionId, paymentId: payment.id, planName: selectedPlan.name, payment });
+
+        updateUser((currentUser) => {
+          if (!currentUser) return currentUser;
+          return {
+            ...currentUser,
+            subscription: {
+              ...currentUser.subscription,
+              planType: selectedPlan.id,
+              status: 'active',
+              startedAt: new Date().toISOString(),
+              renewalDate: payment.nextBillingDate || currentUser.subscription?.renewalDate,
+            },
+          };
+        });
+
+        await refreshUser().catch(() => null);
+
+        navigate('/checkout/success', {
+          replace: true,
+          state: {
+            successMessage,
+            payment,
+            planName: selectedPlan.name,
+          },
+        });
+      }
     } catch (apiError) {
-      setError(apiError.message);
+      toast.error(apiError.message || 'Payment processing encountered an error.');
     } finally {
       setSubmitting(false);
     }
   };
 
   const isSubmitDisabled = submitting || sessionLoading || !checkoutSessionId;
-  let submitLabel = `Pay $${selectedPlan.price.toFixed(2)}`;
+  const currencySymbol = '₹';
+  let submitLabel = `Pay ${currencySymbol}${selectedPlan.price}`;
 
   if (sessionLoading) {
     submitLabel = 'Preparing Checkout...';
@@ -336,6 +441,25 @@ export default function Checkout() {
 
   return (
     <div className="checkout-page container">
+      {isDummyMode && (
+        <div style={{
+          background: '#fef08a',
+          color: '#854d0e',
+          padding: '12px 20px',
+          borderRadius: '12px',
+          fontWeight: 'bold',
+          marginBottom: '24px',
+          border: '1px solid #fef08a',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: '1rem',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+        }}>
+          <span>⚠️</span> TEST MODE — No real payments will be processed
+        </div>
+      )}
+
       <div className="checkout-layout">
         <section className="checkout-panel checkout-form-panel">
           <p className="checkout-kicker">Secure Checkout</p>
@@ -344,53 +468,47 @@ export default function Checkout() {
             Your subscription and billing are tied to the logged-in account for security and account consistency.
           </p>
           <p className="checkout-note">
-            Demo Razorpay pipeline: enter valid-looking details, then we simulate Razorpay order verification and show a success screen.
+            Secure payment confirmation requires valid account details and an active checkout session.
           </p>
           {notice ? <p className="checkout-restored-message">{notice}</p> : null}
 
           <form className="checkout-form" onSubmit={handleSubmit}>
-            <label className="checkout-field">
-              <span>Billing email</span>
-              {user?.email ? (
-                <div>
-                  <input
-                    type="email"
-                    value={user.email}
-                    disabled
-                    style={{ opacity: 0.7, cursor: 'not-allowed' }}
-                  />
-                  <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                    You are subscribing as: <strong>{user.email}</strong>
-                    <br />
-                    <button type="button" onClick={handleLogout} className="checkout-back-link" style={{ padding: 0, marginTop: '4px', fontSize: '13px' }}>
-                      Please log out to use a different account
-                    </button>
-                  </div>
-                </div>
-              ) : (
+            <div className="form-group">
+              <label className="form-label">Billing email</label>
+              <div>
                 <input
                   type="email"
-                  value={formState.billingEmail}
-                  onChange={(event) => setFormState((current) => ({ ...current, billingEmail: event.target.value }))}
-                  required
+                  className="form-input"
+                  value={user?.email || ''}
+                  disabled
+                  style={{ opacity: 0.7, cursor: 'not-allowed', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
                 />
-              )}
-            </label>
+                <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                  You are subscribing as: <strong>{user?.email}</strong>
+                  <br />
+                  <button type="button" onClick={handleLogout} className="checkout-back-link" style={{ padding: 0, marginTop: '4px', fontSize: '13px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--brand-primary)' }}>
+                    Please log out to use a different account
+                  </button>
+                </div>
+              </div>
+            </div>
 
-            <label className="checkout-field">
-              <span>Cardholder name</span>
+            <div className="form-group">
+              <label className="form-label">Cardholder name</label>
               <input
                 type="text"
+                className="form-input"
                 value={formState.cardholderName}
                 onChange={(event) => setFormState((current) => ({ ...current, cardholderName: event.target.value }))}
                 required
               />
-            </label>
+            </div>
 
-            <label className="checkout-field">
-              <span>Card number</span>
+            <div className="form-group">
+              <label className="form-label">Card number</label>
               <input
                 type="text"
+                className="form-input"
                 inputMode="numeric"
                 autoComplete="cc-number"
                 value={formState.cardNumber}
@@ -400,13 +518,14 @@ export default function Checkout() {
                 placeholder="4242 4242 4242 4242"
                 required
               />
-            </label>
+            </div>
 
-            <div className="checkout-row">
-              <label className="checkout-field">
-                <span>Expiry</span>
+            <div className="checkout-row" style={{ display: 'flex', gap: '16px' }}>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label className="form-label">Expiry</label>
                 <input
                   type="text"
+                  className="form-input"
                   inputMode="numeric"
                   autoComplete="cc-exp"
                   value={formState.expiryDate}
@@ -419,12 +538,13 @@ export default function Checkout() {
                   placeholder="MM/YY"
                   required
                 />
-              </label>
+              </div>
 
-              <label className="checkout-field">
-                <span>CVV</span>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label className="form-label">CVV</label>
                 <input
                   type="password"
+                  className="form-input"
                   inputMode="numeric"
                   autoComplete="cc-csc"
                   value={formState.cvv}
@@ -437,16 +557,83 @@ export default function Checkout() {
                   placeholder="123"
                   required
                 />
-              </label>
+              </div>
             </div>
 
-            {error ? <p className="checkout-error">{error}</p> : null}
 
-            <div className="checkout-actions">
-              <Button variant="primary" type="submit" disabled={isSubmitDisabled}>
+
+            {isDummyMode && (
+              <div className="test-cards-box" style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(212, 184, 114, 0.2)',
+                borderRadius: '12px',
+                marginTop: '10px',
+                overflow: 'hidden'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setShowTestCards(!showTestCards)}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(212, 184, 114, 0.08)',
+                    border: 'none',
+                    padding: '10px 14px',
+                    color: '#dfa13d',
+                    fontWeight: 'bold',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}
+                >
+                  <span>💳 Test Cards for Dummy Mode</span>
+                  <span>{showTestCards ? '▲' : '▼'}</span>
+                </button>
+
+                {showTestCards && (
+                  <div style={{ padding: '12px 14px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '4px' }}>
+                      <strong>CARD NUMBER</strong>
+                      <strong>SIMULATED RESULT</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <code style={{ color: '#4ade80' }}>4242 4242 4242 4242</code>
+                      <span style={{ color: '#4ade80' }}>✅ Always succeeds (Visa)</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <code style={{ color: '#4ade80' }}>5555 5555 5555 4444</code>
+                      <span style={{ color: '#4ade80' }}>✅ Always succeeds (Mastercard)</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <code style={{ color: '#f87171' }}>4000 0000 0000 0002</code>
+                      <span style={{ color: '#f87171' }}>❌ Card declined</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <code style={{ color: '#f87171' }}>4000 0000 0000 9995</code>
+                      <span style={{ color: '#f87171' }}>❌ Insufficient funds</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <code style={{ color: '#f87171' }}>4000 0000 0000 0069</code>
+                      <span style={{ color: '#f87171' }}>❌ Expired card</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <code style={{ color: '#f87171' }}>4000 0000 0000 0127</code>
+                      <span style={{ color: '#f87171' }}>❌ Incorrect CVC</span>
+                    </div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '6px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '6px' }}>
+                      Use any future expiry date (e.g. 12/28) and any 3-digit CVV.
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="checkout-actions" style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+              <Button variant="primary" type="submit" disabled={isSubmitDisabled} className="btn-block">
                 {submitLabel}
               </Button>
-              <button type="button" className="checkout-back-link checkout-cancel-button" onClick={handleCancel}>
+              <button type="button" className="btn btn-ghost btn-block" onClick={handleCancel}>
                 Cancel payment
               </button>
             </div>
@@ -456,7 +643,7 @@ export default function Checkout() {
         <aside className="checkout-panel checkout-summary-panel">
           <p className="checkout-kicker">Order Summary</p>
           <h2 className="checkout-summary-title">{selectedPlan.name}</h2>
-          <p className="checkout-summary-price">${selectedPlan.price.toFixed(2)} / month</p>
+          <p className="checkout-summary-price">{currencySymbol}{selectedPlan.price} / month</p>
           <ul className="checkout-benefits">
             {selectedPlan.features.map((feature) => (
               <li key={feature}>{feature}</li>
@@ -477,4 +664,3 @@ export default function Checkout() {
     </div>
   );
 }
-

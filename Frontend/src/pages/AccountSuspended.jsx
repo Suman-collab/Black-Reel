@@ -6,10 +6,10 @@ import './AccountSuspended.css';
 
 export default function AccountSuspended() {
   const suspension = getStoredSuspension();
-  const supportEmail = 'support@blackreel.com';
-  const supportFormUrl = 'https://blackreel.com/support/contact';
-  const helpCenterUrl = 'https://blackreel.com/help/account-access';
-  const supportSubject = encodeURIComponent('Suspended Black Reel account review');
+  const supportEmail = 'support@blackshortz.com';
+  const supportFormUrl = '/support';
+  const helpCenterUrl = '/support';
+  const supportSubject = encodeURIComponent('Suspended Black Shortz account review');
   const supportBody = encodeURIComponent(
     `Hello Support,\n\nMy account access is currently suspended and I would like a review.\nAccount email: ${
       suspension?.email || '[add your account email]'
@@ -29,9 +29,9 @@ export default function AccountSuspended() {
           <a href={`mailto:${supportEmail}?subject=${supportSubject}&body=${supportBody}`} className="account-suspended-primary">
             Email Support
           </a>
-          <a href={supportFormUrl} target="_blank" rel="noreferrer" className="account-suspended-secondary">
-            Open Support Form
-          </a>
+          <Link to="/support" className="account-suspended-secondary">
+            Open Support Page
+          </Link>
           <Link to="/login" className="account-suspended-secondary">Back to sign in</Link>
         </div>
 

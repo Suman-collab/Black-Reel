@@ -63,25 +63,26 @@ export default function PlanSelectorModal({ isOpen, onClose, onSelectPlan, subsc
   }
 
   return (
-    <div className="plan-modal-backdrop" onClick={onClose} role="presentation">
+    <div className="modal-backdrop" onClick={onClose} role="presentation">
       <div
-        className="plan-modal"
+        className="modal"
         role="dialog"
         aria-modal="true"
         aria-label="Manage subscription"
         onClick={(event) => event.stopPropagation()}
+        style={{ maxWidth: '960px' }}
       >
         <div className="plan-modal-header">
           <div>
             <p className="plan-modal-kicker">Membership</p>
-            <h2>Manage your plan</h2>
-            <p className="plan-modal-copy">
+            <h2 className="modal__title">Manage your plan</h2>
+            <p className="modal__subtitle">
               {subscriptionIsActive
                 ? `Your current plan is ${getActivePlanName(subscription)}${renewalLabel ? ` and renews on ${renewalLabel}.` : '.'}`
                 : 'Pick a plan to unlock premium features and continue to checkout.'}
             </p>
           </div>
-          <button type="button" className="plan-modal-close" onClick={onClose} aria-label="Close plan selector">
+          <button type="button" className="modal__close" onClick={onClose} aria-label="Close plan selector">
             <X size={18} />
           </button>
         </div>
@@ -98,7 +99,7 @@ export default function PlanSelectorModal({ isOpen, onClose, onSelectPlan, subsc
                 <div className="plan-modal-card-top">
                   <div>
                     <p className="plan-modal-card-title">{plan.name}</p>
-                    <p className="plan-modal-card-price">${plan.price.toFixed(2)} / month</p>
+                    <p className="plan-modal-card-price">₹{plan.price} / month</p>
                   </div>
                   {isCurrentPlan ? <span className="plan-modal-current-pill">Current</span> : null}
                 </div>
@@ -124,7 +125,7 @@ export default function PlanSelectorModal({ isOpen, onClose, onSelectPlan, subsc
           })}
         </div>
 
-        <p className="plan-modal-footer">
+        <p className="plan-modal-footer" style={{ marginTop: '20px', fontSize: '12px', color: 'var(--text-tertiary)' }}>
           Switching plans keeps your account intact and sends you through the existing checkout flow before activation.
         </p>
       </div>
