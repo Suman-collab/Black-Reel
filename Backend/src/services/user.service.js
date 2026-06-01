@@ -35,7 +35,7 @@ const userRoleSchema = z.object({
 });
 
 const userStatusSchema = z.object({
-  status: z.enum(['active', 'inactive', 'banned']),
+  status: z.enum(['active', 'suspended', 'banned']),
 });
 
 const avatarUploadSchema = z.object({
@@ -54,7 +54,7 @@ const buildUserFilters = ({ search, status }) => {
   }
 
   if (search) {
-    // Fixed: escape and cap regex input to mitigate ReDoS vectors.
+    
     const normalizedSearch = normalizeSearchTerm(search);
     if (normalizedSearch) {
       const safePattern = escapeRegex(normalizedSearch);
@@ -200,7 +200,7 @@ export const removeDevice = async (id, deviceId) => {
     throw new AppError('Device not found', 404);
   }
 
-  device.deleteOne();
+  user.devices.pull(deviceId);
   await user.save();
 
   return user.devices;
@@ -212,7 +212,7 @@ export const getAllUsers = async (query = {}) => {
   const limit = Math.min(100, Math.max(1, Number.parseInt(query.limit, 10) || 20));
   const skip = (page - 1) * limit;
 
-  // Fixed: paginated and projected admin user listing to avoid over-fetching heavy relations.
+  
   const [users, total] = await Promise.all([
     User.find(filters)
       .select('_id name email role createdAt status')

@@ -1,21 +1,12 @@
-import 'dotenv/config';
+import './src/config/loadEnv.js';
 import mongoose from 'mongoose';
+import { validateEnv } from './src/config/validateEnv.js';
+import { config } from './src/config/index.js';
 import app from './src/app.js';
 import connectDB from './src/config/database.js';
 import seedDatabase from './src/config/seed.js';
 
-const PORT = process.env.PORT || 5000;
-
-// Fixed: startup validation now includes webhook secret in production.
-const requiredEnv = ['MONGO_URI', 'FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY'];
-if (process.env.NODE_ENV === 'production') {
-  requiredEnv.push('PAYMENT_WEBHOOK_SECRET', 'JWT_SECRET');
-}
-
-const missingEnv = requiredEnv.filter((key) => !process.env[key]);
-if (missingEnv.length > 0) {
-  throw new Error(`Missing required environment variables: ${missingEnv.join(', ')}`);
-}
+validateEnv();
 
 process.on('uncaughtException', (err) => {
   console.error('UNCAUGHT EXCEPTION! Shutting down...');
@@ -24,18 +15,20 @@ process.on('uncaughtException', (err) => {
 });
 
 const startServer = async () => {
-  // Fixed: connect to Mongo once at startup before accepting traffic.
+  
   await connectDB();
 
-  // Fixed: observe DB disconnect events to surface runtime connectivity risks.
+  
   mongoose.connection.on('disconnected', () => {
     console.warn('MongoDB disconnected. The API may serve degraded responses until reconnection succeeds.');
   });
 
-  await seedDatabase();
+  if (config.seed.enabled) {
+    await seedDatabase();
+  }
 
-  const server = app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  const server = app.listen(config.app.port, () => {
+    console.log(`Server running in ${config.app.env} mode on port ${config.app.port}`);
   });
 
   process.on('unhandledRejection', (err) => {

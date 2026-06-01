@@ -4,20 +4,21 @@ import Payment from '../models/payment.model.js';
 import Notification from '../models/notification.model.js';
 import Report from '../models/report.model.js';
 import { resolveDemoVideoUrl } from '../utils/demoVideo.js';
+import { config } from './index.js';
 
 const seedUsers = {
   admin: {
-    name: process.env.SEED_ADMIN_NAME || 'Super Admin',
-    email: (process.env.SEED_ADMIN_EMAIL || 'admin@blackreel.com').toLowerCase(),
-    password: process.env.SEED_ADMIN_PASSWORD || 'Admin123!',
+    name: config.seed.adminName || '',
+    email: String(config.seed.adminEmail || '').toLowerCase(),
+    password: config.seed.adminPassword || '',
     role: 'admin',
     status: 'active',
     avatarUrl: '/images/avatar.png',
   },
   demo: {
-    name: process.env.SEED_USER_NAME || 'Nicole Johnson',
-    email: (process.env.SEED_USER_EMAIL || 'user@blackreel.com').toLowerCase(),
-    password: process.env.SEED_USER_PASSWORD || 'User123!',
+    name: config.seed.userName || '',
+    email: String(config.seed.userEmail || '').toLowerCase(),
+    password: config.seed.userPassword || '',
     role: 'user',
     status: 'active',
     avatarUrl: '/images/avatar.png',
@@ -126,6 +127,10 @@ const demoContent = [
 ];
 
 const syncSeedUser = async ({ email, password, ...payload }) => {
+  if (!email || !password || !payload.name) {
+    return null;
+  }
+
   let user = await User.findOne({ email }).select('+password');
 
   if (!user) {
@@ -151,6 +156,13 @@ const syncSeedUser = async ({ email, password, ...payload }) => {
 const seedDatabase = async () => {
   const adminUser = await syncSeedUser(seedUsers.admin);
   const demoUser = await syncSeedUser(seedUsers.demo);
+
+  if (!adminUser || !demoUser) {
+    console.warn(
+      'Skipping database seeding for users/content/payments/notifications/reports because SEED_* credentials are incomplete.'
+    );
+    return;
+  }
 
   const existingContentCount = await Content.countDocuments();
 
@@ -200,8 +212,8 @@ const seedDatabase = async () => {
     await Payment.create({
       user: demoUser._id,
       planType: 'premium',
-      amount: 9.99,
-      currency: 'USD',
+      amount: 299,
+      currency: 'INR',
       status: 'completed',
       billingEmail: demoUser.email,
       paymentMethod: 'Visa ending 4242',

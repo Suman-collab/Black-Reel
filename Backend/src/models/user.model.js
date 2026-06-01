@@ -8,6 +8,11 @@ const deviceSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    browser: {
+      type: String,
+      trim: true,
+      default: 'Unknown',
+    },
     location: {
       type: String,
       trim: true,
@@ -69,6 +74,8 @@ const subscriptionSchema = new mongoose.Schema(
     },
     startedAt: Date,
     renewalDate: Date,
+    expiryDate: Date,
+    paymentId: { type: String, default: '' },
   },
   { _id: false }
 );
@@ -129,14 +136,25 @@ const userSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['active', 'inactive', 'banned'],
+      enum: ['active', 'suspended', 'banned'],
       default: 'active',
     },
     avatarUrl: {
       type: String,
       default: '/images/avatar.png',
     },
+    avatar: {
+      type: String,
+      default: null,
+      trim: true,
+    },
     watchlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Content',
+      },
+    ],
+    watchedVideos: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Content',
@@ -183,14 +201,14 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Hash password before save
+
 userSchema.pre('save', async function(next) {
   if (!this.password || !this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-// Compare password method
+
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };

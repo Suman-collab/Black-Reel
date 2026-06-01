@@ -1,7 +1,9 @@
-// Fixed: standardized secure cookie settings for server-issued session auth tokens.
+import { config } from '../config/index.js';
+
+
 export const getSessionCookieOptions = () => ({
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: config.app.env === 'production',
   sameSite: 'strict',
   path: '/',
   maxAge: 24 * 60 * 60 * 1000,

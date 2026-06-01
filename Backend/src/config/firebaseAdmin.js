@@ -1,12 +1,13 @@
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { config } from './index.js';
 
-const toMultilineKey = (key = '') => String(key).replace(/\\n/g, '\n');
+const toMultilineKey = (key = '') => String(key).replace(/^"|"$/g, '').replace(/\\n/g, '\n');
 
 const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: toMultilineKey(process.env.FIREBASE_PRIVATE_KEY || ''),
+  projectId: config.firebase.projectId,
+  clientEmail: config.firebase.clientEmail,
+  privateKey: toMultilineKey(config.firebase.privateKey || ''),
 };
 
 const hasFirebaseServiceAccount =

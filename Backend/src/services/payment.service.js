@@ -4,6 +4,7 @@ import User from '../models/user.model.js';
 import AppError from '../utils/AppError.js';
 import { z } from 'zod';
 import { validate } from '../utils/validate.js';
+import { config } from '../config/index.js';
 
 const checkoutSessionSchema = z.object({
   planType: z.enum(['basic', 'standard', 'premium']),
@@ -37,15 +38,15 @@ const webhookSchema = z.object({
 
 const planCatalog = {
   basic: {
-    amount: 4.99,
+    amount: 99,
     label: 'Basic',
   },
   standard: {
-    amount: 7.99,
+    amount: 199,
     label: 'Standard',
   },
   premium: {
-    amount: 9.99,
+    amount: 299,
     label: 'Premium',
   },
 };
@@ -74,6 +75,12 @@ const buildCheckoutSessionId = () => `cs_${Date.now()}_${Math.random().toString(
 const buildTransactionId = () => `txn_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
 const activateSubscriptionForPayment = async (payment) => {
+  if (!payment) {
+    throw new AppError('Payment record not found', 404);
+  }
+  if (payment.status !== 'completed' && payment.status !== 'success') {
+    throw new AppError('Subscription cannot be activated because payment is not completed', 400);
+  }
   await User.findByIdAndUpdate(payment.user, {
     subscription: {
       planType: payment.planType,
@@ -94,10 +101,10 @@ const findCheckoutPayment = async (checkoutSessionId) => {
   return payment;
 };
 
-// Fixed: cryptographically safe HMAC verification and controlled non-production mock mode.
+
 const verifyRazorpaySignature = ({ razorpay_order_id, razorpay_payment_id, razorpay_signature }) => {
-  const secret = process.env.RAZORPAY_SECRET;
-  const mockAllowed = process.env.NODE_ENV !== 'production' && process.env.ALLOW_MOCK_PAYMENTS === 'true';
+  const secret = config.razorpay.keySecret;
+  const mockAllowed = config.app.env !== 'production' && config.razorpay.allowMockPayments;
 
   if (!secret && !mockAllowed) {
     throw new AppError('Payment verification is unavailable. Please try again later.', 503);
@@ -124,9 +131,9 @@ const verifyRazorpaySignature = ({ razorpay_order_id, razorpay_payment_id, razor
   return true;
 };
 
-// Fixed: shared webhook signature verification with no secret leakage.
-export const verifyWebhookSignature = ({ payload, signature }) => {
-  const secret = process.env.PAYMENT_WEBHOOK_SECRET;
+
+export const verifyWebhookSignature = ({ payload, rawBody, signature }) => {
+  const secret = config.stripe.webhookSecret || process.env.PAYMENT_WEBHOOK_SECRET;
   if (!secret) {
     throw new AppError('Webhook configuration is incomplete.', 500);
   }
@@ -135,7 +142,9 @@ export const verifyWebhookSignature = ({ payload, signature }) => {
     throw new AppError('Invalid webhook signature', 401);
   }
 
-  const expected = crypto.createHmac('sha256', secret).update(JSON.stringify(payload)).digest('hex');
+  const bodyPayload =
+    Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(JSON.stringify(payload || {}), 'utf8');
+  const expected = crypto.createHmac('sha256', secret).update(bodyPayload).digest('hex');
   const providedBuffer = Buffer.from(signature, 'utf8');
   const expectedBuffer = Buffer.from(expected, 'utf8');
 
@@ -154,10 +163,14 @@ export const createCheckoutSession = async (userId, planData) => {
     throw new AppError('Invalid subscription plan selected', 400);
   }
 
-  const user = await User.findById(userId).select('email subscription emailVerified');
+  const user = await User.findById(userId).select('email subscription emailVerified status');
 
   if (!user) {
     throw new AppError('User not found', 404);
+  }
+
+  if (user.status === 'suspended') {
+    throw new AppError('Your account is currently suspended and cannot purchase or renew subscriptions.', 403);
   }
 
   if (!user.emailVerified) {
@@ -221,12 +234,19 @@ export const createCheckoutSession = async (userId, planData) => {
 
 export const createRazorpayOrder = async (userId, planData) => {
   const session = await createCheckoutSession(userId, planData);
+  const isProduction = config.app.env === 'production';
+  const keyId = config.razorpay.keyId || '';
+  const hasSecret = Boolean(config.razorpay.keySecret);
+
+  if (isProduction && (!keyId || !hasSecret)) {
+    throw new AppError('Payment gateway configuration is incomplete. Please contact support.', 503);
+  }
 
   const amountInSubunits = Math.round(session.amount * 100);
 
   return {
-    provider: 'razorpay_mock',
-    key: process.env.RAZORPAY_KEY_ID || 'rzp_test_mock_key',
+    provider: 'razorpay',
+    key: isProduction ? keyId : (keyId || 'rzp_test_mock_key'),
     orderId: `order_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     amount: amountInSubunits,
     currency: session.currency,

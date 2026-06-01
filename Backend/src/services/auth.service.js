@@ -2,11 +2,12 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 import AppError from '../utils/AppError.js';
 import { firebaseAuthAdmin, isFirebaseAdminConfigured } from '../config/firebaseAdmin.js';
-import { isRestrictedAccountStatus, ACCOUNT_SUSPENDED_MESSAGE } from '../utils/accountStatus.js';
+import { isRestrictedAccountStatus, ACCOUNT_SUSPENDED_MESSAGE, ACCOUNT_BANNED_MESSAGE } from '../utils/accountStatus.js';
+import { config } from '../config/index.js';
 
-// Fixed: centralized secure session token generation for HttpOnly cookie auth.
+
 const buildSessionToken = (user) => {
-  const secret = process.env.JWT_SECRET;
+  const secret = config.jwt.secret;
   if (!secret) {
     throw new AppError('Server auth configuration is incomplete.', 500);
   }
@@ -18,7 +19,7 @@ const buildSessionToken = (user) => {
       tokenVersion: user.tokenVersion || 0,
     },
     secret,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
+    { expiresIn: config.jwt.expiresIn || '1d' }
   );
 };
 
@@ -34,8 +35,10 @@ export const serializeUser = (user) => ({
   googleId: user.googleId || null,
   firebaseUid: user.firebaseUid || null,
   avatarUrl: user.avatarUrl,
+  avatar: user.avatar || null,
   preferences: user.preferences,
   subscription: user.subscription,
+  watchedVideos: user.watchedVideos || [],
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });
@@ -47,14 +50,17 @@ export const getAuthenticatedUser = async (id) => {
     throw new AppError('User not found', 404);
   }
 
-  if (isRestrictedAccountStatus(user.status)) {
-    throw new AppError(ACCOUNT_SUSPENDED_MESSAGE, 403);
+  if (user.status === 'suspended' || user.status === 'banned') {
+    const error = new AppError('Your account has been suspended. Please contact support at support@blackshortz.com or visit /support', 403);
+    error.errorCode = 'ACCOUNT_SUSPENDED';
+    error.isOperational = true;
+    throw error;
   }
 
   return user;
 };
 
-// Fixed: added dedicated admin Firebase token verification with custom admin claim enforcement.
+
 export const adminAuthService = async ({ firebaseIdToken }) => {
   if (!isFirebaseAdminConfigured || !firebaseAuthAdmin) {
     throw new AppError('Firebase Admin is not configured on this server.', 503);
@@ -97,8 +103,11 @@ export const adminAuthService = async ({ firebaseIdToken }) => {
     });
   }
 
-  if (isRestrictedAccountStatus(user.status)) {
-    throw new AppError(ACCOUNT_SUSPENDED_MESSAGE, 403);
+  if (user.status === 'suspended' || user.status === 'banned') {
+    const error = new AppError('Your account has been suspended. Please contact support at support@blackshortz.com or visit /support', 403);
+    error.errorCode = 'ACCOUNT_SUSPENDED';
+    error.isOperational = true;
+    throw error;
   }
 
   if (user.role !== 'admin') {
@@ -112,6 +121,95 @@ export const adminAuthService = async ({ firebaseIdToken }) => {
     user,
     sessionToken,
   };
+};
+
+export const adminAuthWithPasswordService = async ({ email, password }) => {
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+  const normalizedPassword = String(password || '');
+
+  if (!normalizedEmail || !normalizedPassword) {
+    throw new AppError('Email and password are required for admin login.', 400);
+  }
+
+  const user = await User.findOne({ email: normalizedEmail }).select('+password');
+
+  if (!user || user.role !== 'admin') {
+    throw new AppError('Invalid admin credentials.', 401);
+  }
+
+  const passwordMatches = await user.comparePassword(normalizedPassword);
+  if (!passwordMatches) {
+    throw new AppError('Invalid admin credentials.', 401);
+  }
+
+  if (user.status === 'suspended' || user.status === 'banned') {
+    const error = new AppError('Your account has been suspended. Please contact support at support@blackshortz.com or visit /support', 403);
+    error.errorCode = 'ACCOUNT_SUSPENDED';
+    error.isOperational = true;
+    throw error;
+  }
+
+  const sessionToken = buildSessionToken(user);
+
+  return {
+    user,
+    sessionToken,
+  };
+};
+
+export const googleAuthService = async ({ googleId, email, name, avatarUrl }) => {
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+
+  if (!normalizedEmail) {
+    throw new AppError('Google account did not provide an email address.', 400);
+  }
+
+  let user = await User.findOne({ email: normalizedEmail });
+
+  if (!user) {
+    user = await User.create({
+      name: name || normalizedEmail.split('@')[0] || 'User',
+      email: normalizedEmail,
+      googleId: googleId || undefined,
+      authProvider: 'google',
+      emailVerified: true,
+      avatarUrl: avatarUrl || '/images/avatar.png',
+      avatar: avatarUrl || null,
+    });
+  } else {
+    const updates = {};
+
+    if (!user.googleId && googleId) {
+      updates.googleId = googleId;
+    }
+    if (!user.avatarUrl && avatarUrl) {
+      updates.avatarUrl = avatarUrl;
+    }
+    if (!user.avatar && avatarUrl) {
+      updates.avatar = avatarUrl;
+    }
+    if (!user.emailVerified) {
+      updates.emailVerified = true;
+    }
+    if (user.authProvider !== 'google') {
+      updates.authProvider = 'google';
+    }
+
+    if (Object.keys(updates).length > 0) {
+      user = await User.findByIdAndUpdate(user._id, { $set: updates }, { new: true });
+    }
+  }
+
+  if (user.status === 'suspended' || user.status === 'banned') {
+    const error = new AppError('Your account has been suspended. Please contact support at support@blackshortz.com or visit /support', 403);
+    error.errorCode = 'ACCOUNT_SUSPENDED';
+    error.isOperational = true;
+    throw error;
+  }
+
+  const sessionToken = buildSessionToken(user);
+
+  return { user, sessionToken };
 };
 
 export const createSessionTokenForUser = buildSessionToken;

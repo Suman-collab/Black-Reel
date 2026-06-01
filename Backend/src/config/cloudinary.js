@@ -1,8 +1,9 @@
 import { v2 as cloudinary } from 'cloudinary';
+import { config } from './index.js';
 
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUD_NAME;
-const apiKey = process.env.CLOUDINARY_API_KEY || process.env.API_KEY;
-const apiSecret = process.env.CLOUDINARY_API_SECRET || process.env.API_SECRET;
+const cloudName = config.cloudinary.cloudName;
+const apiKey = config.cloudinary.apiKey;
+const apiSecret = config.cloudinary.apiSecret;
 
 const configured = Boolean(cloudName && apiKey && apiSecret);
 

@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 import AppError from '../utils/AppError.js';
-import { ACCOUNT_SUSPENDED_MESSAGE, isRestrictedAccountStatus } from '../utils/accountStatus.js';
+import { ACCOUNT_SUSPENDED_MESSAGE, ACCOUNT_BANNED_MESSAGE, isRestrictedAccountStatus } from '../utils/accountStatus.js';
 import { logBlockedAccessAttempt } from '../utils/securityAudit.js';
 import catchAsync from '../utils/catchAsync.js';
 import { isFirebaseAdminConfigured, firebaseAuthAdmin } from '../config/firebaseAdmin.js';
 import { setAuthSessionCookie } from '../utils/token.utils.js';
+import { config } from '../config/index.js';
 
 const extractBearerToken = (req) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
@@ -15,26 +16,30 @@ const extractBearerToken = (req) => {
   return null;
 };
 
-// Fixed: cookie-first token extraction for HttpOnly-session auth.
+
 const extractSessionToken = (req) => req.cookies?.br_session_token || null;
 
-const getSessionSecret = () => process.env.JWT_SECRET;
+const getSessionSecret = () => config.jwt.secret;
 
 const loadUserWithRestrictionCheck = async (req, user) => {
   if (!user) {
     throw new AppError('The user account linked to this session was not found.', 401);
   }
 
-  if (isRestrictedAccountStatus(user.status)) {
+  if (user.status === 'suspended' || user.status === 'banned') {
     logBlockedAccessAttempt({
       userId: user._id,
       email: user.email,
       status: user.status,
       path: req.originalUrl,
       method: req.method,
-      reason: 'restricted_account',
+      reason: 'suspended_account',
     });
-    throw new AppError(ACCOUNT_SUSPENDED_MESSAGE, 403);
+    
+    const error = new AppError('Your account has been suspended. Please contact support at support@blackshortz.com or visit /support', 403);
+    error.errorCode = 'ACCOUNT_SUSPENDED';
+    error.isOperational = true;
+    throw error;
   }
 
   return user;
@@ -143,7 +148,7 @@ const resolveFromFirebaseBearer = async (req, res, { strict }) => {
   }
 };
 
-// Fixed: optional auth now no-ops safely when no token/cookie is provided.
+
 const resolveAuthenticatedUser = async (req, res, { requireToken = true } = {}) => {
   const userFromCookie = await resolveFromSessionCookie(req);
   if (userFromCookie) {
@@ -168,10 +173,23 @@ const resolveAuthenticatedUser = async (req, res, { requireToken = true } = {}) 
 
 export const protect = catchAsync(async (req, res, next) => {
   req.user = await resolveAuthenticatedUser(req, res, { requireToken: true });
+
+  
+  
+  try {
+    const { registerDevice } = await import('../services/device.service.js');
+    await registerDevice(req.user._id, req);
+  } catch (deviceErr) {
+    
+    if (deviceErr?.errorCode === 'DEVICE_LIMIT_EXCEEDED') throw deviceErr;
+    
+    console.warn('[device] registration skipped:', deviceErr?.message);
+  }
+
   next();
 });
 
-// Fixed: token verification failures for optional auth no longer throw; request stays public.
+
 export const optionalProtect = catchAsync(async (req, res, next) => {
   if (!extractSessionToken(req) && !extractBearerToken(req)) {
     req.user = null;

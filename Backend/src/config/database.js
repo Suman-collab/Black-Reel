@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import { config } from './index.js';
+import logger from './logger.js';
 
 let connectionPromise = null;
 
@@ -8,7 +10,7 @@ const connectWithUri = async (uri, label) => {
   });
   const { connection } = instance;
   const hostLabel = connection.host || label;
-  console.log(`MongoDB Connected: ${hostLabel}`);
+  logger.info(`MongoDB Connected: ${hostLabel}`);
   return connection;
 };
 
@@ -22,21 +24,21 @@ const connectDB = async () => {
   }
 
   connectionPromise = Promise.resolve()
-    .then(() => connectWithUri(process.env.MONGO_URI, 'replica-set'))
+    .then(() => connectWithUri(config.db.url, 'replica-set'))
     .catch((error) => {
-      console.error(`Error connecting to MongoDB: ${error.message}`);
+      logger.error(`Error connecting to MongoDB: ${error.message}`);
 
-      const fallbackUri = process.env.MONGO_FALLBACK_URI;
+      const fallbackUri = config.db.fallbackUrl;
       const shouldTryFallback =
-        process.env.NODE_ENV !== 'production' &&
+        config.app.env !== 'production' &&
         fallbackUri &&
-        fallbackUri !== process.env.MONGO_URI;
+        fallbackUri !== config.db.url;
 
       if (!shouldTryFallback) {
         throw error;
       }
 
-      console.warn('Retrying MongoDB connection with development fallback URI.');
+      logger.warn('Retrying MongoDB connection with development fallback URI.');
       return connectWithUri(fallbackUri, 'development-fallback');
     })
     .catch((error) => {

@@ -1,9 +1,13 @@
+import { config } from '../config/index.js';
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     success: false,
     status: err.status,
     error: err.name,
     message: err.message,
+    ...(err.errorCode ? { errorCode: err.errorCode } : {}),
+    ...(err.data      ? { data: err.data }           : {}),
     stack: err.stack,
   });
 };
@@ -14,6 +18,8 @@ const sendErrorProd = (err, res) => {
       success: false,
       status: err.status,
       message: err.message,
+      ...(err.errorCode ? { errorCode: err.errorCode } : {}),
+      ...(err.data      ? { data: err.data }           : {}),
     });
   } else {
     console.error('ERROR', err);
@@ -98,7 +104,7 @@ export const errorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  if (process.env.NODE_ENV === 'development') {
+  if (config.app.env === 'development') {
     sendErrorDev(err, res);
   } else {
     sendErrorProd(normalizeOperationalError(err), res);

@@ -22,6 +22,10 @@ export const mapNotification = (notification) => ({
 });
 
 export const getNotificationsForUser = async (user) => {
+  if (user?.preferences?.notificationsEnabled === false) {
+    return [];
+  }
+
   return await Notification.find({
     $or: [
       { user: user._id },

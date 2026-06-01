@@ -1,12 +1,11 @@
+import logger from '../config/logger.js';
+
 export const logSecurityAuditEvent = (event, details = {}) => {
-  // Centralized audit logging for account restrictions and blocked access attempts.
-  console.warn(
-    JSON.stringify({
-      timestamp: new Date().toISOString(),
-      event,
-      ...details,
-    })
-  );
+  
+  logger.warn({
+    event,
+    ...details,
+  });
 };
 
 export const logSuspensionAction = ({ actorUserId, targetUserId, previousStatus, nextStatus }) => {
