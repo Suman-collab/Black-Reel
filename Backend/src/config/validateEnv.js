@@ -21,15 +21,19 @@ export const validateEnv = () => {
 
   
   if (process.env.NODE_ENV === 'production') {
-    requiredVars.push(
-      'STRIPE_SECRET_KEY',
-      'STRIPE_WEBHOOK_SECRET',
-      'RAZORPAY_KEY_ID',
-      'RAZORPAY_KEY_SECRET',
-      'SMTP_HOST',
-      'SMTP_USER',
-      'SMTP_PASSWORD'
-    );
+    const paymentMode = process.env.PAYMENT_MODE || 'dummy';
+    if (paymentMode !== 'dummy') {
+      requiredVars.push(
+        'STRIPE_SECRET_KEY',
+        'STRIPE_WEBHOOK_SECRET',
+        'RAZORPAY_KEY_ID',
+        'RAZORPAY_KEY_SECRET'
+      );
+    }
+
+    if (process.env.SMTP_HOST && process.env.SMTP_HOST.trim().length > 0) {
+      requiredVars.push('SMTP_USER', 'SMTP_PASSWORD');
+    }
   }
 
   requiredVars.forEach((key) => {
