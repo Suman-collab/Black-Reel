@@ -245,8 +245,26 @@ export const createContent = async (data, adminUserId, files = {}) => {
   assertTrailerAndVideoAreDifferent({ payload, files });
   const uploadData = {};
 
+  // Check if we are overriding an existing episode
+  let existingEpisode = null;
+  if (payload.type === 'Series' && payload.parentSeries && payload.episodeNumber != null) {
+    const query = {
+      parentSeries: payload.parentSeries,
+      episodeNumber: payload.episodeNumber
+    };
+    if (payload.seasonNumber != null) {
+      query.seasonNumber = payload.seasonNumber;
+    } else {
+      query.$or = [{ seasonNumber: null }, { seasonNumber: 1 }];
+    }
+    existingEpisode = await Content.findOne(query);
+  }
+
   // Upload thumbnail
   if (files.thumbnail && files.thumbnail[0]) {
+    if (existingEpisode && existingEpisode.thumbnailPublicId) {
+      await cloudinaryService.deleteAsset(existingEpisode.thumbnailPublicId, 'image').catch(() => null);
+    }
     const result = await cloudinaryService.uploadImage(files.thumbnail[0].buffer, 'thumbnails');
     uploadData.thumbnailUrl = result.url;
     uploadData.thumbnailPublicId = result.publicId;
@@ -254,6 +272,9 @@ export const createContent = async (data, adminUserId, files = {}) => {
 
   // Upload hero banner
   if (files.heroBanner && files.heroBanner[0]) {
+    if (existingEpisode && existingEpisode.heroImagePublicId) {
+      await cloudinaryService.deleteAsset(existingEpisode.heroImagePublicId, 'image').catch(() => null);
+    }
     const result = await cloudinaryService.uploadImage(files.heroBanner[0].buffer, 'heroes');
     uploadData.heroImageUrl = result.url;
     uploadData.heroImagePublicId = result.publicId;
@@ -261,6 +282,9 @@ export const createContent = async (data, adminUserId, files = {}) => {
 
   // Upload trailer
   if (files.trailer && files.trailer[0]) {
+    if (existingEpisode && existingEpisode.trailerPublicId) {
+      await cloudinaryService.deleteAsset(existingEpisode.trailerPublicId, 'video').catch(() => null);
+    }
     const result = await cloudinaryService.uploadVideo(files.trailer[0].buffer, 'trailers');
     uploadData.trailerUrl = result.url;
     uploadData.trailerPublicId = result.publicId;
@@ -269,6 +293,9 @@ export const createContent = async (data, adminUserId, files = {}) => {
 
   // Upload full video
   if (files.video && files.video[0]) {
+    if (existingEpisode && existingEpisode.videoPublicId) {
+      await cloudinaryService.deleteAsset(existingEpisode.videoPublicId, 'video').catch(() => null);
+    }
     const result = await cloudinaryService.uploadVideo(files.video[0].buffer, 'videos');
     uploadData.videoUrl = result.url;
     uploadData.videoPublicId = result.publicId;
@@ -287,6 +314,20 @@ export const createContent = async (data, adminUserId, files = {}) => {
   // Auto-set Episode 1 as free
   if (payload.type === 'Series' && payload.episodeNumber === 1 && payload.isFreeEpisode === undefined) {
     uploadData.isFreeEpisode = true;
+  }
+
+  if (existingEpisode) {
+    const heroImageUrl = uploadData.heroImageUrl || payload.heroImageUrl || uploadData.thumbnailUrl || payload.thumbnailUrl || existingEpisode.heroImageUrl;
+    const updatedEpisode = await Content.findByIdAndUpdate(
+      existingEpisode._id,
+      {
+        ...payload,
+        ...uploadData,
+        heroImageUrl,
+      },
+      { new: true, runValidators: true }
+    );
+    return updatedEpisode;
   }
 
   const heroImageUrl = uploadData.heroImageUrl || payload.heroImageUrl || uploadData.thumbnailUrl || payload.thumbnailUrl;
