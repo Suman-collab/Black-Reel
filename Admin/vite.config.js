@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://black-reel-xxfy.vercel.app/',
+        target: 'http://localhost:5000/',
         changeOrigin: true,
       },
     },
