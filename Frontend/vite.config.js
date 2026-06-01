@@ -15,7 +15,7 @@ export default defineConfig({
     historyApiFallback: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000/',
+        target: 'https://black-reel-xxfy.vercel.app/',
         changeOrigin: true,
       },
     },
