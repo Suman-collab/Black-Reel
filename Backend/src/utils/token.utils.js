@@ -4,7 +4,7 @@ import { config } from '../config/index.js';
 export const getSessionCookieOptions = () => ({
   httpOnly: true,
   secure: config.app.env === 'production',
-  sameSite: 'strict',
+  sameSite: config.app.env === 'production' ? 'none' : 'strict',
   path: '/',
   maxAge: 24 * 60 * 60 * 1000,
 });
@@ -14,7 +14,8 @@ export const setAuthSessionCookie = (res, token) => {
 };
 
 export const clearAuthCookies = (res) => {
-  res.clearCookie('br_session_token', { path: '/' });
-  res.clearCookie('br_access_token', { path: '/' });
-  res.clearCookie('br_refresh_token', { path: '/' });
+  const options = getSessionCookieOptions();
+  res.clearCookie('br_session_token', options);
+  res.clearCookie('br_access_token', options);
+  res.clearCookie('br_refresh_token', options);
 };
