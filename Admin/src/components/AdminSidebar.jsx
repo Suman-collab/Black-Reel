@@ -8,7 +8,6 @@ import {
   Flag,
   LogOut
 } from 'lucide-react';
-import '../styles/AdminSidebar.css';
 import { useAuth } from '../features/auth/AuthContext';
 
 const AdminSidebar = () => {
@@ -29,19 +28,24 @@ const AdminSidebar = () => {
 
   return (
     <aside className="admin-sidebar">
-      <div className="sidebar-header" style={{ padding: '1rem', display: 'flex', justifyContent: 'center' }}>
-        <img src="/images/Black-Shortz.png" alt="Black Reel Logo" className="sidebar-logo" style={{ maxWidth: '100%', maxHeight: '100px', objectFit: 'contain' }} />
+      <div className="admin-sidebar__logo" style={{ display: 'flex', flexDirection: 'column', padding: 'var(--space-6) var(--space-6) 0 var(--space-6)', marginBottom: 'var(--space-8)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 'var(--text-xl)', fontWeight: '800' }}>
+          <span style={{ color: 'var(--brand-primary)', letterSpacing: '1px' }}>BLACK</span>
+          <span style={{ color: 'var(--text-primary)', fontWeight: '400', letterSpacing: '1px' }}>REEL</span>
+        </div>
+        <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', letterSpacing: '2px', marginTop: '4px', textTransform: 'uppercase' }}>Studio Admin</span>
       </div>
 
-      <nav className="sidebar-nav">
-        <ul>
+      <div className="admin-sidebar__section-label">Navigation</div>
+      <nav className="sidebar-nav" style={{ flex: 1 }}>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {navItems.map((item) => (
-            <li key={item.path}>
+            <li key={item.path} style={{ marginBottom: '4px' }}>
               <NavLink
                 to={item.path}
-                className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+                className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'}
               >
-                {item.icon}
+                <span className="admin-nav-item__icon">{item.icon}</span>
                 <span>{item.label}</span>
               </NavLink>
             </li>
@@ -49,9 +53,9 @@ const AdminSidebar = () => {
         </ul>
       </nav>
 
-      <div className="sidebar-footer">
-        <button className="logout-btn" onClick={handleLogout}>
-          <LogOut size={20} />
+      <div className="admin-sidebar__footer">
+        <button className="admin-logout-btn" onClick={handleLogout}>
+          <LogOut size={18} />
           <span>Logout</span>
         </button>
       </div>

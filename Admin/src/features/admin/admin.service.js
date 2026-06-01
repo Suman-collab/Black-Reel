@@ -5,14 +5,14 @@ export const getOverview = async () => {
   return response.data.data.overview;
 };
 
-export const getSubscriptions = async () => {
-  const response = await api.get('/admin/subscriptions');
-  return response.data.data.subscriptions;
+export const getSubscriptions = async (params = {}) => {
+  const response = await api.get('/admin/subscriptions', { params });
+  return response.data.data;
 };
 
-export const getReports = async () => {
-  const response = await api.get('/admin/reports');
-  return response.data.data.reports;
+export const getReports = async (params = {}) => {
+  const response = await api.get('/admin/reports', { params });
+  return response.data.data;
 };
 
 export const updateReportStatus = async (reportId, status) => {

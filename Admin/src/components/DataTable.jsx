@@ -1,10 +1,9 @@
 import { Edit, Trash2, Eye } from 'lucide-react';
-import '../styles/DataTable.css';
 
 const DataTable = ({ columns, data, actions, onAction }) => {
   return (
-    <div className="data-table-container">
-      <table className="data-table">
+    <div className="admin-table-wrapper">
+      <table className="admin-table">
         <thead>
           <tr>
             {columns.map((col, index) => (

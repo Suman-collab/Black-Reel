@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import DataTable from '../components/DataTable';
 import StatePanel from '../components/StatePanel';
 import { getReports, updateReportStatus } from '../features/admin/admin.service';
@@ -8,6 +8,8 @@ const ReportsManagement = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     let isMounted = true;
@@ -17,10 +19,16 @@ const ReportsManagement = () => {
       setError('');
 
       try {
-        const data = await getReports();
+        const queryParams = {
+          page,
+          limit: 20,
+          status: filterStatus === 'all' ? undefined : filterStatus,
+        };
+        const data = await getReports(queryParams);
 
         if (isMounted) {
-          setReports(data);
+          setReports(data.reports || []);
+          setTotalPages(data.totalPages || 1);
         }
       } catch (apiError) {
         if (isMounted) {
@@ -38,11 +46,7 @@ const ReportsManagement = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
-
-  const filteredReports = useMemo(() => {
-    return reports.filter((report) => filterStatus === 'all' || report.status === filterStatus);
-  }, [reports, filterStatus]);
+  }, [page, filterStatus]);
 
   const handleStatusChange = async (reportId, status) => {
     try {
@@ -62,7 +66,7 @@ const ReportsManagement = () => {
   }
 
   const columns = [
-    { key: '_id', label: 'Report ID' },
+    { key: '_id', label: 'Report ID', render: (val) => <code style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{val}</code> },
     { key: 'contentTitle', label: 'Target Content / User' },
     { key: 'reason', label: 'Report Reason' },
     { key: 'reportedByEmail', label: 'Reported By' },
@@ -75,7 +79,20 @@ const ReportsManagement = () => {
       key: 'status',
       label: 'Status',
       render: (value, row) => (
-        <select value={value} onChange={(event) => handleStatusChange(row._id, event.target.value)} className="filter-select">
+        <select
+          value={value}
+          onChange={(event) => handleStatusChange(row._id, event.target.value)}
+          style={{
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-default)',
+            color: 'var(--text-primary)',
+            padding: '4px 10px',
+            borderRadius: 'var(--radius-md)',
+            cursor: 'pointer',
+            fontSize: 'var(--text-xs)',
+            outline: 'none'
+          }}
+        >
           <option value="pending">Pending</option>
           <option value="resolved">Resolved</option>
           <option value="rejected">Rejected</option>
@@ -85,15 +102,23 @@ const ReportsManagement = () => {
   ];
 
   return (
-    <div className="admin-page">
-      <div className="page-header">
-        <h1>Moderation Reports</h1>
-        <p>Review and act upon content flagged by the community.</p>
-        {error ? <p style={{ color: '#ffb3b3' }}>{error}</p> : null}
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+      <div className="admin-page-header">
+        <div>
+          <h1 className="admin-page-title">Moderation Reports</h1>
+          <p className="admin-page-subtitle">Review, audit, and act upon content flagged by the community.</p>
+        </div>
       </div>
 
-      <div className="page-controls">
-        <select className="filter-select" value={filterStatus} onChange={(event) => setFilterStatus(event.target.value)}>
+      <div className="admin-page-controls">
+        <select
+          className="filter-select"
+          value={filterStatus}
+          onChange={(event) => {
+            setFilterStatus(event.target.value);
+            setPage(1);
+          }}
+        >
           <option value="all">All Reports</option>
           <option value="pending">Pending Review</option>
           <option value="resolved">Resolved</option>
@@ -101,9 +126,16 @@ const ReportsManagement = () => {
         </select>
       </div>
 
-      <DataTable columns={columns} data={filteredReports} />
+      <DataTable columns={columns} data={reports} />
+
+      <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-4)', alignItems: 'center' }}>
+        <button className="btn btn-ghost" style={{ height: '36px', padding: '0 var(--space-4)' }} disabled={page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))}>Prev</button>
+        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Page {page} of {totalPages}</span>
+        <button className="btn btn-ghost" style={{ height: '36px', padding: '0 var(--space-4)' }} disabled={page >= totalPages} onClick={() => setPage((current) => Math.min(totalPages, current + 1))}>Next</button>
+      </div>
     </div>
   );
 };
 
 export default ReportsManagement;
+

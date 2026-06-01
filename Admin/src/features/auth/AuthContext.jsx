@@ -31,13 +31,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshUser = async () => {
-    const activeSession = getStoredAdminAuth();
-
-    if (!activeSession?.user) {
-      clearSession(false);
-      return null;
-    }
-
     setLoading(true);
 
     try {
@@ -84,7 +77,20 @@ export const AuthProvider = ({ children }) => {
     return session.user;
   };
 
-  const logout = () => clearSession(true);
+  const beginGoogleOAuth = () => {
+    const apiBase = import.meta.env.VITE_API_URL;
+    if (!apiBase) {
+      throw new Error('VITE_API_URL is not configured.');
+    }
+    const returnTo = `${window.location.origin}/login`;
+    const oauthUrl = `${apiBase.replace(/\/$/, '')}/auth/google?returnTo=${encodeURIComponent(returnTo)}`;
+    window.location.assign(oauthUrl);
+  };
+
+  const logout = async () => {
+    await authService.logoutCurrentAdminSession().catch(() => null);
+    clearSession(true);
+  };
 
   return (
     <AuthContext.Provider
@@ -95,6 +101,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         isAuthenticated: Boolean(user),
         login,
+        beginGoogleOAuth,
         logout,
         refreshUser,
       }}

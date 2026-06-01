@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Auth.css';
 import { useAuth } from '../features/auth/AuthContext';
 
 const Login = () => {
@@ -28,33 +27,47 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <img src="/images/Black-Shortz.png" alt="Black Reel Logo" className="auth-logo" />
-          <h2>Admin Login</h2>
-          <p>Enter your credentials to access the dashboard</p>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      background: 'radial-gradient(circle at center, #151518 0%, #08080a 100%)',
+      padding: 'var(--space-4)'
+    }} className="animate-fade-in">
+      <div className="form-container">
+        <div style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: 'var(--text-2xl)', fontWeight: '800', marginBottom: 'var(--space-3)' }}>
+            <span style={{ color: 'var(--brand-primary)', letterSpacing: '1px' }}>BLACK</span>
+            <span style={{ color: 'var(--text-primary)', fontWeight: '400', letterSpacing: '1px' }}>REEL</span>
+          </div>
+          <h2 className="form-title" style={{ fontSize: 'var(--text-xl)', marginTop: 'var(--space-2)' }}>Admin Portal</h2>
+          <p className="form-subtitle" style={{ marginBottom: 0 }}>Access the streaming administration suite</p>
         </div>
-        <form onSubmit={handleLogin} className="auth-form">
+
+        <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label htmlFor="admin-email">Email</label>
+            <label className="form-label" htmlFor="admin-email">Email Address</label>
             <input
+              className="form-input"
               type="email"
               id="admin-email"
-              placeholder="Enter admin email"
+              placeholder="admin@blackreel.com"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               autoComplete="username"
               required
             />
           </div>
+
           <div className="form-group">
-            <label htmlFor="admin-password">Password</label>
-            <div className="password-input-wrapper">
+            <label className="form-label" htmlFor="admin-password">Password</label>
+            <div className="form-input-wrapper">
               <input
+                className="form-input"
                 type={showPassword ? 'text' : 'password'}
                 id="admin-password"
-                placeholder="Enter password"
+                placeholder="••••••••"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete="current-password"
@@ -62,7 +75,7 @@ const Login = () => {
               />
               <button
                 type="button"
-                className="password-toggle-btn"
+                className="form-input-toggle"
                 onClick={() => setShowPassword((current) => !current)}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                 aria-pressed={showPassword}
@@ -71,9 +84,16 @@ const Login = () => {
               </button>
             </div>
           </div>
-          {error ? <p style={{ color: '#ffb3b3', margin: 0 }}>{error}</p> : null}
-          <button type="submit" className="auth-submit-btn" disabled={submitting}>
-            {submitting ? 'Signing In...' : 'Sign In'}
+
+          {error && (
+            <div className="form-error" style={{ marginBottom: 'var(--space-4)', justifyContent: 'center' }}>
+              <span>⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', height: '52px', marginTop: 'var(--space-2)' }} disabled={submitting}>
+            {submitting ? 'Authenticating...' : 'Sign In to Dashboard'}
           </button>
         </form>
       </div>
@@ -82,3 +102,5 @@ const Login = () => {
 };
 
 export default Login;
+
+

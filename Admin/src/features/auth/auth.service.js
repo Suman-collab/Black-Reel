@@ -1,7 +1,7 @@
 import api from '../../lib/api';
 
 const unwrapAuthResponse = (response) => ({
-  token: response.data.token,
+  token: response.data.token || null,
   user: response.data.data.user,
 });
 
@@ -13,4 +13,8 @@ export const login = async (credentials) => {
 export const getCurrentAdmin = async () => {
   const response = await api.get('/auth/me');
   return response.data.data.user;
+};
+
+export const logoutCurrentAdminSession = async () => {
+  await api.post('/auth/logout');
 };

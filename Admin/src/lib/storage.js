@@ -1,6 +1,6 @@
 const ADMIN_AUTH_STORAGE_KEY = 'blackreel-admin-auth';
 
-// Fixed: stop persisting admin bearer tokens in localStorage; keep only user profile cache.
+
 export const getStoredAdminAuth = () => {
   try {
     const rawValue = localStorage.getItem(ADMIN_AUTH_STORAGE_KEY);

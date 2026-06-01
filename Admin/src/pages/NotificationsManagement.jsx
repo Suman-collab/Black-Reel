@@ -73,69 +73,106 @@ const NotificationsManagement = () => {
   }
 
   return (
-    <div className="admin-page">
-      <div className="page-header">
-        <h1>Platform Notifications</h1>
-        <p>Broadcast messages and alerts to all active users on Black Reel.</p>
-        {error ? <p style={{ color: '#ffb3b3' }}>{error}</p> : null}
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+      <div className="admin-page-header">
+        <div>
+          <h1 className="admin-page-title">Platform Notifications</h1>
+          <p className="admin-page-subtitle">Broadcast messages, announcements, and alerts directly to all registered app viewports.</p>
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', alignItems: 'start' }}>
-        <div className="dashboard-section" style={{ backgroundColor: '#1a1a1a', padding: '2rem', borderRadius: '12px', border: '1px solid #333' }}>
-          <h2 style={{ color: '#e5b33e', marginBottom: '1.5rem', fontSize: '1.25rem' }}>Compose New Broadcast</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: 'var(--space-6)', alignItems: 'start' }}>
+        <div style={{
+          backgroundColor: 'var(--bg-surface)',
+          padding: 'var(--space-6)',
+          borderRadius: 'var(--radius-xl)',
+          border: '1px solid var(--border-subtle)',
+          boxShadow: 'var(--shadow-md)',
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '2px',
+            background: 'var(--gradient-gold)'
+          }} />
+          <h2 className="admin-page-title" style={{ fontSize: 'var(--text-md)', marginBottom: 'var(--space-6)' }}>Compose New Broadcast</h2>
 
-          <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ color: '#a0a0a0', fontSize: '0.9rem' }}>Notification Title</label>
+          <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <div className="form-group">
+              <label className="form-label">Notification Title</label>
               <input
                 type="text"
-                className="search-input"
-                placeholder="Server Maintenance Notice"
+                className="form-input"
+                placeholder="Platform Maintenance Notice"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 required
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ color: '#a0a0a0', fontSize: '0.9rem' }}>Message Body</label>
+            <div className="form-group">
+              <label className="form-label">Message Body</label>
               <textarea
-                className="search-input"
-                style={{ minHeight: '120px', resize: 'vertical' }}
-                placeholder="Enter your message here..."
+                className="form-input"
+                style={{ minHeight: '120px', resize: 'vertical', paddingTop: '12px' }}
+                placeholder="Type the message contents..."
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
                 required
               ></textarea>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <button type="submit" className="action-btn primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }} disabled={submitting}>
-                <Send size={18} /> {submitting ? 'Sending...' : 'Send Broadcast'}
+            {error && (
+              <div className="form-error">
+                <span>⚠️</span>
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', marginTop: 'var(--space-2)' }}>
+              <button type="submit" className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', height: '48px', padding: '0 var(--space-6)' }} disabled={submitting}>
+                <Send size={16} /> {submitting ? 'Broadcasting...' : 'Publish Broadcast'}
               </button>
-              {showSuccess ? (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#4CAF50', fontSize: '0.9rem' }}>
-                  <CheckCircle2 size={16} /> Notification Sent!
+              {showSuccess && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#2ECC71', fontSize: 'var(--text-sm)', fontWeight: '600' }}>
+                  <CheckCircle2 size={16} /> Sent successfully!
                 </span>
-              ) : null}
+              )}
             </div>
           </form>
         </div>
 
-        <div className="dashboard-section" style={{ backgroundColor: '#1a1a1a', padding: '2rem', borderRadius: '12px', border: '1px solid #333', minHeight: '400px' }}>
-          <h2 style={{ color: '#fff', marginBottom: '1.5rem', fontSize: '1.25rem' }}>Recent Broadcasts</h2>
+        <div style={{
+          backgroundColor: 'var(--bg-surface)',
+          padding: 'var(--space-6)',
+          borderRadius: 'var(--radius-xl)',
+          border: '1px solid var(--border-subtle)',
+          boxShadow: 'var(--shadow-md)',
+          minHeight: '440px'
+        }}>
+          <h2 className="admin-page-title" style={{ fontSize: 'var(--text-md)', marginBottom: 'var(--space-6)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 'var(--space-3)' }}>Recent Sent Broadcasts</h2>
 
           {sentNotifications.length === 0 ? (
-            <p style={{ color: '#888', fontStyle: 'italic' }}>No notifications sent yet.</p>
+            <p style={{ color: 'var(--text-tertiary)', fontStyle: 'italic', padding: 'var(--space-4) 0' }}>No broadcasts published yet.</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', maxHeight: '550px', overflowY: 'auto', paddingRight: '4px' }}>
               {sentNotifications.map((notice) => (
-                <div key={notice.id} style={{ padding: '1rem', backgroundColor: '#222', borderRadius: '8px', borderLeft: '4px solid #e5b33e' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <h3 style={{ margin: 0, fontSize: '1rem', color: '#fff' }}>{notice.title}</h3>
-                    <span style={{ fontSize: '0.8rem', color: '#888' }}>{new Date(notice.createdAt).toLocaleString()}</span>
+                <div key={notice.id} className="animate-fade-in" style={{
+                  padding: 'var(--space-4)',
+                  backgroundColor: 'var(--bg-elevated)',
+                  borderRadius: 'var(--radius-lg)',
+                  borderLeft: '3px solid var(--brand-primary)',
+                  transition: 'transform var(--transition-fast)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-2)', gap: 'var(--space-4)' }}>
+                    <h3 style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--text-primary)', fontWeight: '600' }}>{notice.title}</h3>
+                    <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>{new Date(notice.createdAt).toLocaleString()}</span>
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.9rem', color: '#bbb', lineHeight: '1.4' }}>{notice.message}</p>
+                  <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: '1.5' }}>{notice.message}</p>
                 </div>
               ))}
             </div>
@@ -147,3 +184,4 @@ const NotificationsManagement = () => {
 };
 
 export default NotificationsManagement;
+

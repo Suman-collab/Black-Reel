@@ -1,3 +1,5 @@
+
+
 .page-controls {
   display: flex;
   gap: 1rem;
@@ -6,10 +8,12 @@
   padding: 1.5rem;
   border-radius: 12px;
   border: 1px solid #333;
+  flex-wrap: wrap;
 }
 
 .search-input {
   flex: 1;
+  min-width: 200px;
   padding: 0.75rem 1rem;
   border-radius: 6px;
   border: 1px solid #333;
@@ -19,10 +23,7 @@
   outline: none;
   transition: border-color 0.2s;
 }
-
-.search-input:focus {
-  border-color: #e5b33e;
-}
+.search-input:focus { border-color: #e5b33e; }
 
 .filter-select {
   padding: 0.75rem 1rem;
@@ -35,17 +36,100 @@
   cursor: pointer;
 }
 
-.action-btn.primary {
-  background-color: #e5b33e;
-  color: #000;
-  padding: 0.75rem 1.5rem;
-  border: none;
+
+.action-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.75);
+  padding: 0.55rem 1rem;
   border-radius: 6px;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.action-btn:hover:not(:disabled) { background: rgba(255,255,255,0.12); color: #fff; }
+.action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.action-btn.primary {
+  background-color: #e5b33e;
+  border-color: #e5b33e;
+  color: #000;
+}
+.action-btn.primary:hover { background-color: #c99c32; }
+
+.action-btn.danger {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+.action-btn.danger:hover:not(:disabled) { background: rgba(239, 68, 68, 0.25); }
+
+.action-btn.small {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.78rem;
+  border-radius: 5px;
 }
 
-.action-btn.primary:hover {
-  background-color: #c99c32;
+
+.plan-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
 }
+.plan-none     { background: rgba(100,100,100,0.2); color: #aaa;    border: 1px solid #444; }
+.plan-basic    { background: rgba(59,130,246,0.15);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.3);  }
+.plan-standard { background: rgba(168,85,247,0.15);  color: #c084fc; border: 1px solid rgba(168,85,247,0.3);  }
+.plan-premium  { background: rgba(212,175,55,0.18);  color: #d4af37; border: 1px solid rgba(212,175,55,0.4);  }
+
+
+.device-panel {
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin: 0.75rem 0 1.25rem;
+}
+.device-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.device-panel-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #fff;
+}
+.dp-state {
+  color: rgba(255,255,255,0.4);
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+  margin: 0;
+}
+.dp-error { color: #f87171 !important; }
+
+.dp-device {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #222;
+  gap: 1rem;
+}
+.dp-device:last-child { border-bottom: none; }
+
+.dp-device-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.dp-device-info strong { color: #fff;                         font-size: 0.9rem;  }
+.dp-device-info span   { color: rgba(255,255,255,0.45);       font-size: 0.78rem; }
+.dp-meta               { color: rgba(255,255,255,0.3) !important; font-size: 0.72rem !important; }

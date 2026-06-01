@@ -21,7 +21,7 @@
   overflow-y: auto;
 }
 
-/* Scrollbar customization */
+
 .admin-content-area::-webkit-scrollbar {
   width: 8px;
 }
