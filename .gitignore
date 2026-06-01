@@ -1,0 +1,14 @@
+# Environment files — never commit secrets
+.env
+.env.local
+.env.production
+.env.staging
+.env.*.local
+
+# Always commit the example template
+!.env.example
+
+# Also ignore any leftover local env files in subfolders
+Backend/.env
+Frontend/.env
+Admin/.env
