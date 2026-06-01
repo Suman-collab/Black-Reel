@@ -114,12 +114,11 @@ export default function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(false);
   const [checkoutSessionId, setCheckoutSessionId] = useState('');
-  const [error, setError] = useState('');
+  const [, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [showTestCards, setShowTestCards] = useState(true);
 
   
-  const [expiryError, setExpiryError] = useState('');
 
   useEffect(() => {
     if (!selectedPlanId) {
@@ -227,7 +226,7 @@ export default function Checkout() {
           reason: 'Checkout cancelled by user',
         });
       } catch {
-        
+        // best-effort cancellation before leaving checkout
       }
     }
 

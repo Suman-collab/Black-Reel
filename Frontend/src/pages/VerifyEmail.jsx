@@ -9,14 +9,10 @@ export default function VerifyEmail() {
   const navigate = useNavigate();
   const { verifyEmail, resendVerification } = useAuth();
   const email = searchParams.get('email') || '';
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [busy, setBusy] = useState(false);
 
   const handleVerify = async () => {
     setBusy(true);
-    setError('');
-    setSuccess('');
 
     try {
       await verifyEmail();
@@ -31,8 +27,6 @@ export default function VerifyEmail() {
 
   const handleResend = async () => {
     setBusy(true);
-    setError('');
-    setSuccess('');
 
     try {
       await resendVerification(email || undefined);

@@ -10,10 +10,8 @@ import { useAuth } from '../features/auth/AuthContext';
 import { PARENTAL_CONTROLS_DESCRIPTION } from '../lib/contentAccess';
 import {
   formatPlanName,
-  getNavbarPlanLabel,
   getSubscriptionStatusMessage,
   hasActiveSubscription,
-  hasSelectedSubscriptionPlan,
 } from '../lib/subscription';
 import './Profile.css';
 
@@ -95,7 +93,6 @@ export default function Profile() {
   }
 
   const subscriptionIsActive = hasActiveSubscription(profile.subscription);
-  const hasSelectedPlan = hasSelectedSubscriptionPlan(profile.subscription);
   const parentalControlsEnabled = Boolean(profile.preferences?.parentalControls);
 
   const handlePlanSelection = (planType) => {

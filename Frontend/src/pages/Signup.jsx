@@ -13,31 +13,37 @@ export default function Signup() {
   const [submitting, setSubmitting] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const navigate = useNavigate();
-  const { register, beginGoogleOAuth, error, setError } = useAuth();
+  const { register, beginGoogleOAuth, setError } = useAuth();
 
   const handleSignup = async (event) => {
     event.preventDefault();
 
     if (!terms) {
+      console.warn('[Signup Page] Submit blocked: Terms checkbox not checked.');
       toast.warning('Please agree to the terms and policy before creating an account.');
       return;
     }
 
+    console.log(`[Signup Page] Form submitted. Attempting registration for Name: ${name}, Email: ${email}`);
     setSubmitting(true);
     setError('');
 
     try {
       const result = await register({ name, email, password });
+      console.log('[Signup Page] Registration successful. Result payload:', result);
 
       if (result?.requiresEmailVerification) {
+        console.log(`[Signup Page] User requires email verification. Redirecting to /verify-email for ${email}`);
         toast.success('Registration successful! A verification email has been sent.');
         navigate(`/verify-email?email=${encodeURIComponent(email)}`);
         return;
       }
 
+      console.log('[Signup Page] Direct registration success. Redirecting to /subscribe.');
       toast.success('Registration successful! Welcome to Black Reel.');
       navigate('/subscribe');
     } catch (apiError) {
+      console.error('[Signup Page] Registration failed:', apiError);
       const mappedErrorMsg = getFirebaseErrorMessage(apiError.code || apiError.message);
       toast.error(mappedErrorMsg);
     } finally {
@@ -46,16 +52,21 @@ export default function Signup() {
   };
 
   const handleGoogleSignup = async () => {
+    console.log('[Signup Page] Google signup initiated.');
     setError('');
     setOauthLoading(true);
 
     try {
       const user = await beginGoogleOAuth();
       if (user) {
+        console.log('[Signup Page] Google signup successful. Redirecting to home (/).');
         toast.success('Google sign-in successful! Welcome to Black Reel.');
         navigate('/', { replace: true });
+      } else {
+        console.warn('[Signup Page] Google signup did not return a user object.');
       }
     } catch (apiError) {
+      console.error('[Signup Page] Google signup failed:', apiError);
       const mappedErrorMsg = getFirebaseErrorMessage(apiError.code || apiError.message);
       toast.error(mappedErrorMsg);
     } finally {
@@ -166,4 +177,3 @@ export default function Signup() {
     </div>
   );
 }
-

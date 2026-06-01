@@ -13,20 +13,23 @@ export default function Login() {
   const [oauthLoading, setOauthLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, beginGoogleOAuth, error, setError } = useAuth();
+  const { login, beginGoogleOAuth, setError } = useAuth();
 
   const redirectTo = location.state?.from || '/';
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    console.log(`[Login Page] Form submitted. Attempting login for email: ${email}`);
     setSubmitting(true);
     setError('');
 
     try {
       await login({ email, password });
+      console.log(`[Login Page] Login successful. Redirecting user to: ${redirectTo}`);
       toast.success('Welcome back! Login successful.');
       navigate(redirectTo, { replace: true });
     } catch (apiError) {
+      console.error('[Login Page] Form login failed:', apiError);
       const mappedErrorMsg = getFirebaseErrorMessage(apiError.code || apiError.message);
       toast.error(mappedErrorMsg);
     } finally {
@@ -35,16 +38,21 @@ export default function Login() {
   };
 
   const handleGoogleLogin = async () => {
+    console.log('[Login Page] Google login triggered.');
     setError('');
     setOauthLoading(true);
 
     try {
       const user = await beginGoogleOAuth();
       if (user) {
+        console.log('[Login Page] Google login successful. Redirecting to home (/).');
         toast.success('Google sign-in successful! Welcome back.');
         navigate('/', { replace: true });
+      } else {
+        console.warn('[Login Page] Google login did not return a user object.');
       }
     } catch (apiError) {
+      console.error('[Login Page] Google login failed:', apiError);
       const mappedErrorMsg = getFirebaseErrorMessage(apiError.code || apiError.message);
       toast.error(mappedErrorMsg);
     } finally {

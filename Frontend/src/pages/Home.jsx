@@ -13,7 +13,6 @@ import {
   hasParentalControlsEnabled,
   getParentalControlsRestrictionReason,
   isContentRestrictedByParentalControls,
-  PARENTAL_CONTROLS_DESCRIPTION,
 } from '../lib/contentAccess';
 import fallbackMovies from '../data/movies.json';
 import './Home.css';
@@ -39,6 +38,7 @@ export default function Home() {
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [initialImageLoaded, setInitialImageLoaded] = useState(false);
   const [heroIndex, setHeroIndex] = useState(0);
 
   const heroSlides = [
@@ -51,11 +51,13 @@ export default function Home() {
   const activeHero = heroSlides[heroIndex] || pageState.featuredMovie;
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setImageLoaded(false);
     setImageError(false);
   }, [activeHero?.id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHeroIndex(0);
   }, [pageState.featuredMovie?.id]);
 
@@ -103,6 +105,38 @@ export default function Home() {
     const cleanPath = rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
     return `${baseUrl}${cleanPath}`;
   };
+
+  const heroImageUrl = getHeroImageUrl(activeHero);
+
+  useEffect(() => {
+    if (pageState.loading || !heroImageUrl) return;
+
+    console.log(`[Home] Preloading active hero banner in background: ${heroImageUrl}`);
+    
+    // Set a safety timeout to prevent getting stuck if image loads slowly
+    const timer = setTimeout(() => {
+      console.warn('[Home] Preload timed out. Revealing page anyway.');
+      setInitialImageLoaded(true);
+    }, 1500);
+
+    const img = new Image();
+    img.src = heroImageUrl;
+    img.onload = () => {
+      console.log('[Home] Hero banner preloaded successfully.');
+      clearTimeout(timer);
+      setInitialImageLoaded(true);
+      setImageLoaded(true);
+    };
+    img.onerror = () => {
+      console.error('[Home] Failed to preload hero banner image.');
+      clearTimeout(timer);
+      setInitialImageLoaded(true);
+      setImageError(true);
+      setImageLoaded(true);
+    };
+
+    return () => clearTimeout(timer);
+  }, [pageState.loading, heroImageUrl]);
 
 
   useEffect(() => {
@@ -213,7 +247,9 @@ export default function Home() {
     };
   }, [isAuthenticated, navigate]);
 
-  if (pageState.loading) {
+  const showLoading = pageState.loading || (heroImageUrl && !initialImageLoaded && !imageError);
+
+  if (showLoading) {
     return <StatePanel title="Loading the latest drops" message="Pulling featured titles, trending releases, and your saved picks." />;
   }
 
@@ -273,8 +309,6 @@ export default function Home() {
 
     navigate(`/show/${contentId}`);
   };
-
-  const heroImageUrl = getHeroImageUrl(activeHero);
 
   return (
     <div className="home-container">

@@ -2,6 +2,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
   sendPasswordResetEmail,
   onAuthStateChanged,
@@ -43,6 +44,22 @@ export const loginWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
   } catch (error) {
+    if (
+      error?.code === 'auth/popup-closed-by-user' ||
+      error?.code === 'auth/cancelled-popup-request'
+    ) {
+      return null;
+    }
+
+    if (error?.code === 'auth/network-request-failed') {
+      throw new Error('Network error. Check your connection.');
+    }
+
+    if (error?.code === 'auth/popup-blocked') {
+      await signInWithRedirect(auth, googleProvider);
+      return null;
+    }
+
     throw error;
   }
 };

@@ -21,7 +21,6 @@ const HIDE_TIMEOUT = 3000;
 const VideoPlayer = ({
   videoUrl,
   title,
-  trailerUrl,
   videoQualities = {},
   availableQualities = [],
   onNextEpisode,
@@ -110,32 +109,8 @@ const VideoPlayer = ({
     };
   }, [currentSrc]);
 
-  // ── Keyboard shortcuts ──────────────────────────────
-  useEffect(() => {
-    const handler = (e) => {
-      if (!containerRef.current?.contains(document.activeElement) && document.activeElement !== document.body) return;
-      const vid = videoRef.current;
-      if (!vid) return;
-
-      switch (e.key) {
-        case ' ':
-        case 'k': e.preventDefault(); togglePlay(); break;
-        case 'ArrowRight': e.preventDefault(); seek(10); break;
-        case 'ArrowLeft': e.preventDefault(); seek(-10); break;
-        case 'ArrowUp': e.preventDefault(); adjustVolume(0.1); break;
-        case 'ArrowDown': e.preventDefault(); adjustVolume(-0.1); break;
-        case 'f': e.preventDefault(); toggleFullscreen(); break;
-        case 'm': e.preventDefault(); toggleMute(); break;
-        default: break;
-      }
-    };
-
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, []);
-
   // ── Player actions ──────────────────────────────────
-  const togglePlay = () => {
+  function togglePlay() {
     const vid = videoRef.current;
     if (!vid) return;
     if (vid.paused) {
@@ -143,13 +118,13 @@ const VideoPlayer = ({
     } else {
       vid.pause();
     }
-  };
+  }
 
-  const seek = (delta) => {
+  function seek(delta) {
     const vid = videoRef.current;
     if (!vid) return;
     vid.currentTime = Math.max(0, Math.min(vid.duration, vid.currentTime + delta));
-  };
+  }
 
   const seekTo = (fraction) => {
     const vid = videoRef.current;
@@ -157,14 +132,14 @@ const VideoPlayer = ({
     vid.currentTime = fraction * vid.duration;
   };
 
-  const adjustVolume = (delta) => {
+  function adjustVolume(delta) {
     const vid = videoRef.current;
     if (!vid) return;
     const newVol = Math.max(0, Math.min(1, vid.volume + delta));
     vid.volume = newVol;
     setVolume(newVol);
     if (newVol > 0) { vid.muted = false; setIsMuted(false); }
-  };
+  }
 
   const setVolumeValue = (val) => {
     const vid = videoRef.current;
@@ -175,14 +150,14 @@ const VideoPlayer = ({
     if (numVal > 0 && vid.muted) { vid.muted = false; setIsMuted(false); }
   };
 
-  const toggleMute = () => {
+  function toggleMute() {
     const vid = videoRef.current;
     if (!vid) return;
     vid.muted = !vid.muted;
     setIsMuted(vid.muted);
-  };
+  }
 
-  const toggleFullscreen = () => {
+  function toggleFullscreen() {
     const el = containerRef.current;
     if (!el) return;
     if (!document.fullscreenElement) {
@@ -192,7 +167,7 @@ const VideoPlayer = ({
       document.exitFullscreen?.().catch(() => null);
       setIsFullscreen(false);
     }
-  };
+  }
 
   const changeSpeed = (speed) => {
     const vid = videoRef.current;
@@ -252,6 +227,30 @@ const VideoPlayer = ({
     vid.currentTime = 30;
     setShowSkipIntro(false);
   };
+
+  // ── Keyboard shortcuts ──────────────────────────────
+  useEffect(() => {
+    const handler = (e) => {
+      if (!containerRef.current?.contains(document.activeElement) && document.activeElement !== document.body) return;
+      const vid = videoRef.current;
+      if (!vid) return;
+
+      switch (e.key) {
+        case ' ':
+        case 'k': e.preventDefault(); togglePlay(); break;
+        case 'ArrowRight': e.preventDefault(); seek(10); break;
+        case 'ArrowLeft': e.preventDefault(); seek(-10); break;
+        case 'ArrowUp': e.preventDefault(); adjustVolume(0.1); break;
+        case 'ArrowDown': e.preventDefault(); adjustVolume(-0.1); break;
+        case 'f': e.preventDefault(); toggleFullscreen(); break;
+        case 'm': e.preventDefault(); toggleMute(); break;
+        default: break;
+      }
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   // ── Placeholder when no video ───────────────────────
   if (!currentSrc) {
@@ -433,8 +432,6 @@ const VideoPlayer = ({
                 {QUALITY_OPTIONS.map((q) => {
                   const qualityKey = q === '4K' ? 'p2160' : q === 'Auto' ? null : `p${q.replace('p', '')}`;
                   const isAvailable = q === 'Auto' || (availableQualities.length === 0) || availableQualities.includes(qualityKey);
-                  const hasUrl = q === 'Auto' || (videoQualities && videoQualities[qualityKey]);
-
                   return (
                     <button
                       key={q}

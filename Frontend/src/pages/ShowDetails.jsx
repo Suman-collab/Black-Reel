@@ -28,13 +28,14 @@ export default function ShowDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isDummyMode = import.meta.env.VITE_PAYMENT_MODE === 'dummy';
-  const { ensureActiveSession, hasRestrictedAccess, isSuspended, isActive, isAuthenticated, suspension, user, refreshUser } = useAuth();
+  const { hasRestrictedAccess, isSuspended, isActive, isAuthenticated, suspension, user, refreshUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [actionError, setActionError] = useState('');
   const [content, setContent] = useState(null);
   const [episodes, setEpisodes] = useState([]);
   const [selectedEpisodeIndex, setSelectedEpisodeIndex] = useState(0);
+  const [loadedDurations, setLoadedDurations] = useState({});
   const [shouldAutoplay, setShouldAutoplay] = useState(false);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [showTrailer, setShowTrailer] = useState(false);
@@ -151,13 +152,20 @@ export default function ShowDetails() {
 
   // ── Build episode list (real or fallback) ───────────
   const episodeList = useMemo(() => {
+    const getPreciseRuntime = (id, defaultDurationSec) => {
+      const parsedSec = loadedDurations[id] ?? defaultDurationSec;
+      if (!parsedSec || parsedSec <= 0) return '—';
+      if (parsedSec < 60) return `${Math.round(parsedSec)} sec`;
+      return `${Math.round(parsedSec / 60)} min`;
+    };
+
     // Real episodes from API
     if (episodes.length > 0) {
       return episodes.map((ep, index) => ({
         id: ep.id,
         epNum: `S${ep.seasonNumber || 1}E${ep.episodeNumber || index + 1}`,
         title: ep.episodeTitle || ep.title,
-        runtime: ep.videoDuration ? `${Math.round(ep.videoDuration / 60)} min` : '—',
+        runtime: getPreciseRuntime(ep.id, ep.videoDuration),
         videoUrl: ep.videoUrl,
         trailerUrl: ep.trailerUrl,
         isFreeEpisode: ep.isFreeEpisode,
@@ -168,11 +176,26 @@ export default function ShowDetails() {
 
     // Fallback for series without real episodes
     if (content?.type === 'Series') {
+      // If a single video was uploaded directly at the parent series level,
+      // only show that one single video and the trailer!
+      if (content.videoUrl) {
+        return [{
+          id: `${content.id}-single`,
+          epNum: 'Episode 1',
+          title: content.title,
+          runtime: getPreciseRuntime(`${content.id}-single`, content.videoDuration),
+          videoUrl: content.videoUrl,
+          isFreeEpisode: true,
+          accessLevel: content.accessLevel || 'free',
+        }];
+      }
+
+      // No video URL uploaded at the series level — generate fallback chapters
       return Array.from({ length: 6 }, (_, index) => ({
         id: `${content.id}-${index + 1}`,
         epNum: `Episode ${index + 1}`,
         title: `${content.title} - Chapter ${index + 1}`,
-        runtime: `${42 + index} min`,
+        runtime: getPreciseRuntime(`${content.id}-${index + 1}`, (42 + index) * 60),
         videoUrl: content.videoUrl,
         isFreeEpisode: index === 0,
         accessLevel: index === 0 ? 'free' : (content.accessLevel || 'free'),
@@ -185,7 +208,7 @@ export default function ShowDetails() {
         id: `${content.id}-feature`,
         epNum: 'Feature',
         title: content.title,
-        runtime: content.videoDuration ? `${Math.round(content.videoDuration / 60)} min` : '98 min',
+        runtime: getPreciseRuntime(`${content.id}-feature`, content.videoDuration),
         videoUrl: content.videoUrl,
         accessLevel: content.accessLevel,
         videoQualities: content.videoQualities,
@@ -193,7 +216,24 @@ export default function ShowDetails() {
     }
 
     return [];
-  }, [content, episodes]);
+  }, [content, episodes, loadedDurations]);
+
+  // ── Dynamically load real video durations ───────────
+  useEffect(() => {
+    episodeList.forEach((episode) => {
+      if (!episode.videoUrl || loadedDurations[episode.id]) return;
+
+      const tempVideo = document.createElement('video');
+      tempVideo.src = episode.videoUrl;
+      tempVideo.preload = 'metadata';
+      tempVideo.onloadedmetadata = () => {
+        setLoadedDurations((prev) => ({
+          ...prev,
+          [episode.id]: tempVideo.duration,
+        }));
+      };
+    });
+  }, [episodeList, loadedDurations]);
 
   const activeEpisode = episodeList[selectedEpisodeIndex] || episodeList[0] || null;
   const playbackRestrictedByParentalControls = isContentRestrictedByParentalControls(content, user);

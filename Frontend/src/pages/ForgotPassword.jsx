@@ -10,7 +10,6 @@ export default function ForgotPassword() {
   const [busy, setBusy] = useState(false);
   const [success, setSuccess] = useState('');
   const [submittedEmail, setSubmittedEmail] = useState('');
-  const [localError, setLocalError] = useState('');
 
   
   useEffect(() => {
@@ -41,7 +40,6 @@ export default function ForgotPassword() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setBusy(true);
-    setLocalError('');
     setSuccess('');
 
     const trimmedEmail = email.trim();
@@ -69,7 +67,6 @@ export default function ForgotPassword() {
       const errorCode = apiError?.code || '';
       const friendlyError = getFriendlyErrorMessage(errorCode);
       toast.error(friendlyError);
-      setLocalError(friendlyError);
       
       
       if (typeof setGlobalError === 'function') {
@@ -338,7 +335,6 @@ export default function ForgotPassword() {
               <button
                 onClick={() => {
                   setSuccess('');
-                  setLocalError('');
                 }}
                 className="btn btn-outline btn-block"
                 style={{ marginTop: '12px' }}
@@ -356,5 +352,4 @@ export default function ForgotPassword() {
     </div>
   );
 }
-
 

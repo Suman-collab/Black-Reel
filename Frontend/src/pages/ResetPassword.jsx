@@ -7,10 +7,9 @@ import { toast } from '../lib/toast';
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { resetPassword, error, setError } = useAuth();
+  const { resetPassword, setError } = useAuth();
   const resetCode = searchParams.get('oobCode') || searchParams.get('token') || '';
   const [busy, setBusy] = useState(false);
-  const [success, setSuccess] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -20,7 +19,6 @@ export default function ResetPassword() {
     event.preventDefault();
     setBusy(true);
     setError('');
-    setSuccess('');
 
     if (password.length < 6) {
       setBusy(false);

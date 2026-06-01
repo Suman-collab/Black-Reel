@@ -60,8 +60,8 @@ export default function Plans() {
       return;
     }
 
-    if (hasActiveSubscription(user.subscription)) {
-      setErrorMsg('You already have an active subscription.');
+    if (hasActiveSubscription(user.subscription) && user.subscription?.planType === planId) {
+      setErrorMsg('You already have this subscription plan active.');
       return;
     }
 

@@ -29,7 +29,6 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [planSelectorOpen, setPlanSelectorOpen] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
 
@@ -115,7 +114,6 @@ export default function Settings() {
 
       setAvatarUploading(true);
       setError('');
-      setSuccess('');
 
       const uploadPromise = uploadAvatar(avatarDataUrl);
 
@@ -133,8 +131,8 @@ export default function Settings() {
           ...current,
           avatarUrl: updatedUser.avatarUrl || current.avatarUrl,
         }));
-      } catch (apiError) {
-        
+      } catch {
+        // upload errors are surfaced through toast.promise
       } finally {
         setAvatarUploading(false);
       }
@@ -145,7 +143,6 @@ export default function Settings() {
   const handleSave = async () => {
     setSaving(true);
     setError('');
-    setSuccess('');
 
     const savePromise = (async () => {
       await updateProfile({ name: formState.name, email: formState.email, avatarUrl: formState.avatarUrl });
@@ -178,8 +175,8 @@ export default function Settings() {
         notificationsEnabled: Boolean(refreshedUser.preferences?.notificationsEnabled),
         parentalControls: Boolean(refreshedUser.preferences?.parentalControls),
       });
-    } catch (apiError) {
-      
+    } catch {
+      // save errors are surfaced through toast.promise
     } finally {
       setSaving(false);
     }
@@ -368,7 +365,7 @@ export default function Settings() {
                 try {
                   await updatePreferences({ language: label });
                   toast.success('Language updated successfully');
-                } catch (err) {
+                } catch {
                   toast.error('Failed to save language preference.');
                 }
               }}
