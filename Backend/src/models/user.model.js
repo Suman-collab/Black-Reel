@@ -28,6 +28,25 @@ const deviceSchema = new mongoose.Schema(
       enum: ['phone', 'laptop', 'tablet', 'tv', 'browser'],
       default: 'browser',
     },
+    deviceFingerprint: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    userAgent: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    lastIP: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    lastActive: {
+      type: Date,
+      default: Date.now,
+    },
     current: {
       type: Boolean,
       default: false,

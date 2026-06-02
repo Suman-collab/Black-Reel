@@ -174,15 +174,15 @@ const resolveAuthenticatedUser = async (req, res, { requireToken = true } = {}) 
 export const protect = catchAsync(async (req, res, next) => {
   req.user = await resolveAuthenticatedUser(req, res, { requireToken: true });
 
-  
-  
   try {
     const { registerDevice } = await import('../services/device.service.js');
-    await registerDevice(req.user._id, req);
+    
+    const isDeviceSwapPath = req.originalUrl.endsWith('/devices/swap');
+    if (!isDeviceSwapPath) {
+      await registerDevice(req.user._id, req);
+    }
   } catch (deviceErr) {
-    
     if (deviceErr?.errorCode === 'DEVICE_LIMIT_EXCEEDED') throw deviceErr;
-    
     console.warn('[device] registration skipped:', deviceErr?.message);
   }
 

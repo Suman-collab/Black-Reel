@@ -14,8 +14,8 @@ const UA_OS_PATTERNS = [
 ];
 
 const UA_BROWSER_PATTERNS = [
-  { pattern: /Edg\//i,           browser: 'Edge'    },
-  { pattern: /OPR\//i,           browser: 'Opera'   },
+  { pattern: /Edg/i,             browser: 'Edge'    },
+  { pattern: /OPR/i,             browser: 'Opera'   },
   { pattern: /Chrome/i,          browser: 'Chrome'  },
   { pattern: /Firefox/i,         browser: 'Firefox' },
   { pattern: /Safari/i,          browser: 'Safari'  },
