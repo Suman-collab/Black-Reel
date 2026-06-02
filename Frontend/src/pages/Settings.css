@@ -1,88 +1,726 @@
+/* Settings Page CSS Overhaul - Premium Cinematic OTT Visuals */
+
 .settings-page {
-  padding: clamp(1rem, 3vw, 2rem) 40px 80px;
+  padding: clamp(1.5rem, 4vw, 3rem) var(--space-4) 100px;
   min-height: calc(100vh - var(--nav-height));
+  background: var(--bg-base);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Atmospheric Ambient Backing Light */
+.settings-page::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: 5%;
+  width: 60%;
+  height: 50%;
+  background: radial-gradient(circle, rgba(212, 184, 114, 0.04) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.settings-page::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  right: -5%;
+  width: 50%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(212, 184, 114, 0.03) 0%, transparent 75%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.settings-page * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Page Header */
+.settings-page .page-header {
+  margin-bottom: var(--space-8);
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-x: hidden;
+  gap: var(--space-3);
+  text-align: center;
+  animation: fadeInUp 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.uppercase {
-  text-transform: uppercase;
+.settings-page .logo-header {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
 }
 
-.tracking-wider {
-  letter-spacing: 2px;
-}
-
-.settings-list-container {
-  width: 100%;
-  max-width: 500px;
-  background-color: var(--surface-light);
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #333;
-}
-
-.settings-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #333;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.settings-item:last-child {
-  border-bottom: none;
-}
-
-.settings-item:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-.settings-item-content h3 {
-  color: #fff;
-  font-family: var(--font-sans);
-  font-size: 1.1rem;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.settings-item-content p {
-  color: var(--text-muted);
-  font-size: 0.85rem;
+.settings-page .page-title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.15em;
   margin: 0;
 }
 
-.settings-item-action {
+/* Grid Dashboard Layout */
+.settings-grid-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: var(--space-8);
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.settings-pane-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.settings-pane-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Premium Card Design (Netflix/Apple TV+ Surface) */
+.ott-card {
+  background: rgba(20, 20, 26, 0.45);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-8);
+  box-shadow: var(--shadow-lg), inset 0 1px 1px rgba(255, 255, 255, 0.02);
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 350ms cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  animation: fadeInUp 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ott-card:hover {
+  transform: translateY(-4px) translateZ(0);
+  border-color: rgba(212, 184, 114, 0.45);
+  box-shadow: var(--shadow-xl), var(--shadow-gold-lg);
+}
+
+/* Staggered Animations Delays */
+.ott-card.profile-card { animation-delay: 100ms; }
+.ott-card.subscription-card { animation-delay: 200ms; }
+.ott-card.account-card { animation-delay: 150ms; }
+.ott-card.preferences-card { animation-delay: 250ms; }
+.ott-card.danger-card { animation-delay: 350ms; }
+
+.ott-card-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
+  letter-spacing: -0.01em;
 }
 
-.logout-item h3 {
-  color: #ff4a4a;
+.ott-card-title svg {
+  color: var(--brand-primary);
 }
 
-.settings-manage-plan-btn {
-  padding: 10px 16px !important;
+.ott-card-desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+  line-height: 1.5;
 }
 
-@media (max-width: 640px) {
-  .settings-page {
-    padding: 96px 16px 48px;
+/* 1. Profile Section UI */
+.ott-profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-8) var(--space-6);
+}
+
+.ott-avatar-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin-bottom: var(--space-5);
+  cursor: pointer;
+}
+
+/* Double Champagne Gold Glowing Rings */
+.ott-avatar-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-gold-strong);
+  box-shadow: var(--shadow-gold);
+  transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.ott-avatar-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 184, 114, 0.08);
+  transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.ott-avatar-wrapper:hover::before {
+  inset: -8px;
+  border-color: var(--brand-primary-light);
+  box-shadow: 0 0 30px rgba(252, 230, 169, 0.3);
+}
+
+.ott-avatar-wrapper:hover::after {
+  inset: -4px;
+  opacity: 0;
+}
+
+.ott-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--bg-surface);
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Avatar Upload Hover Overlay */
+.ott-avatar-overlay {
+  position: absolute;
+  inset: 3px;
+  background: rgba(7, 7, 9, 0.7);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  color: var(--brand-primary-light);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.ott-avatar-wrapper:hover .ott-avatar-overlay {
+  opacity: 1;
+}
+
+.ott-avatar-wrapper:hover .ott-avatar-img {
+  transform: scale(0.96);
+}
+
+.ott-profile-name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.ott-profile-email {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+/* Premium Gold Badge */
+.ott-badge-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--gradient-gold);
+  color: var(--text-inverse);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px rgba(212, 184, 114, 0.25);
+}
+
+/* 2. Form Inputs & Text Fields */
+.ott-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+.ott-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ott-label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ott-input {
+  width: 100%;
+  padding: var(--space-4);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  outline: none;
+  transition: all var(--transition-base);
+}
+
+.ott-input:focus {
+  border-color: var(--border-gold-strong);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: var(--shadow-gold), inset 0 0 4px rgba(212, 184, 114, 0.1);
+}
+
+.ott-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Url upload field actions */
+.ott-url-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+/* Custom select styling */
+.ott-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.ott-select {
+  width: 100%;
+  padding: var(--space-4);
+  padding-right: 40px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: all var(--transition-base);
+}
+
+.ott-select:focus {
+  border-color: var(--border-gold-strong);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: var(--shadow-gold);
+}
+
+.ott-select option {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.ott-select-wrapper::after {
+  content: '▼';
+  font-size: 10px;
+  color: var(--text-secondary);
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: color 250ms;
+}
+
+.ott-select-wrapper:hover::after {
+  color: var(--brand-primary);
+}
+
+/* 3. Preference List (Row items) */
+.ott-preference-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-5) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ott-preference-item:last-child {
+  border-bottom: none;
+}
+
+.ott-preference-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.ott-preference-title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ott-preference-desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.ott-preference-badge {
+  font-size: 10px;
+  background: rgba(46, 204, 113, 0.15);
+  color: var(--brand-secondary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+}
+
+.ott-preference-alert {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(46, 204, 113, 0.05);
+  border: 1px solid rgba(46, 204, 113, 0.15);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--brand-secondary);
+  line-height: 1.4;
+}
+
+/* 4. Luxury Custom Switch Toggles */
+.ott-toggle {
+  width: 48px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  position: relative;
+  transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.ott-toggle-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), background-color 300ms;
+  box-shadow: var(--shadow-sm);
+  will-change: transform;
+}
+
+.ott-toggle.active {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary-dark);
+  box-shadow: var(--shadow-gold);
+}
+
+.ott-toggle.active .ott-toggle-circle {
+  transform: translateX(22px);
+  background-color: var(--text-inverse);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+/* 5. Subscription Card UI (Netflix Premium style) */
+.ott-subscription-card {
+  overflow: hidden;
+}
+
+.ott-subscription-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-gold);
+}
+
+.subscription-billing-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.subscription-billing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--space-2);
+}
+
+.subscription-billing-label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.subscription-billing-value {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.subscription-benefits-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  background: rgba(255, 255, 255, 0.01);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.subscription-benefit-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.subscription-benefit-item svg {
+  color: var(--brand-primary);
+  flex-shrink: 0;
+}
+
+.subscription-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.subscription-actions button {
+  width: 100% !important;
+}
+
+/* 6. Danger Zone UI */
+.ott-card.danger-card {
+  border-color: rgba(231, 76, 60, 0.25);
+  background: rgba(231, 76, 60, 0.02);
+}
+
+.ott-card.danger-card:hover {
+  border-color: rgba(231, 76, 60, 0.50);
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.7), 0 0 30px rgba(231, 76, 60, 0.06);
+}
+
+.ott-card.danger-card .ott-card-title {
+  color: #E74C3C;
+}
+
+.ott-card.danger-card .ott-card-title svg {
+  color: #E74C3C;
+}
+
+/* 7. Save / Logout / Edit Actions Button Layout */
+.ott-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border: none;
+  outline: none;
+}
+
+/* Primary Gold button */
+.ott-btn-primary {
+  background: var(--gradient-gold);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 16px rgba(212, 184, 114, 0.2);
+}
+
+.ott-btn-primary:hover {
+  transform: scale(1.02) translateY(-1px);
+  box-shadow: 0 6px 24px rgba(212, 184, 114, 0.35);
+  background: linear-gradient(135deg, #FCE6A9 0%, #D4B872 50%, #A3833C 100%);
+}
+
+.ott-btn-primary:active {
+  transform: scale(0.98) translateY(0);
+}
+
+.ott-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary outline button */
+.ott-btn-outline {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+}
+
+.ott-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-emphasis);
+  transform: translateY(-0.5px);
+}
+
+/* Danger logout button */
+.ott-btn-danger {
+  background: rgba(231, 76, 60, 0.08);
+  border: 1px solid rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+}
+
+.ott-btn-danger:hover {
+  background: rgba(231, 76, 60, 0.85);
+  border-color: rgba(231, 76, 60, 0.9);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.25);
+  transform: scale(1.01) translateY(-0.5px);
+}
+
+/* Sticky/Persistent Footer Bar */
+.ott-actions-bar {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: var(--space-4);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+  animation: fadeInUp 500ms cubic-bezier(0.16, 1, 0.3, 1) 400ms forwards;
+  opacity: 0;
+}
+
+/* Keyframes animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE OPTIMIZATIONS
+   ═══════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .settings-grid-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
   }
 
-  .settings-item {
+  .settings-pane-left {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    align-items: stretch;
+  }
+
+  .ott-card.subscription-card {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .settings-pane-left {
+    grid-template-columns: 1fr;
   }
 
-  .settings-item-action {
-    width: 100%;
-    justify-content: space-between;
+  .settings-page {
+    padding-top: 96px;
+    padding-bottom: 120px;
+  }
+
+  .ott-actions-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(13, 13, 17, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: var(--space-4) var(--space-6);
+    margin-top: 0;
+    border-top: 1px solid var(--border-gold);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    justify-content: stretch;
+  }
+
+  .ott-actions-bar button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .ott-card {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .ott-avatar-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+
+  .subscription-actions {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .ott-actions-bar {
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-2);
   }
 }

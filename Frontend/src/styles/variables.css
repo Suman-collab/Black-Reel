@@ -1,50 +1,50 @@
 :root {
   
-  --brand-primary:        #E8B84B;   
-  --brand-primary-light:  #F5D078;   
-  --brand-primary-dark:   #C9962A;   
+  --brand-primary:        #D4B872;   /* Luxury champagne gold */
+  --brand-primary-light:  #FCE6A9;   /* Warm highlight gold */
+  --brand-primary-dark:   #A3833C;   /* Cinematic deep gold */
   --brand-secondary:      #2ECC71;   
-  --brand-glow:           rgba(232, 184, 75, 0.15);
+  --brand-glow:           rgba(212, 184, 114, 0.15);
 
   
-  --bg-void:              #060608;   
-  --bg-base:              #0D0D0F;   
-  --bg-surface:           #111114;   
-  --bg-elevated:          #18181C;   
-  --bg-overlay:           #1F1F24;   
-  --bg-glass:             rgba(255, 255, 255, 0.03);
-  --bg-glass-hover:       rgba(255, 255, 255, 0.06);
+  --bg-void:              #070709;   /* Obsidian cinematic void */
+  --bg-base:              #0D0D11;   /* Immersive page base background */
+  --bg-surface:           #131317;   /* Transparent container backgrounds */
+  --bg-elevated:          #1A1A22;   /* Sticky floating frames */
+  --bg-overlay:           rgba(20, 20, 25, 0.85);   /* Heavy modal backdrop blur */
+  --bg-glass:             rgba(255, 255, 255, 0.02);
+  --bg-glass-hover:       rgba(255, 255, 255, 0.05);
 
   
   --text-primary:         #F5F5F0;   
   --text-secondary:       #A0A0A8;   
   --text-tertiary:        #606068;   
-  --text-inverse:         #0D0D0F;   
-  --text-gold:            #E8B84B;   
+  --text-inverse:         #070709;   
+  --text-gold:            #D4B872;   
 
   
   --border-subtle:        rgba(255, 255, 255, 0.04);
   --border-default:       rgba(255, 255, 255, 0.08);
   --border-emphasis:      rgba(255, 255, 255, 0.15);
-  --border-gold:          rgba(232, 184, 75, 0.30);
-  --border-gold-strong:   rgba(232, 184, 75, 0.60);
+  --border-gold:          rgba(212, 184, 114, 0.22);
+  --border-gold-strong:   rgba(212, 184, 114, 0.50);
 
   
-  --gradient-gold:        linear-gradient(135deg, #E8B84B 0%, #F5D078 50%, #C9962A 100%);
-  --gradient-gold-soft:   linear-gradient(135deg, rgba(232,184,75,0.15) 0%, rgba(232,184,75,0.05) 100%);
-  --gradient-dark:        linear-gradient(180deg, transparent 0%, #0D0D0F 100%);
-  --gradient-hero:        linear-gradient(to right, #0D0D0F 30%, transparent 70%);
-  --gradient-card:        linear-gradient(180deg, transparent 40%, rgba(6,6,8,0.95) 100%);
-  --gradient-surface:     linear-gradient(135deg, #111114 0%, #18181C 100%);
-  --gradient-shine:       linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%);
+  --gradient-gold:        linear-gradient(135deg, #D4B872 0%, #FCE6A9 50%, #A3833C 100%);
+  --gradient-gold-soft:   linear-gradient(135deg, rgba(212, 184, 114, 0.15) 0%, rgba(212, 184, 114, 0.05) 100%);
+  --gradient-dark:        linear-gradient(180deg, transparent 0%, #0D0D11 100%);
+  --gradient-hero:        linear-gradient(to right, #0D0D11 30%, transparent 70%);
+  --gradient-card:        linear-gradient(180deg, transparent 40%, rgba(7, 7, 9, 0.95) 100%);
+  --gradient-surface:     linear-gradient(135deg, #131317 0%, #1A1A22 100%);
+  --gradient-shine:       linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.03) 50%, transparent 60%);
 
   
   --shadow-sm:            0 1px 3px rgba(0,0,0,0.4);
   --shadow-md:            0 4px 16px rgba(0,0,0,0.5);
   --shadow-lg:            0 8px 32px rgba(0,0,0,0.6);
   --shadow-xl:            0 16px 64px rgba(0,0,0,0.7);
-  --shadow-gold:          0 0 20px rgba(232,184,75,0.20);
-  --shadow-gold-lg:       0 0 40px rgba(232,184,75,0.15);
+  --shadow-gold:          0 0 20px rgba(212, 184, 114, 0.15);
+  --shadow-gold-lg:       0 0 40px rgba(212, 184, 114, 0.10);
   --shadow-card:          0 4px 24px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.4);
   --shadow-modal:         0 24px 80px rgba(0,0,0,0.8);
 
@@ -57,12 +57,12 @@
   --text-sm:    13px;
   --text-base:  15px;
   --text-md:    17px;
-  --text-lg:    20px;
-  --text-xl:    24px;
-  --text-2xl:   32px;
-  --text-3xl:   42px;
-  --text-4xl:   56px;
-  --text-5xl:   72px;
+  --text-lg:    clamp(18px, 2.5vw, 20px);
+  --text-xl:    clamp(20px, 3vw, 24px);
+  --text-2xl:   clamp(24px, 4vw, 32px);
+  --text-3xl:   clamp(30px, 5vw, 42px);
+  --text-4xl:   clamp(40px, 6vw, 56px);
+  --text-5xl:   clamp(50px, 7vw, 72px);
 
   
   --space-1:   4px;

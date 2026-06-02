@@ -1,14 +1,15 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(7, 7, 9, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: var(--z-modal);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
-  animation: fadeIn 200ms ease;
+  animation: fadeIn 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeIn {
@@ -17,20 +18,22 @@
 }
 
 .modal {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
+  background: rgba(26, 26, 34, 0.75);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--border-gold);
   border-radius: var(--radius-2xl);
   padding: var(--space-8);
   width: 100%;
   max-width: 520px;
   position: relative;
-  box-shadow: var(--shadow-modal);
-  animation: slideUp 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: var(--shadow-modal), var(--shadow-gold-lg);
+  animation: slideUp 450ms cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  from { opacity: 0; transform: translateY(32px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -38,42 +41,49 @@
   content: '';
   position: absolute;
   top: 0;
-  left: var(--space-8);
-  right: var(--space-8);
+  left: 0;
+  right: 0;
   height: 1px;
   background: var(--gradient-gold);
-  opacity: 0.4;
+  opacity: 0.5;
+  border-top-left-radius: var(--radius-2xl);
+  border-top-right-radius: var(--radius-2xl);
 }
 
 .modal__close {
   position: absolute;
   top: var(--space-5);
   right: var(--space-5);
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-full);
-  background: var(--bg-overlay);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-default);
   color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-base);
 }
 
 .modal__close:hover {
-  background: rgba(231,76,60,0.15);
-  border-color: rgba(231,76,60,0.30);
-  color: #E74C3C;
+  background: rgba(212, 184, 114, 0.1);
+  border-color: var(--border-gold-strong);
+  color: var(--brand-primary-light);
+  transform: rotate(90deg) scale(1.05);
 }
 
 .modal__title {
   font-family: var(--font-display);
-  font-size: var(--text-xl);
+  font-size: var(--text-2xl);
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: var(--space-2);
+  letter-spacing: -0.01em;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .modal__subtitle {

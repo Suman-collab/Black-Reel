@@ -45,6 +45,11 @@ export const removeDevice = async (deviceId) => {
   return response.data;
 };
 
+export const swapDevice = async (removeDeviceId) => {
+  const response = await api.post('/devices/swap', { removeDeviceId });
+  return response.data;
+};
+
 export const signOutAllDevices = async () => {
   const response = await api.delete('/devices');
   return response.data;

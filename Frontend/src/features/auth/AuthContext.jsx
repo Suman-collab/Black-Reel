@@ -489,6 +489,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const swapDevice = async (removeDeviceId) => {
+    console.log('[AuthContext] swapDevice() initiated to remove device:', removeDeviceId);
+    try {
+      setError('');
+      const { swapDevice: apiSwapDevice } = await import('../user/user.service');
+      await apiSwapDevice(removeDeviceId);
+      setDeviceLimitInfo(null);
+      const currentUser = auth.currentUser;
+      return await syncBackendSession(currentUser);
+    } catch (err) {
+      console.error('[AuthContext] swapDevice() failed:', err.message);
+      setError(err.message || 'Failed to replace device session.');
+      throw err;
+    }
+  };
+
   const hasRestrictedAccess = Boolean(user?.status === 'banned');
   const isSuspended = Boolean(user?.status === 'suspended');
   const isActive = Boolean(user?.status === 'active');
@@ -523,6 +539,7 @@ export const AuthProvider = ({ children }) => {
         updateUser,
         deviceLimitInfo,
         dismissDeviceLimit,
+        swapDevice,
         verificationPending,
         verificationEmail,
       }}

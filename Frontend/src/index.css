@@ -1,25 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap');
 
 :root {
-  --bg-color: #121212;
+  --bg-color: var(--bg-base, #0D0D11);
   
-  --surface: #1E1E1E;
-  --surface-light: #2A2A2A;
+  --surface: var(--bg-surface, #131317);
+  --surface-light: var(--bg-elevated, #1A1A22);
 
   
-  --gold-primary: #D4B872;
-  --gold-light: #FCE6A9;
-  --gold-gradient: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 50%, #ffffff 55%, var(--gold-light) 60%, var(--gold-primary) 100%);
+  --gold-primary: var(--brand-primary, #D4B872);
+  --gold-light: var(--brand-primary-light, #FCE6A9);
+  --gold-gradient: var(--gradient-gold);
   --gold-gradient-hover: linear-gradient(135deg, #e5cc8a 0%, #fff0b8 40%, #ffffff 50%, #fff0b8 60%, #e5cc8a 100%);
   --gold-glow: 0 4px 20px rgba(212, 184, 114, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-  --gold-border: rgba(212, 184, 114, 0.5);
+  --gold-border: var(--border-gold-strong, rgba(212, 184, 114, 0.50));
 
   
-  --glass-overlay: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.0) 100%);
+  --glass-overlay: linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.0) 100%);
 
   
-  --text-main: #FFFFFF;
-  --text-muted: #A0A0A0;
+  --text-main: var(--text-primary, #F5F5F0);
+  --text-muted: var(--text-secondary, #A0A0A8);
 
   
   --radius-sm: 8px;

@@ -16,9 +16,21 @@
 
 .search-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(clamp(10rem, 16vw, 12.5rem), 1fr));
-  gap: clamp(0.875rem, 2vw, 1.25rem);
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
   align-items: stretch;
+}
+
+@media (max-width: 1280px) {
+  .search-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .search-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
 }
 
 .no-movies-message {
@@ -38,8 +50,8 @@
   }
 
   .search-grid {
-    grid-template-columns: repeat(auto-fill, minmax(9.25rem, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
   }
 
   .search-title {

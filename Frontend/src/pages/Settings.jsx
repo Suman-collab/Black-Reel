@@ -1,9 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { 
+  Camera, 
+  Settings as SettingsIcon, 
+  Shield, 
+  CreditCard, 
+  Sparkles, 
+  LogOut, 
+  Check, 
+  Languages, 
+  Bell, 
+  Eye 
+} from 'lucide-react';
 import { toast } from '../lib/toast';
 import './Settings.css';
-import Button from '../components/Button';
 import PlanSelectorModal from '../components/PlanSelectorModal';
 import StatePanel from '../components/StatePanel';
 import { getProfile, updatePreferences, updateProfile, uploadAvatar } from '../features/user/user.service';
@@ -31,6 +41,7 @@ export default function Settings() {
   const [error, setError] = useState('');
   const [planSelectorOpen, setPlanSelectorOpen] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -40,22 +51,22 @@ export default function Settings() {
       setError('');
 
       try {
-        const user = await getProfile();
+        const userProfile = await getProfile();
 
         if (!isMounted) {
           return;
         }
 
-        setProfile(user);
+        setProfile(userProfile);
         setFormState({
-          name: user.name,
-          email: user.email,
-          avatarUrl: user.avatarUrl || '/images/avatar.png',
-          language: user.preferences?.language || codeToLabel(languageCode),
-          notificationsEnabled: Boolean(user.preferences?.notificationsEnabled),
-          parentalControls: Boolean(user.preferences?.parentalControls),
+          name: userProfile.name,
+          email: userProfile.email,
+          avatarUrl: userProfile.avatarUrl || '/images/avatar.png',
+          language: userProfile.preferences?.language || codeToLabel(languageCode),
+          notificationsEnabled: Boolean(userProfile.preferences?.notificationsEnabled),
+          parentalControls: Boolean(userProfile.preferences?.parentalControls),
         });
-        updateUser(user);
+        updateUser(userProfile);
       } catch (apiError) {
         if (isMounted) {
           setError(apiError.message);
@@ -85,6 +96,12 @@ export default function Settings() {
       parentalControls: Boolean(user.preferences?.parentalControls),
     }));
   }, [user]);
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
   const handleAvatarSelect = (event) => {
     const file = event.target.files?.[0];
@@ -201,6 +218,13 @@ export default function Settings() {
     navigate(`/checkout?plan=${planType}`);
   };
 
+  const isPremiumMember = hasActiveSubscription(profile?.subscription);
+  const currentPlanLabel = isPremiumMember
+    ? getNavbarPlanLabel(profile.subscription)
+    : hasSelectedSubscriptionPlan(profile?.subscription)
+      ? getNavbarPlanLabel(profile.subscription)
+      : t('settings.noActivePlan');
+
   return (
     <>
       <div className="settings-page container">
@@ -209,211 +233,316 @@ export default function Settings() {
           <h1 className="page-title text-gold uppercase tracking-wider">{t('settings.title')}</h1>
         </div>
 
-        <div className="settings-list-container">
-        <div className="settings-item" style={{ display: 'block' }}>
-          <div className="settings-item-content">
-            <h3>{t('settings.name')}</h3>
-            <input
-              type="text"
-              value={formState.name}
-              onChange={(event) => setFormState((current) => ({ ...current, name: event.target.value }))}
-              style={{ width: '100%', marginTop: '10px', padding: '12px', background: '#111', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
-            />
-          </div>
-        </div>
-
-        <div className="settings-item" style={{ display: 'block' }}>
-          <div className="settings-item-content">
-            <h3>{t('settings.email')}</h3>
-            <input
-              type="email"
-              value={formState.email}
-              onChange={(event) => setFormState((current) => ({ ...current, email: event.target.value }))}
-              style={{ width: '100%', marginTop: '10px', padding: '12px', background: '#111', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
-            />
-          </div>
-        </div>
-
-        <div className="settings-item" style={{ display: 'block' }}>
-          <div className="settings-item-content">
-            <h3>{t('settings.avatar')}</h3>
-            <div style={{ display: 'flex', gap: '16px', marginTop: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <img
-                src={formState.avatarUrl || '/images/avatar.png'}
-                alt={formState.name || 'Profile avatar'}
-                style={{ width: '88px', height: '88px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #333' }}
-              />
-              <div style={{ flex: 1, minWidth: '240px' }}>
-                <input
-                  type="url"
-                  value={formState.avatarUrl}
-                  onChange={(event) => setFormState((current) => ({ ...current, avatarUrl: event.target.value }))}
-                  placeholder="Paste an image URL"
-                  style={{ width: '100%', padding: '12px', background: '#111', border: '1px solid #333', color: '#fff', borderRadius: '8px', marginBottom: '10px' }}
+        <div className="settings-grid-layout">
+          {/* Left Column: Profile & Billing */}
+          <div className="settings-pane-left">
+            {/* 1. Profile Identity Card */}
+            <div className="ott-card ott-profile-card">
+              <div className="ott-avatar-wrapper" onClick={triggerFileInput}>
+                <img
+                  src={formState.avatarUrl || '/images/avatar.png'}
+                  alt={formState.name || 'Profile avatar'}
+                  className="ott-avatar-img"
                 />
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                  <label
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '10px 14px',
-                      borderRadius: '999px',
-                      border: '1px solid #444',
-                      cursor: 'pointer',
-                      color: '#fff',
-                    }}
-                  >
-                    {t('settings.uploadNewImage')}
-                    <input type="file" accept="image/*" onChange={handleAvatarSelect} style={{ display: 'none' }} />
-                  </label>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    onClick={() => setFormState((current) => ({ ...current, avatarUrl: '/images/avatar.png' }))}
-                  >
-                    {t('settings.resetDefault')}
-                  </button>
+                <div className="ott-avatar-overlay">
+                  <Camera size={22} />
+                  <span>Edit</span>
                 </div>
-                <p style={{ margin: '10px 0 0', color: '#888', fontSize: '0.85rem' }}>
-                  {t('settings.avatarHint')}
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  accept="image/*" 
+                  onChange={handleAvatarSelect} 
+                  style={{ display: 'none' }} 
+                />
+              </div>
+
+              <h2 className="ott-profile-name">{formState.name || 'User Profile'}</h2>
+              <p className="ott-profile-email">{formState.email}</p>
+
+              {isPremiumMember ? (
+                <span className="ott-badge-premium">
+                  <Sparkles size={12} fill="var(--text-inverse)" />
+                  {profile?.subscription?.planType?.toUpperCase() || 'PREMIUM'} MEMBER
+                </span>
+              ) : (
+                <span className="ott-badge-premium" style={{ background: 'rgba(255, 255, 255, 0.08)', color: 'var(--text-secondary)', boxShadow: 'none' }}>
+                  FREE ACCOUNT
+                </span>
+              )}
+
+              {avatarUploading && (
+                <p style={{ margin: '14px 0 0', color: 'var(--brand-primary)', fontSize: '0.8rem', fontWeight: 600 }}>
+                  Uploading avatar image...
                 </p>
-                {avatarUploading ? <p style={{ margin: '10px 0 0', color: '#d4b872', fontSize: '0.85rem' }}>Uploading avatar...</p> : null}
+              )}
+            </div>
+
+            {/* 2. Netflix-Style Subscription Card */}
+            <div className="ott-card ott-subscription-card">
+              <h3 className="ott-card-title">
+                <CreditCard size={18} />
+                {t('settings.subscription')}
+              </h3>
+              <p className="ott-card-desc">Manage plan details and billing configurations</p>
+
+              <div className="subscription-billing-grid">
+                <div className="subscription-billing-row">
+                  <span className="subscription-billing-label">Status</span>
+                  <span className="subscription-billing-value" style={{ color: isPremiumMember ? '#2ecc71' : 'var(--text-secondary)' }}>
+                    {(profile?.subscription?.status || 'inactive').toUpperCase()}
+                  </span>
+                </div>
+                <div className="subscription-billing-row">
+                  <span className="subscription-billing-label">Current Plan</span>
+                  <span className="subscription-billing-value" style={{ color: 'var(--brand-primary)' }}>
+                    {currentPlanLabel}
+                  </span>
+                </div>
+                {profile?.subscription?.renewalDate && (
+                  <div className="subscription-billing-row">
+                    <span className="subscription-billing-label">Renewal Date</span>
+                    <span className="subscription-billing-value">
+                      {new Date(profile.subscription.renewalDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="subscription-benefits-list">
+                <div className="subscription-benefit-item">
+                  <Check size={14} />
+                  <span>1080p Full HD Streaming Quality</span>
+                </div>
+                {profile?.subscription?.planType === 'premium' && (
+                  <>
+                    <div className="subscription-benefit-item">
+                      <Check size={14} />
+                      <span>Ultra HD 4K & HDR Cinema Details</span>
+                    </div>
+                    <div className="subscription-benefit-item">
+                      <Check size={14} />
+                      <span>4 Simultaneous Screens Support</span>
+                    </div>
+                  </>
+                )}
+                <div className="subscription-benefit-item">
+                  <Check size={14} />
+                  <span>All Exclusive Content & Shows Included</span>
+                </div>
+              </div>
+
+              <div className="subscription-actions">
+                <button
+                  type="button"
+                  className="ott-btn ott-btn-primary"
+                  onClick={() => setPlanSelectorOpen(true)}
+                >
+                  {hasSelectedSubscriptionPlan(profile?.subscription) ? t('settings.manageUpgrade') : t('settings.viewPlans')}
+                </button>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="settings-item">
-          <div className="settings-item-content">
-            <h3>{t('settings.notifications')}</h3>
-            <p>{t('settings.notificationsDesc')}</p>
-          </div>
-          <div
-            className={`custom-toggle ${formState.notificationsEnabled ? 'active' : ''}`}
-            onClick={() => setFormState((current) => ({ ...current, notificationsEnabled: !current.notificationsEnabled }))}
-          >
-            <div className="toggle-circle"></div>
-          </div>
-        </div>
+          {/* Right Column: Account Forms & Settings */}
+          <div className="settings-pane-right">
+            {/* 3. Account Information */}
+            <div className="ott-card ott-account-card">
+              <h3 className="ott-card-title">
+                <SettingsIcon size={18} />
+                Account Credentials
+              </h3>
+              <p className="ott-card-desc">Edit primary profile details and avatar locations</p>
 
-        <div className="settings-item">
-          <div className="settings-item-content">
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {t('settings.parentalControls')}
-              {formState.parentalControls && (
-                <span style={{ fontSize: '11px', background: 'rgba(159, 232, 112, 0.15)', color: '#9fe870', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 'bold' }}>
-                  Active
-                </span>
-              )}
-            </h3>
-            <p>{PARENTAL_CONTROLS_DESCRIPTION}</p>
-            {formState.parentalControls ? (
-              <div style={{ marginTop: '10px', padding: '12px', background: 'rgba(159, 232, 112, 0.05)', border: '1px solid rgba(159, 232, 112, 0.15)', borderRadius: '8px' }}>
-                <p style={{ margin: 0, color: '#9fe870', fontWeight: '600', fontSize: '13px' }}>
-                  ✓ Parental controls enabled. Content rated 18+ will be hidden across the app.
-                </p>
-                <p style={{ margin: '4px 0 0', color: '#888', fontSize: '12px' }}>
-                  Blocked ratings: 18+, R-rated, TV-MA content.
-                </p>
+              <div className="ott-form-grid">
+                <div className="ott-form-group">
+                  <label className="ott-label">{t('settings.name')}</label>
+                  <input
+                    type="text"
+                    className="ott-input"
+                    value={formState.name}
+                    onChange={(event) => setFormState((current) => ({ ...current, name: event.target.value }))}
+                    placeholder="Enter your name"
+                  />
+                </div>
+
+                <div className="ott-form-group">
+                  <label className="ott-label">{t('settings.email')}</label>
+                  <input
+                    type="email"
+                    className="ott-input"
+                    value={formState.email}
+                    onChange={(event) => setFormState((current) => ({ ...current, email: event.target.value }))}
+                    placeholder="Enter email address"
+                  />
+                </div>
+
+                <div className="ott-form-group">
+                  <label className="ott-label">Avatar Image URL</label>
+                  <input
+                    type="url"
+                    className="ott-input"
+                    value={formState.avatarUrl}
+                    onChange={(event) => setFormState((current) => ({ ...current, avatarUrl: event.target.value }))}
+                    placeholder="Paste direct picture address link"
+                  />
+                  <div className="ott-url-actions">
+                    <button
+                      type="button"
+                      className="ott-btn ott-btn-outline"
+                      onClick={() => setFormState((current) => ({ ...current, avatarUrl: '/images/avatar.png' }))}
+                      style={{ padding: '8px 16px', fontSize: '12px' }}
+                    >
+                      {t('settings.resetDefault')}
+                    </button>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <p style={{ marginTop: '10px', color: '#a0a0a8', fontSize: '13px' }}>
-                All content is now visible.
-              </p>
-            )}
-          </div>
-          <div
-            className={`custom-toggle ${formState.parentalControls ? 'active' : ''}`}
-            onClick={() => setFormState((current) => ({ ...current, parentalControls: !current.parentalControls }))}
-          >
-            <div className="toggle-circle"></div>
-          </div>
-        </div>
+            </div>
 
-        <div className="settings-item">
-          <div className="settings-item-content">
-            <h3>{t('settings.language')}</h3>
-          </div>
-          <div className="settings-item-action">
-            <select
-              value={labelToCode(formState.language)}
-              onChange={async (event) => {
-                const nextLanguageCode = event.target.value;
-                const label = codeToLabel(nextLanguageCode);
-                
-                // 1. Instantly change local language code
-                setLanguageCode(nextLanguageCode);
-                setFormState((current) => ({ ...current, language: label }));
-                
-                // 2. Update localStorage key immediately
-                localStorage.setItem('blackreel-language-code', nextLanguageCode);
-                
-                // 3. Optimistically update user object in AuthContext
-                updateUser((curr) => {
-                  if (!curr) return curr;
-                  return {
-                    ...curr,
-                    preferences: {
-                      ...curr.preferences,
-                      language: label
-                    }
-                  };
-                });
-                
-                // 4. Save to backend user profile immediately
-                try {
-                  await updatePreferences({ language: label });
-                  toast.success('Language updated successfully');
-                } catch {
-                  toast.error('Failed to save language preference.');
-                }
-              }}
-              style={{ padding: '10px', background: '#111', border: '1px solid #333', color: '#fff', borderRadius: '8px' }}
-            >
-              {LANGUAGE_OPTIONS.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronRight size={20} className="text-muted" />
-          </div>
-        </div>
+            {/* 4. Preferences & Systems */}
+            <div className="ott-card ott-preferences-card">
+              <h3 className="ott-card-title">
+                <Languages size={18} />
+                System Preferences
+              </h3>
+              <p className="ott-card-desc">Configure streaming languages and user control locks</p>
 
-        <div className="settings-item">
-          <div className="settings-item-content">
-            <h3>{t('settings.subscription')}</h3>
-            <p>
-              {hasActiveSubscription(profile?.subscription)
-                ? getSubscriptionLabel(profile.subscription)
-                : hasSelectedSubscriptionPlan(profile?.subscription)
-                  ? `${getNavbarPlanLabel(profile.subscription)}`
-                  : t('settings.noActivePlan')}
-            </p>
+              <div className="ott-preference-item">
+                <div className="ott-preference-info">
+                  <span className="ott-preference-title">
+                    <Languages size={16} />
+                    {t('settings.language')}
+                  </span>
+                  <span className="ott-preference-desc">Select your preferred system audio and translation language.</span>
+                </div>
+                <div className="ott-select-wrapper" style={{ width: '180px' }}>
+                  <select
+                    className="ott-select"
+                    value={labelToCode(formState.language)}
+                    onChange={async (event) => {
+                      const nextLanguageCode = event.target.value;
+                      const label = codeToLabel(nextLanguageCode);
+                      
+                      setLanguageCode(nextLanguageCode);
+                      setFormState((current) => ({ ...current, language: label }));
+                      
+                      localStorage.setItem('blackreel-language-code', nextLanguageCode);
+                      
+                      updateUser((curr) => {
+                        if (!curr) return curr;
+                        return {
+                          ...curr,
+                          preferences: {
+                            ...curr.preferences,
+                            language: label
+                          }
+                        };
+                      });
+                      
+                      try {
+                        await updatePreferences({ language: label });
+                        toast.success('Language updated successfully');
+                      } catch {
+                        toast.error('Failed to save language preference.');
+                      }
+                    }}
+                  >
+                    {LANGUAGE_OPTIONS.map((option) => (
+                      <option key={option.code} value={option.code}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="ott-preference-item">
+                <div className="ott-preference-info">
+                  <span className="ott-preference-title">
+                    <Bell size={16} />
+                    {t('settings.notifications')}
+                  </span>
+                  <span className="ott-preference-desc">{t('settings.notificationsDesc')}</span>
+                </div>
+                <div
+                  className={`ott-toggle ${formState.notificationsEnabled ? 'active' : ''}`}
+                  onClick={() => setFormState((current) => ({ ...current, notificationsEnabled: !current.notificationsEnabled }))}
+                >
+                  <div className="ott-toggle-circle"></div>
+                </div>
+              </div>
+
+              <div className="ott-preference-item" style={{ border: 'none', paddingBottom: 0 }}>
+                <div className="ott-preference-info">
+                  <span className="ott-preference-title">
+                    <Eye size={16} />
+                    {t('settings.parentalControls')}
+                    {formState.parentalControls && (
+                      <span className="ott-preference-badge">Active</span>
+                    )}
+                  </span>
+                  <span className="ott-preference-desc">{PARENTAL_CONTROLS_DESCRIPTION}</span>
+                  {formState.parentalControls ? (
+                    <div className="ott-preference-alert">
+                      <p style={{ margin: 0, fontWeight: '700' }}>
+                        ✓ Parental controls enabled. Content rated 18+ will be hidden across the app.
+                      </p>
+                      <p style={{ margin: '4px 0 0', opacity: 0.8, fontSize: '11px' }}>
+                        Blocked ratings: 18+, R-rated, TV-MA content.
+                      </p>
+                    </div>
+                  ) : (
+                    <p style={{ marginTop: '10px', color: 'var(--text-secondary)', fontSize: '12px', margin: '4px 0 0' }}>
+                      All content ratings are visible.
+                    </p>
+                  )}
+                </div>
+                <div
+                  className={`ott-toggle ${formState.parentalControls ? 'active' : ''}`}
+                  onClick={() => setFormState((current) => ({ ...current, parentalControls: !current.parentalControls }))}
+                >
+                  <div className="ott-toggle-circle"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* 5. Danger Zone */}
+            <div className="ott-card ott-danger-card">
+              <h3 className="ott-card-title">
+                <Shield size={18} />
+                Danger Zone
+              </h3>
+              <p className="ott-card-desc">Sign out or terminate the active profile session</p>
+
+              <div className="ott-preference-item" style={{ border: 'none', padding: '8px 0 0' }}>
+                <div className="ott-preference-info">
+                  <span className="ott-preference-title" style={{ color: '#E74C3C' }}>Sign Out of Session</span>
+                  <span className="ott-preference-desc">Close session and return to authentication gateway screen.</span>
+                </div>
+                <button type="button" className="ott-btn ott-btn-danger" onClick={logout}>
+                  <LogOut size={16} />
+                  {t('settings.logOut')}
+                </button>
+              </div>
+            </div>
+
+            {/* 6. Persistent Actions Panel */}
+            <div className="ott-actions-bar">
+              <button
+                type="button"
+                className="ott-btn ott-btn-primary"
+                onClick={handleSave}
+                disabled={saving}
+                style={{ minWidth: '180px' }}
+              >
+                {saving ? t('settings.saving') : t('settings.saveSettings')}
+              </button>
+            </div>
           </div>
-          <div className="settings-item-action">
-            <span className="text-muted">{profile?.subscription?.status || 'inactive'}</span>
-            <Button
-              variant="outline"
-              className="settings-manage-plan-btn"
-              onClick={() => setPlanSelectorOpen(true)}
-            >
-              {hasSelectedSubscriptionPlan(profile?.subscription) ? t('settings.manageUpgrade') : t('settings.viewPlans')}
-            </Button>
-          </div>
-        </div>
-
-
-
-        <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
-          <Button variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? t('settings.saving') : t('settings.saveSettings')}
-          </Button>
-          <Button variant="outline" onClick={logout}>{t('settings.logOut')}</Button>
         </div>
       </div>
-      </div>
+
       <PlanSelectorModal
         isOpen={planSelectorOpen}
         onClose={() => setPlanSelectorOpen(false)}

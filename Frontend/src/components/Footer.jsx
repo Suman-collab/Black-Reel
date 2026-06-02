@@ -120,10 +120,10 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} <span className="logo-font">Black Shortz</span>. Crafted with passion. All rights reserved.
           </p>
           <div className="br-legal-links-premium">
-            <a href="#">Terms of Use</a>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Cookie Policies</a>
-            <a href="#">Compliance</a>
+            <Link to="/terms">Terms of Use</Link>
+            <Link to="/privacy">Privacy Policy</Link>
+            <Link to="/cookies">Cookie Policies</Link>
+            <Link to="/compliance">Compliance</Link>
           </div>
         </div>
       </div>

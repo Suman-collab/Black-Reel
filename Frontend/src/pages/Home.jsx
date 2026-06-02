@@ -373,7 +373,7 @@ export default function Home() {
           }} />
         )}
         <div className="hero__overlay"></div>
-        <div className="hero__content animate-fade-in">
+        <div className="hero__content animate-fade-in-up">
           <div className="hero__badge">
             <span className="genre-dot" style={{ backgroundColor: 'var(--brand-primary)' }}></span>
             <span className="genre-text">

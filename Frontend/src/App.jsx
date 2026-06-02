@@ -26,6 +26,11 @@ import Settings from './pages/Settings';
 import DeviceManagement from './pages/DeviceManagement';
 import AccountSuspended from './pages/AccountSuspended';
 import Support from './pages/Support';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Cookies from './pages/Cookies';
+import Compliance from './pages/Compliance';
+import ScrollToTop from './components/ScrollToTop';
 import { AuthProvider } from './features/auth/AuthContext';
 import { useAuth } from './features/auth/AuthContext';
 import { WatchlistProvider } from './features/watchlist/WatchlistContext';
@@ -282,6 +287,7 @@ function AppContent() {
 
   return (
     <div className="app-wrapper">
+      <ScrollToTop />
       <Navbar />
       <main className="main-content">
         <Routes>
@@ -370,6 +376,10 @@ function AppContent() {
             }
           />
           <Route path="/support" element={<Support />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/cookies" element={<Cookies />} />
+          <Route path="/compliance" element={<Compliance />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
