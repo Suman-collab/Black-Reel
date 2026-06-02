@@ -182,6 +182,43 @@ export default function Profile() {
 
   const planName = profile?.subscription?.planType || profile?.subscription?.plan || 'Free Tier';
   
+  const planFeatures = {
+    free: {
+      quality: 'SD (480p) Quality',
+      screens: '1 concurrent screen limit',
+      downloads: 'Not Supported',
+    },
+    free_tier: {
+      quality: 'SD (480p) Quality',
+      screens: '1 concurrent screen limit',
+      downloads: 'Not Supported',
+    },
+    'free tier': {
+      quality: 'SD (480p) Quality',
+      screens: '1 concurrent screen limit',
+      downloads: 'Not Supported',
+    },
+    basic: {
+      quality: 'HD (720p) Quality',
+      screens: '1 concurrent screen limit',
+      downloads: 'Not Supported',
+    },
+    standard: {
+      quality: 'Full HD (1080p) Quality',
+      screens: 'Up to 2 concurrent screens',
+      downloads: 'Supported',
+    },
+    premium: {
+      quality: 'Ultra HD 4K + HDR',
+      screens: 'Up to 4 concurrent screens',
+      downloads: 'Supported',
+    },
+  };
+
+  const rawPlanType = profile?.subscription?.planType || profile?.subscription?.plan || 'free';
+  const activePlanId = subscriptionIsActive ? String(rawPlanType).toLowerCase() : 'free';
+  const currentFeatures = planFeatures[activePlanId] || planFeatures['free'];
+  
   let joinDate = '2025';
   try {
     if (profile?.createdAt) {
@@ -368,16 +405,16 @@ export default function Profile() {
                 <div className="crown-benefits-grid">
                   <div className="benefit-item">
                     <span className="benefit-label">Streaming Quality</span>
-                    <span className="benefit-value">Ultra HD 4K + HDR</span>
+                    <span className="benefit-value">{currentFeatures.quality}</span>
                   </div>
                   <div className="benefit-item">
                     <span className="benefit-label">Device Limit</span>
-                    <span className="benefit-value">Up to 4 concurrent screens</span>
+                    <span className="benefit-value">{currentFeatures.screens}</span>
                   </div>
                   <span className="divider-vert"></span>
                   <div className="benefit-item">
                     <span className="benefit-label">Offline Downloads</span>
-                    <span className="benefit-value">Supported</span>
+                    <span className="benefit-value">{currentFeatures.downloads}</span>
                   </div>
                   <div className="benefit-item">
                     <span className="benefit-label">Billing Date</span>

@@ -225,6 +225,36 @@ export default function Settings() {
       ? getNavbarPlanLabel(profile.subscription)
       : t('settings.noActivePlan');
 
+  const planBenefits = {
+    free: [
+      'SD (480p) Streaming Quality',
+      '1 Screen / Device Limit',
+      'Web Browser Streaming Access Only',
+    ],
+    basic: [
+      '720p HD Streaming Quality',
+      '1 Screen / Device Limit',
+      'Mobile Devices & Tablets Support',
+    ],
+    standard: [
+      '1080p Full HD Streaming Quality',
+      '2 Concurrent Screens Support',
+      'All Compatible Devices Supported',
+      'Offline Downloads & Saves Enabled',
+    ],
+    premium: [
+      'Ultra HD 4K & HDR Cinema Quality',
+      '4 Concurrent Screens Support',
+      'All Compatible Devices Supported',
+      'Offline Downloads & Saves Enabled',
+      'Immersive Dolby Atmos Sound Support',
+    ],
+  };
+
+  const rawPlanType = profile?.subscription?.planType || profile?.subscription?.plan || 'free';
+  const activePlanId = isPremiumMember ? String(rawPlanType).toLowerCase() : 'free';
+  const currentBenefitsList = planBenefits[activePlanId] || planBenefits['free'];
+
   return (
     <>
       <div className="settings-page container">
@@ -310,22 +340,12 @@ export default function Settings() {
               </div>
 
               <div className="subscription-benefits-list">
-                <div className="subscription-benefit-item">
-                  <Check size={14} />
-                  <span>1080p Full HD Streaming Quality</span>
-                </div>
-                {profile?.subscription?.planType === 'premium' && (
-                  <>
-                    <div className="subscription-benefit-item">
-                      <Check size={14} />
-                      <span>Ultra HD 4K & HDR Cinema Details</span>
-                    </div>
-                    <div className="subscription-benefit-item">
-                      <Check size={14} />
-                      <span>4 Simultaneous Screens Support</span>
-                    </div>
-                  </>
-                )}
+                {currentBenefitsList.map((benefit, idx) => (
+                  <div key={idx} className="subscription-benefit-item">
+                    <Check size={14} />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
                 <div className="subscription-benefit-item">
                   <Check size={14} />
                   <span>All Exclusive Content & Shows Included</span>
