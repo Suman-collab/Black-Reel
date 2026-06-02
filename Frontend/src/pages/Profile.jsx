@@ -257,10 +257,10 @@ export default function Profile() {
 
   // Mock cinematic history entries based on actual movies database titles
   const mockRecentActivity = [
-    { id: 1, title: 'Brothas in Arms', progress: 65, durationLeft: '42 mins left', type: 'Movie', genre: 'Action', image: '/images/fandom/Poster 1 - 150x200.jpg.jpeg' },
-    { id: 2, title: 'Kinky', progress: 92, durationLeft: '5 mins left', type: 'Series', genre: 'Thriller', image: '/images/fandom/Poster 2 - 150x200.jpg.jpeg' },
-    { id: 3, title: 'Burden', progress: 35, durationLeft: '1 hr 18m left', type: 'Movie', genre: 'Mystery', image: '/images/fandom/Poster 3 - 150x200.jpg.jpeg' },
-    { id: 5, title: 'Blood Sisters', progress: 10, durationLeft: '50 mins left', type: 'Series', genre: 'Comedy', image: '/images/fandom/Poster 5 - 150x200.jpg.jpeg' }
+    { id: 1, title: 'Brothas in Arms', progress: 65, durationLeft: '42 mins left', type: 'Movie', genre: 'Action', image: 'https://res.cloudinary.com/dnf1a0ggs/image/upload/v1780418492/ott/thumbnails/msto0ydt8e3vfpvudjv6.jpg' },
+    { id: 2, title: 'Kinky', progress: 92, durationLeft: '5 mins left', type: 'Series', genre: 'Thriller', image: 'https://res.cloudinary.com/dnf1a0ggs/image/upload/v1780418498/ott/thumbnails/b3orswwsklamhqtidgi0.jpg' },
+    { id: 3, title: 'Burden', progress: 35, durationLeft: '1 hr 18m left', type: 'Movie', genre: 'Mystery', image: 'https://res.cloudinary.com/dnf1a0ggs/image/upload/v1780418493/ott/thumbnails/d54jvbbs4deztuhl3bjc.jpg' },
+    { id: 5, title: 'Blood Sisters', progress: 10, durationLeft: '50 mins left', type: 'Series', genre: 'Comedy', image: 'https://res.cloudinary.com/dnf1a0ggs/image/upload/v1780418489/ott/thumbnails/maqu8ky7fukycepegusj.jpg' }
   ];
 
   // Quick actions mapping
@@ -269,7 +269,6 @@ export default function Profile() {
     { icon: <History size={22} className="text-gold" />, title: 'Payment History', desc: 'View past invoices and billing logs', path: '/payment-history' },
     { icon: <Smartphone size={22} className="text-gold" />, title: 'Devices', desc: 'Manage logged-in devices and sessions', path: '/device-management' },
     { icon: <Heart size={22} className="text-gold" />, title: 'Watchlist', desc: 'Browse and edit your saved movie list', path: '/watchlist' },
-    { icon: <Download size={22} className="text-gold" />, title: 'Offline Downloads', desc: 'Access offline content configurations', path: '#' },
     { icon: <Shield size={22} className="text-gold" />, title: 'Parental Controls', desc: 'Filter content restrictions and safety pins', path: '#parental-controls' },
     { icon: <Lock size={22} className="text-gold" />, title: 'Security', desc: 'Audit access authorization and active keys', path: '/settings' },
     { icon: <Activity size={22} className="text-gold" />, title: 'Notifications', desc: 'Modify notification preferences and alerts', path: '/settings' }
@@ -313,7 +312,7 @@ export default function Profile() {
               <h2 className="ott-profile-name">{profile.name}</h2>
               <span className="ott-membership-badge">
                 <Sparkles size={12} className="inline mr-1" />
-                Premium Member
+                {formatPlanName(planName)} Member
               </span>
               <p className="ott-profile-email">{profile.email}</p>
               <span className="ott-join-date">Joined {joinDate}</span>
@@ -412,10 +411,6 @@ export default function Profile() {
                     <span className="benefit-value">{currentFeatures.screens}</span>
                   </div>
                   <span className="divider-vert"></span>
-                  <div className="benefit-item">
-                    <span className="benefit-label">Offline Downloads</span>
-                    <span className="benefit-value">{currentFeatures.downloads}</span>
-                  </div>
                   <div className="benefit-item">
                     <span className="benefit-label">Billing Date</span>
                     <span className="benefit-value">

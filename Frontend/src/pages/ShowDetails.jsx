@@ -24,6 +24,12 @@ const resolveContentId = (item) => normalizeContentId(item?.id ?? item?._id ?? i
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
+const PLAN_QUALITY_LIMITS = {
+  basic: ['p240', 'p360', 'p480', 'p720'],
+  standard: ['p240', 'p360', 'p480', 'p720', 'p1080'],
+  premium: ['p240', 'p360', 'p480', 'p720', 'p1080', 'p2160'],
+};
+
 export default function ShowDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -236,14 +242,21 @@ export default function ShowDetails() {
   }, [episodeList, loadedDurations]);
 
   const activeEpisode = episodeList[selectedEpisodeIndex] || episodeList[0] || null;
+  const planType = (user?.role === 'admin') 
+    ? 'premium' 
+    : (user?.subscription?.status === 'active' ? user?.subscription?.planType : 'basic');
+  const normalizedPlan = String(planType || 'basic').toLowerCase();
+  const allowedQualities = PLAN_QUALITY_LIMITS[normalizedPlan] || PLAN_QUALITY_LIMITS.basic;
+
   const playbackRestrictedByParentalControls = isContentRestrictedByParentalControls(content, user);
   const parentalControlsEnabled = hasParentalControlsEnabled(user);
 
   const isPremiumContent = content?.accessLevel === 'premium' || content?.isPremium;
   const isSubscribed = user?.subscription?.status === 'active' && user?.subscription?.planType !== 'none';
+  const hasPremiumPlan = user?.subscription?.status === 'active' && user?.subscription?.planType === 'premium';
   const playbackBlocked = hasRestrictedAccess || isSuspended || !isActive || playbackRestrictedByParentalControls || content?.playbackBlocked ||
-    (isPremiumContent && !isSubscribed && isAuthenticated);
-  const showLockScreen = isPremiumContent && (!isAuthenticated || !isSubscribed) && !playbackRestrictedByParentalControls && !hasRestrictedAccess;
+    (isPremiumContent && !hasPremiumPlan && isAuthenticated);
+  const showLockScreen = isPremiumContent && (!isAuthenticated || !hasPremiumPlan) && !playbackRestrictedByParentalControls && !hasRestrictedAccess;
 
   const watchlistPending = contentId ? isPending(contentId) : false;
   const watchlistReady = !isAuthenticated || hasLoadedWatchlist;
@@ -270,6 +283,14 @@ export default function ShowDetails() {
 
     if (playbackRestrictedByParentalControls) {
       setActionError(getParentalControlsRestrictionReason(content));
+      return;
+    }
+
+    const ep = episodeList[episodeIndex] || episodeList[0];
+    const epIsPremium = ep?.accessLevel === 'premium' && !ep?.isFreeEpisode;
+    
+    if (epIsPremium && !hasPremiumPlan && isAuthenticated) {
+      setActionError('Premium subscription required to play this episode. Please upgrade your plan.');
       return;
     }
 
@@ -536,7 +557,9 @@ export default function ShowDetails() {
                   ? getParentalControlsRestrictionReason(content)
                   : isSuspended
                     ? 'Free limit exhausted. Your account is currently suspended and cannot purchase a subscription. Please contact support.'
-                    : 'Free limit exhausted. Please purchase a subscription to continue watching.'
+                    : isSubscribed
+                      ? 'This content requires a Premium subscription. Please upgrade your plan to continue watching.'
+                      : 'Free limit exhausted. Please purchase a subscription to continue watching.'
             }
             actionLabel={
               hasRestrictedAccess || isSuspended
@@ -557,6 +580,7 @@ export default function ShowDetails() {
             title={activeEpisode?.title || content.title}
             trailerUrl={content.trailerUrl}
             videoQualities={activeEpisode?.videoQualities || content.videoQualities}
+            availableQualities={allowedQualities}
             showNextEpisode={content.type === 'Series' && selectedEpisodeIndex < episodeList.length - 1}
             onNextEpisode={() => {
               if (selectedEpisodeIndex < episodeList.length - 1) {
@@ -608,7 +632,7 @@ export default function ShowDetails() {
                 variant="outline"
                 className="ep-play-btn"
                 onClick={() => { void startPlayback(index); }}
-                disabled={playbackBlocked && episode.accessLevel === 'premium' && !episode.isFreeEpisode}
+                disabled={playbackBlocked || (isAuthenticated && !hasPremiumPlan && episode.accessLevel === 'premium' && !episode.isFreeEpisode)}
               >
                 <Play size={14} fill="currentColor" style={{ marginRight: '6px' }} />{' '}
                 {playbackRestrictedByParentalControls

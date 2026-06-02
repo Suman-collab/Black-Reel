@@ -439,7 +439,7 @@
 .crown-benefits-grid {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr auto 1fr 1fr;
+  grid-template-columns: 1fr 1fr auto 1fr;
   gap: 24px;
   margin-bottom: 36px;
   z-index: 2;

@@ -18,6 +18,33 @@ const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 const QUALITY_OPTIONS = ['Auto', '240p', '360p', '480p', '720p', '1080p', '4K'];
 const HIDE_TIMEOUT = 3000;
 
+const getSourceForQuality = (quality, videoUrl, videoQualities = {}, availableQualities = []) => {
+  const qualityMap = {
+    '240p': videoQualities?.p240,
+    '360p': videoQualities?.p360,
+    '480p': videoQualities?.p480,
+    '720p': videoQualities?.p720,
+    '1080p': videoQualities?.p1080,
+    '4K': videoQualities?.p2160,
+  };
+
+  if (quality !== 'Auto') {
+    return qualityMap[quality] || videoUrl;
+  }
+
+  // Auto resolution mapping based on subscription's allowed qualities list
+  const order = ['p2160', 'p1080', 'p720', 'p480', 'p360', 'p240'];
+  for (const key of order) {
+    if (videoQualities?.[key]) {
+      const isAllowed = availableQualities.length === 0 || availableQualities.includes(key);
+      if (isAllowed) {
+        return videoQualities[key];
+      }
+    }
+  }
+  return videoUrl;
+};
+
 const VideoPlayer = ({
   videoUrl,
   title,
@@ -44,13 +71,15 @@ const VideoPlayer = ({
   const [selectedQuality, setSelectedQuality] = useState('Auto');
   const [showSkipIntro, setShowSkipIntro] = useState(false);
   const [error, setError] = useState(null);
-  const [currentSrc, setCurrentSrc] = useState(videoUrl || '');
+  const [currentSrc, setCurrentSrc] = useState(() =>
+    getSourceForQuality('Auto', videoUrl, videoQualities, availableQualities)
+  );
 
   // ── Sync source when props change ───────────────────
   useEffect(() => {
-    setCurrentSrc(videoUrl || '');
+    setCurrentSrc(getSourceForQuality(selectedQuality, videoUrl, videoQualities, availableQualities));
     setError(null);
-  }, [videoUrl]);
+  }, [videoUrl, videoQualities, availableQualities]);
 
   // ── Hide controls timer ─────────────────────────────
   const resetHideTimer = useCallback(() => {
@@ -179,16 +208,7 @@ const VideoPlayer = ({
   };
 
   const changeQuality = (quality) => {
-    const qualityMap = {
-      '240p': videoQualities?.p240,
-      '360p': videoQualities?.p360,
-      '480p': videoQualities?.p480,
-      '720p': videoQualities?.p720,
-      '1080p': videoQualities?.p1080,
-      '4K': videoQualities?.p2160,
-    };
-
-    const newSrc = quality === 'Auto' ? videoUrl : (qualityMap[quality] || videoUrl);
+    const newSrc = getSourceForQuality(quality, videoUrl, videoQualities, availableQualities);
     const wasPlaying = !videoRef.current?.paused;
     const time = videoRef.current?.currentTime || 0;
 
