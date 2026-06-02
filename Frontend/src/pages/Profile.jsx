@@ -22,7 +22,8 @@ import {
   Tv,
   Eye,
   Activity,
-  CheckCircle2
+  CheckCircle2,
+  Lock
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Button from '../components/Button';
