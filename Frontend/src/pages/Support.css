@@ -139,7 +139,7 @@
 }
 
 .faq-item.active .faq-arrow {
-  transform: rotate(90px);
+  transform: rotate(90deg);
   color: #e8b84b;
 }
 

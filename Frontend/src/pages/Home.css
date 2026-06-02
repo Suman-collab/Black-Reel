@@ -387,6 +387,21 @@
 }
 
 @media (max-width: 768px) {
+  .hero__content {
+    right: 2rem;
+    padding: 0 0 0 1.5rem;
+    bottom: 60px;
+  }
+
+  .hero__title {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+  }
+
+  .hero__description {
+    font-size: 13.5px;
+    max-width: 100%;
+  }
+
   .hero__nav {
     width: 38px;
     height: 38px;
@@ -439,6 +454,26 @@
 }
 
 @media (max-width: 480px) {
+  .hero__content {
+    right: 1rem;
+    padding: 0 0 0 1rem;
+    bottom: 40px;
+  }
+
+  .hero__title {
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
+  }
+
+  .hero__actions {
+    margin-top: 4px;
+  }
+
+  .hero__cta {
+    height: 44px !important;
+    padding: 0 20px !important;
+    font-size: 13px !important;
+  }
+
   .carousel-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;

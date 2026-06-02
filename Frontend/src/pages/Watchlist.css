@@ -6,7 +6,13 @@
 }
 
 .watchlist-title {
-  display: none;
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 700;
+  color: var(--text-primary, #F5F5F0);
+  letter-spacing: -0.5px;
+  margin-bottom: 24px;
+  margin-top: 0;
 }
 
 .watchlist-feedback {

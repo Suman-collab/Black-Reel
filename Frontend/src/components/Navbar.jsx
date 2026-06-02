@@ -122,7 +122,7 @@ export default function Navbar() {
               )}
 
               {hasActivePlan ? (
-                <div className="nav-plan-badge">
+                <div className="nav-plan-badge desktop-only-action">
                   <span className="plan-name">
                     {planName?.charAt(0).toUpperCase() + planName?.slice(1)}
                   </span>
@@ -135,7 +135,7 @@ export default function Navbar() {
                 </div>
               ) : (
                 <button 
-                  className="btn btn-primary"
+                  className="btn btn-primary desktop-only-action"
                   onClick={() => navigate(isDummyMode ? '/plans' : '/subscribe')}
                   style={{
                     padding: '8px 16px',
@@ -154,10 +154,10 @@ export default function Navbar() {
 
               {canUseProtectedActions ? (
                 <>
-                  <Link to={notificationsLink} aria-label="Notifications" className="btn-icon" style={{ display: 'flex', alignItems: 'center' }}>
+                  <Link to={notificationsLink} aria-label="Notifications" className="btn-icon desktop-only-action" style={{ display: 'flex', alignItems: 'center' }}>
                     <Bell size={20} />
                   </Link>
-                  <Link to={profileLink} aria-label="Profile" style={{ display: 'flex', alignItems: 'center' }}>
+                  <Link to={profileLink} aria-label="Profile" className="desktop-only-action" style={{ display: 'flex', alignItems: 'center' }}>
                     {user?.avatarUrl ? (
                       <img src={user.avatarUrl} alt="Profile" className="navbar__avatar" />
                     ) : (
@@ -166,16 +166,16 @@ export default function Navbar() {
                       </div>
                     )}
                   </Link>
-                  <button type="button" className="btn-icon" style={{ fontSize: '0.9rem' }} onClick={logout}>
+                  <button type="button" className="btn-icon desktop-only-action" style={{ fontSize: '0.9rem' }} onClick={logout}>
                     {t('nav.logout')}
                   </button>
                 </>
               ) : hasRestrictedAccess ? (
-                <Link to="/account-suspended" className="btn-icon" style={{ fontSize: '0.95rem' }}>
+                <Link to="/account-suspended" className="btn-icon desktop-only-action" style={{ fontSize: '0.95rem' }}>
                   {t('nav.accountRestricted')}
                 </Link>
               ) : (
-                <Link to="/login" className="btn-icon" style={{ fontSize: '0.95rem' }}>
+                <Link to="/login" className="btn-icon desktop-only-action" style={{ fontSize: '0.95rem' }}>
                   {t('nav.signIn')}
                 </Link>
               )}
@@ -194,6 +194,12 @@ export default function Navbar() {
               <NavLink to="/categories" onClick={() => setMobileMenuOpen(false)} className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}>{t('nav.categories')}</NavLink>
               <NavLink to="/fandom" onClick={() => setMobileMenuOpen(false)} className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}>{t('nav.fandom')}</NavLink>
               <NavLink to={watchlistLink} onClick={() => setMobileMenuOpen(false)} className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}>{t('nav.watchlist')}</NavLink>
+              {canUseProtectedActions && (
+                <>
+                  <NavLink to={notificationsLink} onClick={() => setMobileMenuOpen(false)} className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}>{t('nav.notifications') || 'Notifications'}</NavLink>
+                  <NavLink to={profileLink} onClick={() => setMobileMenuOpen(false)} className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}>{t('nav.profile') || 'Profile'}</NavLink>
+                </>
+              )}
               {hasSelectedPlan ? (
                 <button
                   type="button"
@@ -207,6 +213,9 @@ export default function Navbar() {
                 </button>
               ) : (
                 <NavLink to={subscribeLink} onClick={() => setMobileMenuOpen(false)} className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}>{t('nav.subscribe')}</NavLink>
+              )}
+              {!isAuthenticated && (
+                <NavLink to="/login" onClick={() => setMobileMenuOpen(false)} className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}>{t('nav.signIn') || 'Sign In'}</NavLink>
               )}
               {canUseProtectedActions ? (
                 <button
