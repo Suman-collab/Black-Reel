@@ -54,6 +54,10 @@ img {
 a { color: inherit; text-decoration: none; }
 
 
+.sidebar-toggle-btn {
+  display: none !important;
+}
+
 @media (max-width: 1024px) {
   .plans-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -62,7 +66,26 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 768px) {
   .plans-grid { grid-template-columns: 1fr; }
   .admin-layout { grid-template-columns: 1fr; }
-  .admin-sidebar { display: none; }
+  .admin-sidebar {
+    position: fixed !important;
+    top: 0;
+    left: -260px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left var(--transition-base, 250ms ease) !important;
+    box-shadow: var(--shadow-xl);
+  }
+  .admin-layout.sidebar-open .admin-sidebar {
+    left: 0 !important;
+  }
+  .sidebar-toggle-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .admin-main {
+    padding-left: 0 !important;
+  }
   .navbar { padding: 0 var(--space-4); }
   .admin-stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -70,3 +93,4 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 480px) {
   .admin-stats-grid { grid-template-columns: 1fr; }
 }
+

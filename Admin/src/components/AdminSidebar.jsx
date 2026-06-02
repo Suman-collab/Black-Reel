@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext';
 
-const AdminSidebar = () => {
+const AdminSidebar = ({ setSidebarOpen }) => {
   const { logout } = useAuth();
 
   const navItems = [
@@ -23,6 +23,7 @@ const AdminSidebar = () => {
   ];
 
   const handleLogout = () => {
+    if (setSidebarOpen) setSidebarOpen(false);
     logout();
   };
 
@@ -44,6 +45,9 @@ const AdminSidebar = () => {
               <NavLink
                 to={item.path}
                 className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'}
+                onClick={() => {
+                  if (setSidebarOpen) setSidebarOpen(false);
+                }}
               >
                 <span className="admin-nav-item__icon">{item.icon}</span>
                 <span>{item.label}</span>
